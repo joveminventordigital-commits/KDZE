@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ASCENSÃO</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Share+Tech+Mono&family=Cinzel:wght@400;700&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;cursor:none!important}
+:root{--bg:#06080f;--surf:#0d1120;--soul:#00d4ff;--gold:#d4a843;--red:#ef4444;--grn:#22c55e;--txt:#e8dfc8;--mu:rgba(232,223,200,.38)}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:"Share Tech Mono",monospace;overflow:hidden}
+/* CURSOR */
+#triCur{position:fixed;pointer-events:none;z-index:99999;top:0;left:0;width:0;height:0;overflow:visible}
+/* TELAS */
+.scr{position:fixed;inset:0;transition:opacity .5s,transform .5s}
+.scr.off{opacity:0;pointer-events:none;transform:translateY(6px)}
+/* SPLASH */
+#sSplash{background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:10}
+.sp-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:44px 44px;animation:spG 14s linear infinite}
+@keyframes spG{from{background-position:0 0}to{background-position:44px 44px}}
+.sp-vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.95) 100%)}
+.sp-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px);pointer-events:none}
+.sp-c{position:absolute;width:40px;height:40px;border-color:rgba(0,212,255,.3);border-style:solid}
+.sp-c.tl{top:18px;left:18px;border-width:2px 0 0 2px}.sp-c.tr{top:18px;right:18px;border-width:2px 2px 0 0}
+.sp-c.bl{bottom:18px;left:18px;border-width:0 0 2px 2px}.sp-c.br{bottom:18px;right:18px;border-width:0 2px 2px 0}
+.sp-pillar{position:absolute;bottom:0;width:1px;background:linear-gradient(transparent,rgba(0,212,255,.4),transparent);animation:pillarUp linear infinite}
+@keyframes pillarUp{0%{height:0;opacity:0}50%{opacity:1}100%{height:65vh;opacity:0}}
+.sp-cnt{position:relative;z-index:2;text-align:center;cursor:pointer}
+.sp-ey{font-family:"Share Tech Mono";font-size:.52rem;letter-spacing:.55em;color:rgba(0,212,255,.6);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:spF .8s .3s forwards}
+.sp-t1{display:block;font-family:"Cinzel Decorative";font-size:clamp(4rem,13vw,10rem);color:#fff;letter-spacing:.04em;opacity:0;animation:spF .8s .6s forwards}
+.sp-t2{display:block;font-family:"Cinzel Decorative";font-size:clamp(1.4rem,4.5vw,3rem);color:var(--soul);letter-spacing:.35em;opacity:0;animation:spF .8s .9s forwards,cGlow 2.5s 1.5s ease-in-out infinite}
+@keyframes cGlow{0%,100%{text-shadow:0 0 30px rgba(0,212,255,.3)}50%{text-shadow:0 0 70px rgba(0,212,255,.8)}}
+.sp-cl{font-family:"Share Tech Mono";font-size:.55rem;letter-spacing:.3em;color:var(--mu);margin-top:28px;opacity:0;animation:spF .6s 1.4s forwards,spBl 1.8s 2s ease-in-out infinite}
+@keyframes spBl{0%,100%{opacity:.3}50%{opacity:.75}}
+@keyframes spF{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.sp-tower{position:absolute;right:60px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column-reverse;gap:3px}
+.sp-fl{width:36px;height:9px;border:1px solid rgba(0,212,255,.2);border-radius:2px;background:rgba(0,212,255,.06);animation:flPulse ease-in-out infinite alternate}
+@keyframes flPulse{from{background:rgba(0,212,255,.04)}to{background:rgba(0,212,255,.22)}}
+/* TUTORIAL */
+#sTut{background:var(--bg);z-index:9;display:block;overflow-y:auto;overflow-x:hidden}
+.tw{max-width:660px;width:100%;margin:0 auto;padding:44px 22px 120px}
+.tnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px}
+.tbk{font-family:"Share Tech Mono";font-size:.52rem;letter-spacing:.15em;color:var(--mu);cursor:pointer;transition:color .2s;text-transform:uppercase}
+.tbk:hover{color:var(--soul)}
+.tbdg{font-family:"Share Tech Mono";font-size:.48rem;letter-spacing:.2em;color:var(--soul);border:1px solid rgba(0,212,255,.2);padding:3px 12px}
+.thtag{font-family:"Share Tech Mono";font-size:.48rem;letter-spacing:.28em;color:rgba(0,212,255,.5);margin-bottom:8px;text-transform:uppercase}
+.thtt{font-family:"Cinzel Decorative";font-size:clamp(2rem,7vw,4rem);color:var(--txt);line-height:.9}
+.thtt span{color:var(--soul)}
+.thds{font-family:"Share Tech Mono";font-size:.54rem;color:var(--mu);margin-top:12px;line-height:1.85;max-width:500px}
+.ts{margin-bottom:38px;opacity:0;transform:translateY(14px);transition:all .5s}
+.ts.vis{opacity:1;transform:none}
+.ts-t{font-family:"Cinzel";font-size:.78rem;font-weight:700;letter-spacing:.18em;color:var(--soul);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.ts-t::after{content:"";flex:1;height:1px;background:rgba(0,212,255,.15)}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tcard{background:var(--surf);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:15px}
+.tcard:hover{border-color:rgba(0,212,255,.3)}
+.tcard .ci{font-size:1.3rem;display:block;margin-bottom:7px}
+.tcard .cn{font-family:"Cinzel";font-size:.65rem;color:var(--txt);display:block;margin-bottom:3px}
+.tcard .cd{font-family:"Share Tech Mono";font-size:.46rem;color:var(--mu);line-height:1.65}
+.tlist{display:flex;flex-direction:column;gap:7px}
+.titem{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--surf);border:1px solid rgba(0,212,255,.08);border-radius:8px}
+.titem .ei{font-size:1.1rem;flex-shrink:0;font-style:normal}
+.titem .en2{font-family:"Cinzel";font-size:.65rem;color:var(--txt);display:block}
+.titem .ed{font-family:"Share Tech Mono";font-size:.46rem;color:var(--mu);margin-top:3px;line-height:1.6}
+.ttag{font-family:"Share Tech Mono";font-size:.4rem;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:2px;align-self:flex-start}
+.ta{color:#00d4ff;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.07)}
+.tb{color:#fbbf24;border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.07)}
+.tc{color:#22c55e;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.07)}
+.td{color:#ef4444;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.07)}
+.ttype-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.ttype{background:var(--surf);border:1px solid rgba(0,212,255,.08);border-radius:8px;padding:10px 6px;text-align:center}
+.ttype .ti{font-size:1.1rem;display:block;margin-bottom:5px}
+.ttype .tn{font-family:"Share Tech Mono";font-size:.42rem;color:var(--txt);display:block}
+.ttype .td2{font-family:"Share Tech Mono";font-size:.38rem;color:var(--mu);margin-top:2px;line-height:1.4}
+.res-blk{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.18);border-radius:12px;padding:20px;position:relative}
+.res-blk::before{content:"ASCENSÃO";position:absolute;top:0;left:20px;font-family:"Share Tech Mono";font-size:.42rem;letter-spacing:.18em;color:var(--soul);background:var(--bg);padding:0 8px;transform:translateY(-50%)}
+.res-blk .rp{font-family:"Share Tech Mono";font-size:.52rem;color:var(--mu);line-height:1.9;margin-bottom:16px}
+.res-blk .rp b{color:var(--txt)}
+.rs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rs{background:rgba(0,0,0,.3);border:1px solid rgba(0,212,255,.12);border-radius:8px;padding:10px 6px;text-align:center}
+.rs .rv{font-family:"Cinzel Decorative";font-size:.95rem;color:var(--soul);display:block}
+.rs .rl{font-family:"Share Tech Mono";font-size:.38rem;color:var(--mu);margin-top:2px;display:block}
+.tut-start{width:100%;margin-top:30px;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,212,255,.05));border:1px solid rgba(0,212,255,.4);border-radius:11px;color:var(--soul);font-family:"Cinzel";font-size:.9rem;letter-spacing:.15em;cursor:pointer;transition:all .25s;text-transform:uppercase}
+.tut-start:hover{background:linear-gradient(135deg,rgba(0,212,255,.22),rgba(0,212,255,.1));box-shadow:0 0 28px rgba(0,212,255,.2);transform:translateY(-2px)}
+/* DECK */
+#sDeck{background:var(--bg);z-index:8;display:flex;flex-direction:column;overflow:hidden}
+.dkhd{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.dkhd h2{font-family:"Cinzel Decorative";font-size:1.1rem;color:var(--soul)}
+.dkhd p{font-family:"Share Tech Mono";font-size:.5rem;color:var(--mu);margin-top:4px}
+.dkcnt{font-family:"Share Tech Mono";font-size:.55rem;color:var(--soul);margin-top:6px}
+.dkgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;padding:14px;align-content:start}
+.dc{position:relative;background:var(--surf);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:8px 7px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.dc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--hc,#888);opacity:.5}
+.dc:hover{transform:translateY(-3px);border-color:rgba(0,212,255,.3)}
+.dc.on{border-color:var(--soul);box-shadow:0 0 14px rgba(0,212,255,.25);background:rgba(0,212,255,.06)}
+.dct{font-family:"Share Tech Mono";font-size:.36rem;color:var(--mu);text-transform:uppercase}
+.dci{font-size:1.4rem;text-align:center;line-height:1.1}
+.dcn{font-family:"Uncial Antiqua";font-size:.66rem;color:var(--txt);text-align:center}
+.dcc{font-family:"Share Tech Mono";font-size:.48rem;color:var(--soul);text-align:center}
+.dcd{font-size:.46rem;color:var(--mu);font-style:italic;line-height:1.25;text-align:center}
+.dkft{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.btn-go{padding:11px 28px;border-radius:9px;font-family:"Cinzel";font-size:.8rem;letter-spacing:.1em;border:none;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-go.rdy{background:var(--soul);color:#000}
+.btn-go.rdy:hover{box-shadow:0 0 24px rgba(0,212,255,.4);transform:translateY(-2px)}
+.btn-go.dis{background:rgba(255,255,255,.04);color:var(--mu);border:1px solid rgba(255,255,255,.1);pointer-events:none;opacity:.5}
+.btnbk{font-family:"Share Tech Mono";font-size:.52rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btnbk:hover{color:var(--txt);border-color:rgba(255,255,255,.25)}
+/* BATALHA */
+#sBattle{background:var(--bg);z-index:7;display:flex;flex-direction:column;overflow:hidden}
+.bh{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,.55);border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.bfl{font-family:"Share Tech Mono";font-size:.48rem;letter-spacing:.2em;color:var(--mu);text-transform:uppercase}
+.bfn{font-family:"Cinzel Decorative";font-size:1.3rem;color:var(--soul);text-shadow:0 0 16px rgba(0,212,255,.5);line-height:1}
+.blg{font-family:"Share Tech Mono";font-size:.56rem;color:var(--mu);max-width:260px;text-align:center;flex:1}
+.btm{font-family:"Share Tech Mono";font-size:.7rem;color:var(--txt)}
+.hbtn{font-family:"Share Tech Mono";font-size:.55rem;padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--txt);border-radius:6px;cursor:pointer;transition:all .2s}
+.hbtn:hover{background:rgba(255,255,255,.1)}
+.bf{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.bff{position:absolute;inset:0;pointer-events:none;z-index:0;transition:background .4s}
+.lns{display:flex;width:100%;height:100%;position:relative;z-index:2}
+.ln{flex:1;border-right:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s;position:relative}
+.ln:last-child{border-right:none}
+.ln:hover{background:rgba(0,212,255,.04)}
+.st{position:absolute;top:6px;left:0;right:0;display:flex;justify-content:space-around;z-index:5;pointer-events:none}
+.sb{position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:space-around;z-index:5;pointer-events:none}
+.s{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;position:relative}
+.si{font-size:1.1rem}
+.s.mn .si{font-size:1.6rem}
+.sb2{width:40px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.sf{height:100%;border-radius:2px;background:var(--red);transition:width .3s}
+.s.pl .sf{background:var(--soul)}
+.sx{font-family:"Share Tech Mono";font-size:.38rem;color:var(--mu)}
+.s.dd{opacity:.15;filter:grayscale(1)}
+.s.ht{animation:sHit .3s}
+@keyframes sHit{0%,100%{transform:scale(1)}50%{transform:scale(1.15);filter:brightness(2)}}
+.s.enraged{animation:ePulse .5s ease-in-out infinite}
+@keyframes ePulse{0%,100%{box-shadow:0 0 8px rgba(255,255,255,.3)}50%{box-shadow:0 0 24px rgba(255,255,255,.9)}}
+.u{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1px;transform:translateX(-50%);z-index:10;transition:top .08s linear}
+.ui{font-size:1.4rem;line-height:1;filter:drop-shadow(0 0 5px var(--uc,#888))}
+.u.en .ui{filter:drop-shadow(0 0 5px var(--red)) hue-rotate(20deg)}
+.ub{width:28px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.uf{height:100%;background:var(--uc,#888);border-radius:2px;transition:width .2s}
+.u.en .uf{background:var(--red)}
+.ud{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-family:"Share Tech Mono";font-size:.55rem;font-weight:bold;pointer-events:none;animation:udUp .9s forwards}
+@keyframes udUp{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-28px)}}
+.soul-row{display:flex;align-items:center;gap:8px;padding:4px 12px;background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.05);flex-shrink:0}
+.soul-icon{font-size:.9rem}
+#sN{font-family:"Cinzel Decorative";font-size:.95rem;color:var(--soul)}
+.sbar{flex:1;height:4px;background:rgba(0,212,255,.1);border-radius:2px;overflow:hidden;max-width:120px}
+.sbar-f{height:100%;background:var(--soul);border-radius:2px;transition:width .3s}
+.hnd-row{display:flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(0,0,0,.45);border-top:1px solid rgba(255,255,255,.06);overflow-x:auto;flex-shrink:0}
+.hc{position:relative;flex-shrink:0;width:62px;height:88px;background:var(--surf);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:4px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.hc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--hc,#888);opacity:.5}
+.hc:hover{transform:translateY(-6px) scale(1.05)}
+.hc.sel{border-color:var(--soul);box-shadow:0 0 18px rgba(0,212,255,.4);transform:translateY(-8px) scale(1.07);background:rgba(0,212,255,.08)}
+.hc.dim{opacity:.4}
+.hcg{position:absolute;top:-3px;right:-3px;width:16px;height:16px;background:var(--soul);border-radius:50%;font-family:"Share Tech Mono";font-size:.5rem;font-weight:bold;color:#000;display:flex;align-items:center;justify-content:center}
+.hci{font-size:1.3rem;text-align:center;line-height:1.15}
+.hcn{font-family:"Uncial Antiqua";font-size:.5rem;text-align:center;color:var(--txt);line-height:1.1}
+/* Resultado */
+.bres{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .4s}
+.bres.show{opacity:1;pointer-events:all}
+.bri{font-size:3rem}
+.brt{font-family:"Cinzel Decorative";font-size:2rem}
+.brs{font-family:"Share Tech Mono";font-size:.55rem;color:var(--mu);text-align:center;max-width:320px;line-height:1.7}
+.brbtns{display:flex;gap:10px;margin-top:8px}
+.brbtn{font-family:"Share Tech Mono";font-size:.58rem;letter-spacing:.1em;padding:11px 24px;border-radius:9px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:none}
+.brbtn.pri{background:var(--soul);color:#000}.brbtn.pri:hover{box-shadow:0 0 22px rgba(0,212,255,.4);transform:translateY(-2px)}
+.brbtn.sec{background:none;color:var(--mu);border:1px solid rgba(255,255,255,.12)}.brbtn.sec:hover{color:var(--txt)}
+</style>
+</head>
+<body>
+
+<svg id="triCur" style="position:fixed;pointer-events:none;z-index:99999;top:0;left:0;width:0;height:0;overflow:visible">
+  <polygon id="triPoly" points="0,0 20,10 0,22" fill="#00d4ff" opacity=".9" style="filter:drop-shadow(0 0 4px #00d4ff)"/>
+</svg>
+
+<!-- SPLASH -->
+<div class="scr" id="sSplash">
+  <div class="sp-grid"></div><div class="sp-vig"></div><div class="sp-scan"></div>
+  <div class="sp-c tl"></div><div class="sp-c tr"></div><div class="sp-c bl"></div><div class="sp-c br"></div>
+  <div class="sp-tower" id="spTower"></div>
+  <div class="sp-cnt" onclick="goTut()">
+    <div class="sp-ey">Torre,Base Plus · 12,21+</div>
+    <div><span class="sp-t1">ASCENSÃO</span><span class="sp-t2">SUBA A TORRE</span></div>
+    <div class="sp-cl">CLIQUE PARA COMEÇAR</div>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div class="scr off" id="sTut">
+  <div class="tw">
+    <div class="tnav">
+      <div class="tbk" onclick="showScr('sSplash')">← VOLTAR</div>
+      <div class="tbdg">MANUAL DO GUERREIRO</div>
+    </div>
+    <div style="margin-bottom:40px">
+      <div class="thtag">// modo principal · subir andares · vencer</div>
+      <div class="thtt">MODO<br><span>ASCENSÃO</span></div>
+      <div class="thds">Monte um deck de 6 cartas e entre na Torre. A cada andar os inimigos ficam mais fortes. Destrua a estrutura principal inimiga para avançar.</div>
+    </div>
+    <div class="ts" id="ts0">
+      <div class="ts-t">Como funciona</div>
+      <div class="tlist">
+        <div class="titem"><span class="ei">1️⃣</span><div><span class="en2">Monte seu deck</span><span class="ed">Escolha exatamente 6 cartas. Misture tropas, feitiços e estruturas.</span></div><span class="ttag tb">DECK</span></div>
+        <div class="titem"><span class="ei">2️⃣</span><div><span class="en2">Gerencie Almas ⚡</span><span class="ed">Cada carta tem custo em Almas. Você ganha 1 por segundo. Máximo: 20.</span></div><span class="ttag ta">ALMAS</span></div>
+        <div class="titem"><span class="ei">3️⃣</span><div><span class="en2">Selecione → Lane</span><span class="ed">Clique numa carta da mão, depois clique em uma das 5 lanes para lançar.</span></div><span class="ttag tc">LANE</span></div>
+        <div class="titem"><span class="ei">4️⃣</span><div><span class="en2">Destrua as estruturas</span><span class="ed">Suas unidades avançam automaticamente. Derrube defesas e o castelo.</span></div><span class="ttag td">ATACAR</span></div>
+        <div class="titem"><span class="ei">5️⃣</span><div><span class="en2">Suba de andar</span><span class="ed">Cada vitória avança um andar. Inimigos ficam mais fortes progressivamente.</span></div><span class="ttag ta">SUBIR</span></div>
+      </div>
+    </div>
+    <div class="ts" id="ts1">
+      <div class="ts-t">Tipos de carta</div>
+      <div class="ttype-grid">
+        <div class="ttype"><span class="ti">⚔️</span><span class="tn">Tropa</span><span class="td2">Avança e ataca</span></div>
+        <div class="ttype"><span class="ti">🏰</span><span class="tn">Estrutura</span><span class="td2">Fica parada, defende</span></div>
+        <div class="ttype"><span class="ti">🔮</span><span class="tn">Feitiço</span><span class="td2">Efeito imediato</span></div>
+        <div class="ttype"><span class="ti">💀</span><span class="tn">Controle</span><span class="td2">Paralisa inimigos</span></div>
+        <div class="ttype"><span class="ti">⚡</span><span class="tn">Especial</span><span class="td2">Efeitos únicos</span></div>
+      </div>
+    </div>
+    <div class="ts" id="ts2">
+      <div class="ts-t">Dicas essenciais</div>
+      <div class="tgrid">
+        <div class="tcard"><span class="ci">⚡</span><span class="cn">Custo de Almas</span><span class="cd">Misture cartas baratas e caras. Cartas baratas permitem mais ações simultâneas.</span></div>
+        <div class="tcard"><span class="ci">🛡️</span><span class="cn">Use Estruturas</span><span class="cd">Estruturas ficam paradas bloqueando inimigos enquanto suas tropas avançam.</span></div>
+        <div class="tcard"><span class="ci">🎯</span><span class="cn">5 Lanes</span><span class="cd">Cubra todas as lanes ou concentre força para romper uma defesa específica.</span></div>
+        <div class="tcard"><span class="ci">📈</span><span class="cn">Escalada</span><span class="cd">Inimigos ficam mais fortes a cada andar. Adapte seu deck à estratégia.</span></div>
+      </div>
+    </div>
+    <div class="ts" id="ts3">
+      <div class="ts-t">Resumo do modo</div>
+      <div class="res-blk">
+        <p class="rp">Monte um <b>deck de 6 cartas</b> com tropas, feitiços e estruturas.<br>
+        Use <b>Almas ⚡</b> para lançar cartas nas <b>5 lanes</b> e destruir o castelo inimigo.<br>
+        Cada vitória sobe um andar — inimigos escalam com você.<br>
+        Objetivo: <b>chegar o mais alto possível</b> na Torre das Almas.</p>
+        <div class="rs-grid">
+          <div class="rs"><span class="rv">101</span><span class="rl">Cartas</span></div>
+          <div class="rs"><span class="rv">5</span><span class="rl">Lanes</span></div>
+          <div class="rs"><span class="rv">∞</span><span class="rl">Andares</span></div>
+          <div class="rs"><span class="rv">6</span><span class="rl">Cartas/Deck</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="tut-start" onclick="goDeck()">⚔️ MONTAR DECK</button>
+  </div>
+</div>
+
+<!-- DECK -->
+<div class="scr off" id="sDeck">
+  <div class="dkhd">
+    <h2>Monte seu Deck</h2>
+    <p>Escolha exatamente 6 cartas para a batalha</p>
+    <div class="dkcnt" id="dkCnt">0 / 6 selecionadas</div>
+  </div>
+  <div class="dkgrid" id="dkGrid"></div>
+  <div class="dkft">
+    <button class="btnbk" onclick="showScr('sTut')">← Voltar</button>
+    <button class="btn-go dis" id="btnGo" onclick="startBattle()">Entrar na Torre →</button>
+  </div>
+</div>
+
+<!-- BATALHA -->
+<div class="scr off" id="sBattle">
+  <div class="bh">
+    <div><div class="bfl">Andar</div><div class="bfn" id="flN">01</div></div>
+    <div class="blg" id="lg">Prepare-se!</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="btm" id="tm">00:00</div>
+      <button class="hbtn" id="btnPause" onclick="togglePause()">⏸</button>
+      <button class="hbtn" onclick="quitBattle()" style="color:var(--red)">✕</button>
+    </div>
+  </div>
+  <div class="bf" id="bf">
+    <div class="bff" id="bff"></div>
+    <div class="lns" id="lns"></div>
+    <div class="st" id="stT"></div>
+    <div class="sb" id="stB"></div>
+  </div>
+  <div class="soul-row">
+    <span class="soul-icon">⚡</span>
+    <span id="sN">0</span>
+    <div class="sbar"><div class="sbar-f" id="sB3" style="width:0%"></div></div>
+    <div id="sB2" style="display:none"></div>
+  </div>
+  <div class="hnd-row" id="hnd"></div>
+</div>
+
+<!-- Resultado -->
+<div class="bres" id="bRes">
+  <div class="bri" id="brI">🏆</div>
+  <div class="brt" id="brT" style="color:var(--soul)">—</div>
+  <div class="brs" id="brS"></div>
+  <div class="brbtns">
+    <button class="brbtn pri" id="brP" onclick="brAct()">Continuar</button>
+    <button class="brbtn sec" onclick="showScr('sSplash')">← Menu</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var tri=document.getElementById('triPoly');
+  document.addEventListener('mousemove',function(e){
+    var s=document.getElementById('triCur');s.style.left=(e.clientX-2)+'px';s.style.top=(e.clientY-4)+'px';
+  });
+  document.addEventListener('mouseover',function(e){if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.dc,.tcard,.hc,.ln,.tut-start,.tbk'))tri.setAttribute('fill','#d4a843');});
+  document.addEventListener('mouseout',function(e){if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.dc,.tcard,.hc,.ln,.tut-start,.tbk'))tri.setAttribute('fill','#00d4ff');});
+})();
+(function(){
+  var tw=document.getElementById('spTower'),sp=document.getElementById('sSplash');
+  for(var i=0;i<16;i++){var f=document.createElement('div');f.className='sp-fl';f.style.animationDuration=(.6+Math.random()*.8)+'s';f.style.animationDelay=(-Math.random())+'s';f.style.opacity=Math.max(.08,1-i*.055)+'';tw.appendChild(f);}
+  for(var j=0;j<8;j++){var p=document.createElement('div');p.className='sp-pillar';p.style.left=(6+j*13)+'%';p.style.animationDuration=(3+Math.random()*4)+'s';p.style.animationDelay=(-Math.random()*5)+'s';sp.appendChild(p);}
+})();
+function showScr(id){['sSplash','sTut','sDeck','sBattle'].forEach(function(s){document.getElementById(s).classList.toggle('off',s!==id);});document.body.style.overflow=(id==='sTut')?'auto':'hidden';if(id==='sTut')document.getElementById('sTut').scrollTop=0;}
+function goTut(){showScr('sTut');document.querySelectorAll('.ts').forEach(function(s,i){s.classList.remove('vis');setTimeout(function(){s.classList.add('vis');},80+i*110);});}
+let deck=[],souls=0,floor=1,secs=0,gameOn=false,paused=false;
+let units=[],UID=0,picked=null,raf=null,str={en:[],pl:[]};
+let lastT=0,soulT=0,aiT=0;
+let stats={maxFloor:0,wins:0,battles:0};
+let sansMode=false,sansPhase=1;
+const NL=5;
+const AI_POOL=[2,4,8,17,5,16,23,31,32,51,52,71,76];
+const cfg={spd:1,initSouls:0,sps:1,aiDiff:'normal',sfx:'off'};
+const TL={tropa:"Tropa",estrutura:"Estrutura",feitico:"Feitiço",controle:"Controle",aereo:"Aéreo"};
+const CARDS=[
+// ── ORIGINAIS ──
+{id:1,n:"Hetir",t:"tropa",c:5,i:"⚡",col:"#4ec9f0",hp:200,dm:1500,sp:"explode",sv:9000,d:"Explode com 9.000 ao morrer"},
+{id:2,n:"Morbito",t:"tropa",c:9,i:"👁️",col:"#a855f7",hp:2000,dm:3000,sp:"convert",sv:5,d:"Controla inimigo 5s, depois explode"},
+{id:3,n:"Dor",t:"feitico",c:4,i:"🩸",col:"#f43f5e",hp:0,dm:500,sp:"dot",sv:10,d:"500 dano/s por 10s em TODOS"},
+{id:4,n:"Cachorro Voador",t:"tropa",c:10,i:"🦅",col:"#fb923c",hp:900,dm:500,sp:"multi",sv:4,d:"Invoca 4 cachorros voadores"},
+{id:5,n:"Grande Vigilante",t:"tropa",c:13,i:"🗿",col:"#64748b",hp:9000,dm:0,sp:"tank",sv:0,d:"9.000 vida, não ataca"},
+{id:6,n:"Tempestade",t:"controle",c:20,i:"🌩️",col:"#818cf8",hp:0,dm:0,sp:"slow",sv:99,d:"–99% velocidade no inimigo mais forte"},
+{id:7,n:"Cabana de Monges",t:"estrutura",c:5,i:"⛩️",col:"#4ade80",hp:2000,dm:0,sp:"spawner",sv:6,d:"Fica parada, gera 1 monge a cada 3s"},
+{id:8,n:"Monge",t:"tropa",c:3,i:"🧘",col:"#fbbf24",hp:1500,dm:500,sp:"multi",sv:6,d:"Invoca 6 monges de uma vez"},
+{id:9,n:"Jutso",t:"controle",c:2,i:"🌵",col:"#86efac",hp:0,dm:0,sp:"execute",sv:20,d:"Executa inimigo com ≤20% vida"},
+{id:10,n:"Samurai",t:"tropa",c:17,i:"⚔️",col:"#ef4444",hp:3000,dm:4000,sp:"slow_self",sv:0.4,d:"4.000 dano, move lento"},
+{id:11,n:"Esplada",t:"feitico",c:7,i:"🔮",col:"#c084fc",hp:0,dm:0,sp:"clone",sv:50,d:"Clona tropa aliada com mais HP"},
+{id:12,n:"Ratos",t:"tropa",c:6,i:"🐀",col:"#a8a29e",hp:10,dm:500,sp:"swarm",sv:30,d:"30 ratos — 10 vida, 500 dano"},
+{id:13,n:"Larra",t:"feitico",c:16,i:"🐉",col:"#f97316",hp:0,dm:8000,sp:"direct",sv:8000,d:"8.000 dano em estrutura inimiga"},
+{id:14,n:"Chakra",t:"feitico",c:10,i:"✨",col:"#34d399",hp:0,dm:0,sp:"heal",sv:100,d:"100% vida das tropas aliadas"},
+{id:15,n:"Castelinho",t:"estrutura",c:5,i:"🏖️",col:"#fcd34d",hp:1500,dm:0,sp:"trapcost",sv:5,d:"Fica parado, mata inimigos custo ≤5"},
+{id:16,n:"Manada",t:"evento",c:9,i:"🐗",col:"#92400e",hp:0,dm:2000,sp:"symmetric",sv:2000,d:"2.000 dano em TODOS + estruturas"},
+{id:17,n:"Esqueletos",t:"tropa",c:8,i:"💀",col:"#d1d5db",hp:400,dm:100,sp:"swarm",sv:50,d:"50 esqueletos — 400 vida, 100 dano"},
+{id:18,n:"Vala",t:"controle",c:1,i:"🕳️",col:"#7c3aed",hp:0,dm:0,sp:"vault",sv:9,d:"Tropas aliadas somem 9s, voltam ilesas"},
+{id:19,n:"Muralha de Ossos",t:"estrutura",c:16,i:"🦴",col:"#a16207",hp:30000,dm:600,sp:"wall",sv:0,d:"30.000 vida + atira em inimigos"},
+{id:20,n:"Manto Escuro",t:"feitico",c:20,i:"🌑",col:"#8b5cf6",hp:0,dm:0,sp:"invis",sv:20,d:"Tropas aliadas invisíveis por 20s"},
+{id:21,n:"Névoa Sangrenta",t:"controle",c:15,i:"🌫️",col:"#dc2626",hp:0,dm:0,sp:"transform",sv:15,d:"Tropas inimigas custo >15 viram ratos"},
+{id:22,n:"Ritual",t:"feitico",c:20,i:"🕯️",col:"#f0c96e",hp:0,dm:0,sp:"ritual",sv:200,d:"5 monges: 4.500HP e 1.500 dano"},
+{id:23,n:"Tourada",t:"evento",c:6,i:"🐂",col:"#dc6b19",hp:0,dm:2000,sp:"symmetric",sv:2000,d:"2.000 em TODOS"},
+{id:24,n:"Mike",t:"tropa",c:20,i:"🥊",col:"#e879f9",hp:4000,dm:10000,sp:"stun",sv:3,d:"10.000 dano + paralisia por 3s"},
+{id:25,n:"Selva",t:"controle",c:20,i:"🌿",col:"#22c55e",hp:0,dm:0,sp:"weaken",sv:99,d:"Inimigos –99% vida e dano"},
+{id:26,n:"Gangue",t:"tropa",c:5,i:"💀",col:"#94a3b8",hp:200,dm:500,sp:"swarm",sv:90,d:"90 esqueletos — 200 vida, 500 dano"},
+// ── TROPAS AÉREAS ──
+{id:31,n:"Dragão de Gelo",t:"tropa",c:15,i:"🐲",col:"#67e8f9",hp:3500,dm:1200,sp:"aoe_attack",sv:600,d:"Sopro gelado atinge lane inteira"},
+{id:32,n:"Bruxa Voante",t:"tropa",c:8,i:"🧙",col:"#c4b5fd",hp:1200,dm:800,sp:null,sv:0,d:"Voa sobre obstáculos, dano mágico"},
+{id:33,n:"Grifo Real",t:"tropa",c:12,i:"🦁",col:"#fbbf24",hp:2800,dm:1500,sp:null,sv:0,d:"Aéreo poderoso com garras afiadas"},
+{id:34,n:"Fênix",t:"tropa",c:14,i:"🦜",col:"#f97316",hp:2000,dm:900,sp:"revive",sv:1,d:"Renasce 1 vez com 50% da vida"},
+{id:35,n:"Corvo das Trevas",t:"tropa",c:6,i:"🐦",col:"#6b7280",hp:700,dm:600,sp:null,sv:0,d:"Rápido e ágil, difícil de pegar"},
+{id:36,n:"Harpia Relâmpago",t:"tropa",c:10,i:"⚡",col:"#facc15",hp:1800,dm:1100,sp:null,sv:0,d:"Carrega eletricidade, ignicia inimigos"},
+{id:37,n:"Morcego Vampiro",t:"tropa",c:7,i:"🦇",col:"#9333ea",hp:900,dm:700,sp:"lifesteal",sv:50,d:"Drena 50% do dano como vida"},
+{id:38,n:"Balão Explosivo",t:"tropa",c:9,i:"🎈",col:"#f43f5e",hp:500,dm:0,sp:"explode",sv:5000,d:"Pouca vida, explode com 5.000 de dano"},
+{id:39,n:"Águia Espectral",t:"tropa",c:11,i:"🦅",col:"#e0f2fe",hp:2200,dm:1300,sp:null,sv:0,d:"Visão aguçada, ataca de longe"},
+{id:40,n:"Quimera",t:"tropa",c:18,i:"🐉",col:"#ef4444",hp:5000,dm:2500,sp:"aoe_attack",sv:1200,d:"Três cabeças — área enorme"},
+{id:41,n:"Pomba Sagrada",t:"tropa",c:5,i:"🕊️",col:"#f0fdf4",hp:600,dm:200,sp:"heal_aura",sv:200,d:"Cura 200 por segundo nas aliadas próximas"},
+{id:42,n:"Falcão de Aço",t:"tropa",c:9,i:"🦅",col:"#94a3b8",hp:1400,dm:1000,sp:null,sv:0,d:"Blindado e veloz"},
+{id:43,n:"Libélula Arcana",t:"tropa",c:6,i:"🟢",col:"#86efac",hp:500,dm:500,sp:"multi",sv:3,d:"Invoca 3 libélulas de uma vez"},
+{id:44,n:"Roc Flamejante",t:"tropa",c:16,i:"🔥",col:"#f97316",hp:4000,dm:2000,sp:null,sv:0,d:"Pássaro colossal em chamas"},
+{id:45,n:"Espírito Etéreo",t:"tropa",c:11,i:"👻",col:"#e0e7ff",hp:1000,dm:900,sp:"invis_unit",sv:0,d:"Sempre invisível, difícil de atacar"},
+{id:46,n:"Wyvern Sombria",t:"tropa",c:13,i:"🐍",col:"#4b5563",hp:3200,dm:1600,sp:null,sv:0,d:"Dragão sombrio, ignora armadura"},
+{id:47,n:"Andorinha da Morte",t:"tropa",c:4,i:"🐤",col:"#fef08a",hp:300,dm:400,sp:"multi",sv:8,d:"8 andorinhas rápidas e baratas"},
+{id:48,n:"Titã Alado",t:"tropa",c:20,i:"🦋",col:"#a78bfa",hp:7000,dm:3000,sp:null,sv:0,d:"O maior ser voador do campo"},
+{id:49,n:"Besouro Trovão",t:"tropa",c:8,i:"🐛",col:"#fde047",hp:1100,dm:900,sp:null,sv:0,d:"Carrega corrente elétrica"},
+{id:50,n:"Anjo Caído",t:"tropa",c:19,i:"😈",col:"#7c3aed",hp:6000,dm:2800,sp:"aoe_attack",sv:1400,d:"Aura sombria causa dano em área"},
+// ── TROPAS DE ÁREA ──
+{id:51,n:"Mago de Fogo",t:"tropa",c:10,i:"🧙‍♂️",col:"#ef4444",hp:1500,dm:600,sp:"aoe_attack",sv:300,d:"Bola de fogo atinge 3 lanes"},
+{id:52,n:"Bombardeiro",t:"tropa",c:12,i:"💣",col:"#f59e0b",hp:1800,dm:800,sp:"aoe_attack",sv:400,d:"Bombas em área devastadora"},
+{id:53,n:"Golem de Lava",t:"tropa",c:15,i:"🌋",col:"#dc2626",hp:5000,dm:500,sp:"aoe_attack",sv:250,d:"Lava constante em 2 lanes"},
+{id:54,n:"Shaman Trovejante",t:"tropa",c:11,i:"⛈️",col:"#7c3aed",hp:1600,dm:700,sp:"aoe_attack",sv:350,d:"Raio salta entre inimigos próximos"},
+{id:55,n:"Gigante Gelado",t:"tropa",c:18,i:"🧊",col:"#67e8f9",hp:6500,dm:600,sp:"slow_aoe",sv:50,d:"Aura gelante: –50% velocidade em tudo"},
+{id:56,n:"Nécromante",t:"tropa",c:14,i:"💀",col:"#4b5563",hp:2000,dm:0,sp:"spawner_aoe",sv:3,d:"Ressuscita esqueletos de inimigos mortos"},
+{id:57,n:"Catapulta Viva",t:"tropa",c:9,i:"🏹",col:"#a16207",hp:800,dm:1200,sp:"aoe_attack",sv:600,d:"Pedregulhos em área ampla"},
+{id:58,n:"Elemental de Terra",t:"tropa",c:13,i:"🌍",col:"#854d0e",hp:4000,dm:800,sp:"aoe_attack",sv:400,d:"Terremotos locais a cada ataque"},
+{id:59,n:"Feiticeiro Sombrio",t:"tropa",c:16,i:"🔮",col:"#6d28d9",hp:2200,dm:900,sp:"aoe_attack",sv:450,d:"Orbe negro em 2 lanes"},
+{id:60,n:"Fera Explosiva",t:"tropa",c:7,i:"💥",col:"#ef4444",hp:400,dm:0,sp:"explode",sv:3000,d:"Explode com 3.000 ao morrer"},
+{id:61,n:"Espora de Veneno",t:"tropa",c:8,i:"☠️",col:"#4ade80",hp:800,dm:400,sp:"dot_aoe",sv:5,d:"Veneno contínuo em área por 5s"},
+{id:62,n:"Titã da Tempestade",t:"tropa",c:20,i:"⛈️",col:"#818cf8",hp:7500,dm:1200,sp:"aoe_attack",sv:600,d:"Relâmpagos constantes em 3 lanes"},
+{id:63,n:"Golem Arcano",t:"tropa",c:17,i:"🟣",col:"#a855f7",hp:6000,dm:1000,sp:"aoe_attack",sv:500,d:"Energia arcana em explosões"},
+{id:64,n:"Hidra",t:"tropa",c:19,i:"🐉",col:"#15803d",hp:5500,dm:800,sp:"multi_head",sv:3,d:"3 cabeças — 3 ataques simultâneos"},
+{id:65,n:"Gnomo Dinamiteiro",t:"tropa",c:5,i:"🧨",col:"#fb923c",hp:300,dm:0,sp:"explode",sv:2000,d:"Se explode com 2.000 dano ao morrer"},
+{id:66,n:"Bola de Fogo",t:"feitico",c:8,i:"🔥",col:"#f97316",hp:0,dm:1500,sp:"aoe_spell",sv:3,d:"1.500 dano em 3 lanes"},
+{id:67,n:"Terremoto",t:"feitico",c:12,i:"🌋",col:"#92400e",hp:0,dm:0,sp:"stun_all",sv:3,d:"Paralisa TODOS os inimigos por 3s"},
+{id:68,n:"Nova Arcana",t:"feitico",c:15,i:"💫",col:"#a855f7",hp:0,dm:3000,sp:"aoe_spell",sv:5,d:"3.000 dano em todas as 5 lanes"},
+{id:69,n:"Mago de Trovão",t:"tropa",c:10,i:"🌩️",col:"#60a5fa",hp:1400,dm:800,sp:"chain_lightning",sv:3,d:"Raio encadeia em 3 inimigos"},
+{id:70,n:"Colossus",t:"tropa",c:20,i:"🗼",col:"#f59e0b",hp:8000,dm:1500,sp:"aoe_attack",sv:750,d:"Gigante imortal, dano massivo em área"},
+// ── EXTRAS 30 ──
+{id:71,n:"Lobisomem",t:"tropa",c:11,i:"🐺",col:"#78350f",hp:2500,dm:1800,sp:"rage",sv:2,d:"Em fúria: +200% dano quando ferido"},
+{id:72,n:"Vampiro Lorde",t:"tropa",c:14,i:"🧛",col:"#7c3aed",hp:3000,dm:1200,sp:"lifesteal",sv:80,d:"Drena 80% do dano como vida"},
+{id:73,n:"Espectro",t:"tropa",c:9,i:"👻",col:"#c7d2fe",hp:800,dm:900,sp:"invis_unit",sv:0,d:"Permanentemente invisível"},
+{id:74,n:"Kraken",t:"tropa",c:20,i:"🐙",col:"#1d4ed8",hp:10000,dm:1000,sp:"slow_aoe",sv:80,d:"Tentáculos: –80% velocidade em área"},
+{id:75,n:"Ciclope",t:"tropa",c:15,i:"👁",col:"#dc2626",hp:5000,dm:3000,sp:null,sv:0,d:"Um olho, dano brutal de longo alcance"},
+{id:76,n:"Ninja",t:"tropa",c:8,i:"🥷",col:"#1e293b",hp:1200,dm:1500,sp:null,sv:0,d:"Ultraveloz, ataca e foge"},
+{id:77,n:"Golem de Cristal",t:"tropa",c:13,i:"💎",col:"#38bdf8",hp:4000,dm:500,sp:"shield",sv:3000,d:"Escudo de 3.000 absorve dano"},
+{id:78,n:"Druida",t:"tropa",c:10,i:"🌳",col:"#16a34a",hp:1500,dm:400,sp:"heal_aura",sv:300,d:"Cura 300/s nas tropas próximas"},
+{id:79,n:"Pistoleiro",t:"tropa",c:7,i:"🔫",col:"#d97706",hp:900,dm:1200,sp:null,sv:0,d:"Atira rápido de longa distância"},
+{id:80,n:"Cerberus",t:"tropa",c:16,i:"🐕",col:"#ef4444",hp:4500,dm:800,sp:"multi_head",sv:3,d:"3 cabeças — 3 ataques simultâneos"},
+{id:81,n:"Glaciador",t:"controle",c:12,i:"❄️",col:"#e0f2fe",hp:0,dm:0,sp:"freeze_all",sv:4,d:"Congela todos os inimigos por 4s"},
+{id:82,n:"Trovão Divino",t:"feitico",c:14,i:"⚡",col:"#fbbf24",hp:0,dm:2000,sp:"chain_spell",sv:5,d:"Raio encadeia em 5 inimigos: 2.000 cada"},
+{id:83,n:"Sangue Arcano",t:"feitico",c:11,i:"🩸",col:"#b91c1c",hp:0,dm:0,sp:"power_up",sv:50,d:"Tropas aliadas +50% dano por 15s"},
+{id:84,n:"Bênção Solar",t:"feitico",c:8,i:"☀️",col:"#fef08a",hp:0,dm:0,sp:"mass_heal",sv:30,d:"Cura 30% da vida máxima de todas as tropas"},
+{id:85,n:"Maldição Eterna",t:"controle",c:13,i:"🔮",col:"#581c87",hp:0,dm:0,sp:"curse",sv:5,d:"Inimigos perdem 300 vida/s por 5s"},
+{id:86,n:"Reviver",t:"feitico",c:15,i:"💊",col:"#34d399",hp:0,dm:0,sp:"revive_all",sv:0,d:"Ressuscita todas as tropas mortas (50% HP)"},
+{id:87,n:"Portão do Abismo",t:"estrutura",c:12,i:"🌀",col:"#7c3aed",hp:3000,dm:0,sp:"portal",sv:5,d:"A cada 5s, teletransporta 1 tropa para a linha inimiga"},
+{id:88,n:"Altar Sombrio",t:"estrutura",c:10,i:"⛧",col:"#4b0082",hp:2500,dm:0,sp:"aura_dmg",sv:300,d:"Pulsa 300 dano em área a cada 5s"},
+{id:89,n:"Torre de Gelo",t:"estrutura",c:9,i:"🗼",col:"#bae6fd",hp:2200,dm:0,sp:"freeze_tower",sv:3,d:"Congela inimigos próximos por 3s"},
+{id:90,n:"Elemental de Vento",t:"tropa",c:7,i:"🌬️",col:"#e0f2fe",hp:700,dm:600,sp:null,sv:0,d:"Velocidade máxima, muito frágil"},
+{id:91,n:"Guerreiro Ancestral",t:"tropa",c:12,i:"⚔️",col:"#b45309",hp:3000,dm:1400,sp:null,sv:0,d:"Veterano imortalizado em batalha"},
+{id:92,n:"Sacerdotisa",t:"tropa",c:9,i:"🧝",col:"#f0abfc",hp:1300,dm:600,sp:"heal_aura",sv:250,d:"Aura de cura: 250/s nos aliados"},
+{id:93,n:"Berserker",t:"tropa",c:10,i:"🪓",col:"#b91c1c",hp:2000,dm:2200,sp:"rage",sv:3,d:"Fúria: +300% dano com pouca vida"},
+{id:94,n:"Arcanista",t:"tropa",c:11,i:"🌀",col:"#818cf8",hp:1400,dm:1100,sp:"aoe_attack",sv:550,d:"Bola arcana em área ampla"},
+{id:95,n:"Titan do Caos",t:"tropa",c:20,i:"💀",col:"#dc2626",hp:9000,dm:2000,sp:"aoe_attack",sv:1000,d:"Destruição em larga escala"},
+{id:96,n:"Golem de Ouro",t:"tropa",c:18,i:"🪙",col:"#fbbf24",hp:7000,dm:1200,sp:"slow_aoe",sv:40,d:"Aura dourada lentifica tudo ao redor"},
+{id:97,n:"Espírito da Floresta",t:"tropa",c:8,i:"🍀",col:"#22c55e",hp:1000,dm:500,sp:"heal_aura",sv:400,d:"Poderosa aura de cura em área"},
+{id:98,n:"Demônio Primordial",t:"tropa",c:20,i:"😈",col:"#7f1d1d",hp:8000,dm:2500,sp:"explode",sv:10000,d:"Explode com 10.000 ao morrer"},
+{id:99,n:"Guardião Eterno",t:"tropa",c:19,i:"🛡️",col:"#1d4ed8",hp:12000,dm:800,sp:"tank",sv:0,d:"12.000 vida — o maior tanque do jogo"},
+{id:100,n:"Colosso Primordial",t:"tropa",c:20,i:"🌑",col:"#fbbf24",hp:20000,dm:3000,sp:"aoe_attack",sv:1500,d:"O ser mais poderoso: 20.000HP e área enorme"},
+// ── ÁTOMO ──
+{id:101,n:"Átomo",t:"feitico",c:0,i:"⚛️",col:"#00ffcc",hp:0,dm:50000,sp:"atom",sv:0,d:"EXPLOSÃO NUCLEAR — 50.000 dano em TUDO. Exclusivo do Labirinto."},
+];
+function goDeck(){
+  deck=[];showScr('sDeck');
+  var g=document.getElementById('dkGrid');g.innerHTML='';
+  CARDS.forEach(function(card){
+    var el=document.createElement('div');el.className='dc';el.id='dc'+card.id;
+    el.style.setProperty('--hc',card.col||'#888');
+    el.onclick=function(){togCard(card,el);};
+    el.innerHTML='<div class="dct">'+(TL[card.t]||card.t)+'</div><div class="dci">'+card.i+'</div><div class="dcn">'+card.n+'</div><div class="dcc">💎 '+card.c+'</div><div class="dcd">'+card.d+'</div>';
+    g.appendChild(el);
+  });
+}
+function togCard(card,el){
+  var i=deck.findIndex(function(x){return x.id===card.id;});
+  if(i>=0){deck.splice(i,1);el.classList.remove('on');}
+  else if(deck.length<6){deck.push(card);el.classList.add('on');}
+  document.getElementById('dkCnt').textContent=deck.length+' / 6 selecionadas';
+  var btn=document.getElementById('btnGo');
+  btn.classList.toggle('dis',deck.length!==6);btn.classList.toggle('rdy',deck.length===6);
+}
+function startBattle(){
+  if(deck.length!==6)return;
+  floor=1;secs=0;souls=0;gameOn=true;paused=false;units=[];picked=null;
+  showScr('sBattle');buildLanes();renderStr();renderHand();updSouls();
+  document.getElementById('flN').textContent='01';
+  document.getElementById('tm').textContent='00:00';
+  setLog('Escolha uma carta e clique na lane!');
+  lastT=0;soulT=0;aiT=0;
+  raf=requestAnimationFrame(loop);
+}
+function quitBattle(){gameOn=false;cancelAnimationFrame(raf);showScr('sSplash');}
+function togglePause(){paused=!paused;document.getElementById('btnPause').textContent=paused?'▶':'⏸';if(!paused){lastT=0;raf=requestAnimationFrame(loop);}}
+function winRound(){
+  gameOn=false;cancelAnimationFrame(raf);
+  if(floor>stats.maxFloor)stats.maxFloor=floor;stats.wins++;
+  document.getElementById('brI').textContent='🏆';
+  document.getElementById('brT').textContent='ANDAR '+floor+' VENCIDO!';document.getElementById('brT').style.color='var(--soul)';
+  document.getElementById('brS').textContent='Parabéns! Almas restantes: '+souls+' | Recorde: '+stats.maxFloor;
+  document.getElementById('brP').textContent='Próximo Andar →';window._brW=true;
+  document.getElementById('bRes').classList.add('show');
+}
+function loseGame(){
+  gameOn=false;cancelAnimationFrame(raf);
+  document.getElementById('brI').textContent='💀';
+  document.getElementById('brT').textContent='DERROTA...';document.getElementById('brT').style.color='var(--red)';
+  document.getElementById('brS').textContent='Você caiu no andar '+floor+'. Melhor andar: '+stats.maxFloor;
+  document.getElementById('brP').textContent='Tentar Novamente';window._brW=false;
+  document.getElementById('bRes').classList.add('show');
+}
+function brAct(){
+  document.getElementById('bRes').classList.remove('show');
+  if(window._brW){floor++;souls=0;units=[];picked=null;gameOn=true;paused=false;
+    buildLanes();renderStr();renderHand();updSouls();
+    document.getElementById('flN').textContent=(floor<10?'0':'')+floor;
+    setLog('Andar '+floor+'! Inimigos mais fortes!');lastT=0;soulT=0;aiT=0;
+    raf=requestAnimationFrame(loop);
+  }else{goDeck();}
+}
+function updTm(){var m=~~(secs/60),s=secs%60;document.getElementById('tm').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+function refund(c){souls=Math.min(20,souls+c);updSouls();}
+function flash(col){var b=document.getElementById('bff');b.style.background=col;setTimeout(function(){b.style.background='transparent';},350);}
+function setLog(msg){var el=document.getElementById('lg');if(el)el.textContent=msg;}
+function fk(n){return n>=1000?(n>=1000000?(n/1000000).toFixed(1)+'M':(n/1000).toFixed(1)+'k'):String(~~n);}
+function updSouls(){document.getElementById('sN').textContent=souls;var b=document.getElementById('sB3');if(b)b.style.width=(souls/20*100)+'%';}
+function playSound(){}
+function renderHand(){
+  var h=document.getElementById('hnd');h.innerHTML='';
+  deck.forEach(function(c){
+    var el=document.createElement('div');
+    el.className='hc'+(souls<c.c?' dim':'');
+    el.style.setProperty('--hc',c.col||'#888');
+    el.onclick=function(){
+      if(picked&&picked.id===c.id){picked=null;el.classList.remove('sel');return;}
+      picked=c;document.querySelectorAll('.hc').forEach(function(h2){h2.classList.remove('sel');});
+      el.classList.add('sel');setLog(c.n+' ('+c.c+'⚡) — clique numa lane');
+    };
+    el.innerHTML='<div class="hcg">'+c.c+'</div><div class="hci">'+c.i+'</div><div class="hcn">'+c.n+'</div>';
+    h.appendChild(el);
+  });
+}
+function fk(n){return n>=1000?(n>=1000000?(n/1000000).toFixed(1)+"M":(n/1000).toFixed(1)+"k"):n.toString();}
+
+
+function setLog(msg,cls){const el=document.getElementById("lg");el.className="blg "+(cls||"");el.textContent=msg;}
+
+function updTm(){const m=~~(secs/60),s=secs%60;document.getElementById("tm").textContent=m.toString().padStart(2,"0")+":"+s.toString().padStart(2,"0");}
+
+function updSouls(){document.getElementById("sN").textContent=souls;document.getElementById("sB2").style.width=(souls/20*100)+"%";renderHand();}
+
+function buildLanes(){
+  const el=document.getElementById("lns");el.innerHTML="";
+  ["I","II","III","IV","V"].forEach((nm,i)=>{
+    const ln=document.createElement("div");
+    ln.className="ln";ln.innerHTML=`<div class="lnl">LANE ${nm}</div>`;
+    ln.onclick=()=>onLane(i,ln);
+    el.appendChild(ln);
+  });
+}
+
+function mkStr(){
+  const hp=8000+floor*1500,mhp=25000+floor*3000;
+  if(sansMode){
+    str={
+      en:[
+        {id:"ea0",hp:hp,max:hp,castle:'A'},{id:"ea1",hp:hp,max:hp,castle:'A'},{id:"ea2",hp:hp,max:hp,castle:'A'},{id:"ea3",hp:hp,max:hp,castle:'A'},
+        {id:"eam",hp:mhp,max:mhp,main:true,castle:'A',label:'CASTELO A'},
+        {id:"eb0",hp:hp,max:hp,castle:'B'},{id:"eb1",hp:hp,max:hp,castle:'B'},{id:"eb2",hp:hp,max:hp,castle:'B'},{id:"eb3",hp:hp,max:hp,castle:'B'},
+        {id:"ebm",hp:mhp,max:mhp,main:true,castle:'B',label:'CASTELO B'}
+      ],
+      pl:[{id:"p0",hp:8000,max:8000},{id:"p1",hp:8000,max:8000},{id:"pm",hp:25000,max:25000,main:true},{id:"p2",hp:8000,max:8000}]
+    };
+    sansPhase=1;
+  }else{
+    str={
+      en:[{id:"e0",hp:hp,max:hp},{id:"e1",hp:hp,max:hp},{id:"em",hp:mhp,max:mhp,main:true},{id:"e2",hp:hp,max:hp},{id:"e3",hp:hp,max:hp}],
+      pl:[{id:"p0",hp:8000,max:8000},{id:"pm",hp:25000,max:25000,main:true},{id:"p1",hp:8000,max:8000}]
+    };
+  }
+}
+
+function spawnUnit(card,lane,isEn,opts={}){
+  const bf=document.getElementById("bf");
+  const bH=bf.offsetHeight,bW=bf.offsetWidth,lW=bW/NL;
+
+  // Multi-spawn cards
+  let cnt=1;
+  if(card.sp==="swarm")cnt=Math.min(card.sv,15);
+  else if(card.sp==="multi")cnt=card.sv;
+
+  // HP override
+  const hpBase=opts.hp||card.hp;
+
+  for(let i=0;i<cnt;i++){
+    const id=++UID;
+    const lx=lane*lW+lW/2,ox=(i%4-1.5)*20;
+    const yBase=isEn?90:bH-110;
+    const yo=(~~(i/4))*18*(isEn?1:-1);
+    const y=Math.max(62,Math.min(bH-62,yBase+yo));
+
+    const el=document.createElement("div");
+    el.className="u"+(isEn?" en":"");el.id="u"+id;
+    el.style.cssText=`left:${lx+ox}px;top:${y}px;--uc:${opts.col||card.col}`;
+    el.innerHTML=`<div class="ui">${opts.icon||card.i}</div><div class="ub"><div class="uf" style="width:100%"></div></div>`;
+    bf.appendChild(el);
+
+    const u={
+      id,card,lane,y,
+      hp:hpBase,maxHp:hpBase,
+      dm:opts.dm||card.dm,
+      en:isEn,spd:opts.spd||(card.sp==="slow_self"?card.sv:1),
+      atk:0,el,vlt:false,inv:!!opts.inv,
+      static:!!opts.static,frozen:false,
+      revived:false
+    };
+    units.push(u);
+  }
+}
+
+function hitUnit(u,dmg){
+  if(!u||u.vlt||!units.includes(u))return;
+  u.hp-=dmg;updBar(u);
+  if(dmg>=80){
+    const d=document.createElement("div");d.className="ud";
+    d.textContent="-"+fk(dmg);
+    d.style.color=dmg>3000?"#ff3c00":dmg>1000?"#f97316":"#fbbf24";
+    u.el.appendChild(d);setTimeout(()=>d.remove(),900);
+  }
+  if(u.hp<=0){
+    // Fênix revival
+    if(u.card.sp==="revive"&&!u.revived){
+      u.revived=true;u.hp=~~(u.maxHp*.5);updBar(u);
+      u.el.style.filter="brightness(3)";
+      setTimeout(()=>{if(u.el)u.el.style.filter="";},400);
+      return;
+    }
+    // Explode on death
+    if(u.card.sp==="explode"){
+      units.filter(x=>x.en!==u.en&&Math.abs(x.lane-u.lane)<=1).forEach(x=>hitUnit(x,u.card.sv));
+      flash("rgba(239,68,68,.25)");
+      setLog(`💥 ${u.card.n} EXPLODE! ${fk(u.card.sv)} dano!`,"d");
+    }
+    rmUnit(u);
+  }
+}
+
+function updBar(u){const f=u.el&&u.el.querySelector(".uf");if(f)f.style.width=Math.max(0,u.hp/u.maxHp*100)+"%";}
+
+function rmUnit(u){units=units.filter(x=>x.id!==u.id);if(u.el&&u.el.parentNode)u.el.parentNode.removeChild(u.el);}
+
+function hitStr(side,id,dmg){
+  const s=str[side].find(x=>x.id===id);if(!s||s.hp<=0)return;
+  s.hp=Math.max(0,s.hp-dmg);
+  const el=document.getElementById("s_"+id);if(!el)return;
+  const f=el.querySelector(".sf");if(f)f.style.width=(s.hp/s.max*100)+"%";
+  const tx=el.querySelector(".sx");if(tx)tx.textContent=fk(s.hp);
+  el.classList.add("ht");setTimeout(()=>el.classList.remove("ht"),300);
+  if(s.hp<=0)el.classList.add("dd");
+  if(side==="en"&&s.main&&s.hp<=0){
+    if(sansMode){
+      const other=str.en.find(x=>x.main&&x.id!==s.id&&x.hp>0);
+      if(other){
+        sansPhase=2;
+        other.hp=1000000;other.max=1000000;other.enraged=true;
+        str.en.filter(x=>!x.main&&x.hp>0&&x.castle===other.castle).forEach(x=>{x.hp=25000;x.max=25000;});
+        setLog('☠️ * B U T  W H Y ? *','e');
+        flash('rgba(255,255,255,.9)');
+        sansStartMegalov();
+        renderStr();
+      }else{setTimeout(winRound,400);}
+    }else{setTimeout(winRound,400);}
+  }
+  if(side==="pl"&&s.main&&s.hp<=0)setTimeout(loseGame,400);
+}
+
+function aiSpawn(){
+  const pool=sansMode&&deck.length>0?deck:AI_POOL.map(id=>CARDS.find(c=>c.id===id)).filter(Boolean);
+  const card=pool.length?pool[~~(Math.random()*pool.length)]:CARDS[0];
+  spawnUnit(card,~~(Math.random()*NL),true);
+}
+
+function refund(cost){souls=Math.min(20,souls+cost);updSouls();}
+
+
+const AI_TIMERS={easy:7,normal:4,hard:2.5,insane:1.5};
+
+function loop(ts=0){
+  if(!gameOn||paused)return;
+  const dt=Math.min((ts-lastT)/1000,.05)*cfg.spd;
+  lastT=ts;
+  soulT+=dt;aiT+=dt;
+
+  if(soulT>=1){
+    soulT=0;
+    souls=sansMode&&sansPhase===2?20:Math.min(20,souls+cfg.sps);
+    updSouls();secs++;updTm();
+  }
+
+  const aiInterval=AI_TIMERS[cfg.aiDiff]||4;
+  if(aiT>=aiInterval){aiT=0;aiSpawn();}
+
+  const bf=document.getElementById("bf");
+  const bH=bf.offsetHeight,bW=bf.offsetWidth,lW=bW/NL;
+
+  [...units].forEach(u=>{
+    if(u.vlt||u.inv||u.frozen||u.static)return;
+    u.atk+=dt;
+    const spd=(u.spd||1)*45*cfg.spd;
+    const dir=u.en?1:-1;
+    const foes=units.filter(x=>x.en!==u.en&&x.lane===u.lane&&!x.vlt&&!x.inv);
+    const near=foes.find(x=>Math.abs(x.y-u.y)<52);
+
+    if(near){
+      if(u.atk>=1.2){
+        u.atk=0;
+        if(u.dm>0)hitUnit(near,u.dm);
+        if(u.card.sp==="lifesteal"){u.hp=Math.min(u.maxHp,u.hp+~~(u.dm*u.card.sv/100));updBar(u);}
+        if(u.card.sp==="stun"&&near&&units.includes(near)){near.frozen=true;setTimeout(()=>{if(units.includes(near))near.frozen=false;},u.card.sv*1000);}
+        if(u.card.sp==="chain_lightning"){
+          let targets=units.filter(x=>x.en!==u.en&&x.id!==near.id).slice(0,u.card.sv-1);
+          targets.forEach(t=>hitUnit(t,u.dm*0.6));
+        }
+        if(u.card.sp==="aoe_attack"){
+          units.filter(x=>x.en!==u.en&&Math.abs(x.lane-u.lane)<=1).forEach(x=>{if(x.id!==near.id)hitUnit(x,u.card.sv);});
+        }
+      }
+    } else {
+      u.y+=dir*spd*dt;
+      u.y=Math.max(62,Math.min(bH-62,u.y));
+      u.el.style.top=u.y+"px";
+      // Castelinho trap
+      if(u.card.sp==="trapcost"&&u.static){
+        const nearby=units.filter(x=>x.en&&Math.abs(x.y-u.y)<60&&Math.abs(x.lane-u.lane)<=1&&x.card.c<=u.card.sv);
+        if(nearby.length&&u.atk>=2){u.atk=0;nearby.forEach(x=>rmUnit(x));}
+        return;
+      }
+      if(!u.en&&u.y<=80&&u.atk>=1.6){
+        u.atk=0;const lv=str.en.filter(s=>s.hp>0);
+        if(lv.length)hitStr("en",lv[~~(Math.random()*lv.length)].id,u.dm||400);
+      }
+      if(u.en&&u.y>=bH-80&&u.atk>=1.6){
+        u.atk=0;const lv=str.pl.filter(s=>s.hp>0);
+        if(lv.length)hitStr("pl",lv[~~(Math.random()*lv.length)].id,u.dm||280);
+      }
+    }
+    // Heal aura
+    if(u.card.sp==="heal_aura"&&u.atk>=1){
+      u.atk=0;
+      units.filter(x=>!x.en&&Math.abs(x.lane-u.lane)<=1&&x.id!==u.id).forEach(x=>{
+        x.hp=Math.min(x.maxHp,x.hp+u.card.sv);updBar(x);
+      });
+    }
+    // Muralha de Ossos shoot
+    if(u.card.sp==="wall"&&u.static){
+      const enemies=units.filter(x=>x.en&&Math.abs(x.lane-u.lane)<=1);
+      if(enemies.length&&u.atk>=2){u.atk=0;hitUnit(enemies[0],u.card.dm||600);}
+    }
+  });
+  raf=requestAnimationFrame(loop);
+}
+
+function stopGame(){
+  sansMode=false;sansPhase=1;
+  if(window._sansLoop){clearTimeout(window._sansLoop);window._sansLoop=null;}
+  if(window._sansAC)try{window._sansAC.close();}catch(e){}
+  gameOn=false;paused=false;
+  if(raf){cancelAnimationFrame(raf);raf=null;}
+  units.forEach(u=>{if(u.el&&u.el.parentNode)u.el.parentNode.removeChild(u.el);});
+  units=[];
+  document.getElementById("pauseOv").classList.remove("on");
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════════════════════
+function aiSpawn(){
+  const pool=sansMode&&deck.length>0?deck:AI_POOL.map(id=>CARDS.find(c=>c.id===id)).filter(Boolean);
+  const card=pool.length?pool[~~(Math.random()*pool.length)]:CARDS[0];
+  spawnUnit(card,~~(Math.random()*NL),true);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SPAWN
+// ═══════════════════════════════════════════════════════════
+function spawnUnit(card,lane,isEn,opts={}){
+  const bf=document.getElementById("bf");
+  const bH=bf.offsetHeight,bW=bf.offsetWidth,lW=bW/NL;
+
+  // Multi-spawn cards
+  let cnt=1;
+  if(card.sp==="swarm")cnt=Math.min(card.sv,15);
+  else if(card.sp==="multi")cnt=card.sv;
+
+  // HP override
+  const hpBase=opts.hp||card.hp;
+
+  for(let i=0;i<cnt;i++){
+    const id=++UID;
+    const lx=lane*lW+lW/2,ox=(i%4-1.5)*20;
+    const yBase=isEn?90:bH-110;
+    const yo=(~~(i/4))*18*(isEn?1:-1);
+    const y=Math.max(62,Math.min(bH-62,yBase+yo));
+
+    const el=document.createElement("div");
+    el.className="u"+(isEn?" en":"");el.id="u"+id;
+    el.style.cssText=`left:${lx+ox}px;top:${y}px;--uc:${opts.col||card.col}`;
+    el.innerHTML=`<div class="ui">${opts.icon||card.i}</div><div class="ub"><div class="uf" style="width:100%"></div></div>`;
+    bf.appendChild(el);
+
+    const u={
+      id,card,lane,y,
+      hp:hpBase,maxHp:hpBase,
+      dm:opts.dm||card.dm,
+      en:isEn,spd:opts.spd||(card.sp==="slow_self"?card.sv:1),
+      atk:0,el,vlt:false,inv:!!opts.inv,
+      static:!!opts.static,frozen:false,
+      revived:false
+    };
+    units.push(u);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HIT UNIT
+// ═══════════════════════════════════════════════════════════
+function hitUnit(u,dmg){
+  if(!u||u.vlt||!units.includes(u))return;
+  u.hp-=dmg;updBar(u);
+  if(dmg>=80){
+    const d=document.createElement("div");d.className="ud";
+    d.textContent="-"+fk(dmg);
+    d.style.color=dmg>3000?"#ff3c00":dmg>1000?"#f97316":"#fbbf24";
+    u.el.appendChild(d);setTimeout(()=>d.remove(),900);
+  }
+  if(u.hp<=0){
+    // Fênix revival
+    if(u.card.sp==="revive"&&!u.revived){
+      u.revived=true;u.hp=~~(u.maxHp*.5);updBar(u);
+      u.el.style.filter="brightness(3)";
+      setTimeout(()=>{if(u.el)u.el.style.filter="";},400);
+      return;
+    }
+    // Explode on death
+    if(u.card.sp==="explode"){
+      units.filter(x=>x.en!==u.en&&Math.abs(x.lane-u.lane)<=1).forEach(x=>hitUnit(x,u.card.sv));
+      flash("rgba(239,68,68,.25)");
+      setLog(`💥 ${u.card.n} EXPLODE! ${fk(u.card.sv)} dano!`,"d");
+    }
+    rmUnit(u);
+  }
+}
+function updBar(u){const f=u.el&&u.el.querySelector(".uf");if(f)f.style.width=Math.max(0,u.hp/u.maxHp*100)+"%";}
+function rmUnit(u){units=units.filter(x=>x.id!==u.id);if(u.el&&u.el.parentNode)u.el.parentNode.removeChild(u.el);}
+
+// ═══════════════════════════════════════════════════════════
+// HIT STRUCT
+// ═══════════════════════════════════════════════════════════
+function hitStr(side,id,dmg){
+  const s=str[side].find(x=>x.id===id);if(!s||s.hp<=0)return;
+  s.hp=Math.max(0,s.hp-dmg);
+  const el=document.getElementById("s_"+id);if(!el)return;
+  const f=el.querySelector(".sf");if(f)f.style.width=(s.hp/s.max*100)+"%";
+  const tx=el.querySelector(".sx");if(tx)tx.textContent=fk(s.hp);
+  el.classList.add("ht");setTimeout(()=>el.classList.remove("ht"),300);
+  if(s.hp<=0)el.classList.add("dd");
+  if(side==="en"&&s.main&&s.hp<=0){
+    if(sansMode){
+      const other=str.en.find(x=>x.main&&x.id!==s.id&&x.hp>0);
+      if(other){
+        sansPhase=2;
+        other.hp=1000000;other.max=1000000;other.enraged=true;
+        str.en.filter(x=>!x.main&&x.hp>0&&x.castle===other.castle).forEach(x=>{x.hp=25000;x.max=25000;});
+        setLog('☠️ * B U T  W H Y ? *','e');
+        flash('rgba(255,255,255,.9)');
+        sansStartMegalov();
+        renderStr();
+      }else{setTimeout(winRound,400);}
+    }else{setTimeout(winRound,400);}
+  }
+  if(side==="pl"&&s.main&&s.hp<=0)setTimeout(loseGame,400);
+}
+
+function renderStr(){
+  const top=document.getElementById("stT"),bot=document.getElementById("stB");
+  top.innerHTML="";bot.innerHTML="";
+  str.en.forEach((s,i)=>{
+    const icon=s.main?(s.enraged?"☠️":"🏰"):"🏚️";
+    const lbl=s.label?`<div style="font-size:.35rem;color:${s.enraged?"#fff":"rgba(255,255,255,.4)"}">${s.label}</div>`:"";
+    const el=document.createElement("div");
+    el.className="s en"+(s.main?" mn":"")+(s.hp<=0?" dd":"")+(s.enraged?" enraged":"");el.id="s_"+s.id;
+    el.innerHTML=`${lbl}<div class="si">${icon}</div><div class="sb2"><div class="sf" style="width:${s.hp/s.max*100}%;${s.enraged?"background:#fff":""}"></div></div><div class="sx">${fk(s.hp)}</div>`;
+    top.appendChild(el);
+  });
+  const pI=["🏠","🏡","🏠"];
+  str.pl.forEach((s,i)=>{
+    const el=document.createElement("div");
+    el.className="s pl"+(s.main?" mn":"")+(s.hp<=0?" dd":"");el.id="s_"+s.id;
+    el.innerHTML=`<div class="si">${pI[i]}</div><div class="sb2"><div class="sf" style="width:${s.hp/s.max*100}%"></div></div><div class="sx">${fk(s.hp)}</div>`;
+    bot.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// LANE CLICK
+// ═══════════════════════════════════════════════════════════
+function onLane(lane,ln){
+  if(!picked||!gameOn||paused)return;
+  const c=picked;
+  if(souls<c.c){setLog("ALMAS INSUFICIENTES!","e");return;}
+  souls-=c.c;updSouls();
+  const r=document.createElement("div");
+  r.style.cssText="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.8rem;pointer-events:none;animation:udf .5s ease-out forwards";
+  r.textContent=c.i;ln.appendChild(r);setTimeout(()=>r.remove(),500);
+  playCard(c,lane);
+  picked=null;renderHand();
+}
+function refund(cost){souls=Math.min(20,souls+cost);updSouls();}
+
+// ═══════════════════════════════════════════════════════════
+// PLAY CARD — ALL MECHANICS
+// ═══════════════════════════════════════════════════════════
+function playCard(c,lane){
+  // TROPAS & ESTRUTURAS
+  if(c.t==="tropa"||c.t==="estrutura"){
+    const isStatic=c.sp==="trapcost"||c.sp==="spawner"||c.sp==="wall"||c.sp==="aura_dmg"||c.sp==="portal"||c.sp==="freeze_tower";
+    spawnUnit(c,lane,false,{static:isStatic,hp:c.hp,dm:c.dm});
+    // Spawner: generate units over time
+    if(c.sp==="spawner"){
+      let cnt=0;
+      const iv=setInterval(()=>{
+        if(!gameOn||cnt>=c.sv){clearInterval(iv);return;}
+        spawnUnit(CARDS.find(x=>x.id===8),lane,false);cnt++;
+      },3000);
+    }
+    // Wall: pulse damage around it
+    if(c.sp==="aura_dmg"){
+      const iv=setInterval(()=>{
+        if(!gameOn){clearInterval(iv);return;}
+        units.filter(x=>x.en&&Math.abs(x.lane-lane)<=1).forEach(x=>hitUnit(x,c.sv||300));
+      },5000);
+    }
+    setLog(`${c.i} ${c.n} invocado!`,"a");
+    return;
+  }
+
+  // 🐉 LARRA — 8000 em estrutura inimiga
+  if(c.sp==="direct"){
+    const lv=str.en.filter(s=>s.hp>0);
+    if(!lv.length){setLog("🐉 Larra: sem alvos!","e");refund(c.c);return;}
+    hitStr("en",lv[~~(Math.random()*lv.length)].id,c.dm);
+    flash("rgba(249,115,22,.22)");setLog(`🐉 LARRA! ${fk(c.dm)} dano!`,"d");return;
+  }
+
+  // 🩸 DOR — 500/s por 10s em TODOS
+  if(c.sp==="dot"){
+    flash("rgba(244,63,94,.15)");setLog("🩸 DOR! 500/s por 10s!","a");
+    let t=10;
+    const iv=setInterval(()=>{
+      if(!gameOn){clearInterval(iv);return;}
+      [...units].forEach(u=>{if(units.includes(u))hitUnit(u,500);});
+      t--;if(t<=0){clearInterval(iv);if(gameOn)setLog("🩸 Veneno dissipado.","");}
+    },1000);return;
+  }
+
+  // 🐗/🐂 MANADA/TOURADA — 2000 em TODOS + estruturas
+  if(c.sp==="symmetric"){
+    flash("rgba(146,64,14,.22)");setLog(`${c.i} ${c.n.toUpperCase()}! 2.000 em TODOS!`,"d");
+    [...units].forEach(u=>{if(units.includes(u))hitUnit(u,2000);});
+    [...str.en,...str.pl].filter(s=>s.hp>0).forEach(s=>hitStr(str.en.includes(s)?"en":"pl",s.id,400));
+    return;
+  }
+
+  // ✨ CHAKRA — cura 100%
+  if(c.sp==="heal"){
+    const my=units.filter(u=>!u.en);
+    if(!my.length){setLog("✨ Chakra: sem tropas!","e");refund(c.c);return;}
+    my.forEach(u=>{u.hp=u.maxHp;updBar(u);u.el.style.filter="brightness(2) drop-shadow(0 0 14px #34d399)";setTimeout(()=>{if(u.el)u.el.style.filter="";},600);});
+    flash("rgba(34,197,94,.13)");setLog(`✨ CHAKRA! ${my.length} tropa(s) curadas!`,"h");return;
+  }
+
+  // 🌿 SELVA — –99%
+  if(c.sp==="weaken"){
+    const en=units.filter(u=>u.en&&!u.vlt);
+    if(!en.length){setLog("🌿 Selva: sem inimigos!","e");refund(c.c);return;}
+    en.forEach(u=>{u.dm=Math.max(1,~~(u.dm*.01));u.hp=Math.max(1,~~(u.hp*.01));u.maxHp=Math.max(1,~~(u.maxHp*.01));updBar(u);u.el.style.filter="sepia(1) hue-rotate(80deg) brightness(.6)";});
+    flash("rgba(34,197,94,.15)");setLog(`🌿 SELVA! ${en.length} inimigo(s) –99%!`,"h");return;
+  }
+
+  // 🕯️ RITUAL — 5 monges sagrados
+  if(c.sp==="ritual"){
+    flash("rgba(240,201,110,.13)");setLog("🕯️ RITUAL! 5 monges sagrados!","g");
+    const mk=CARDS.find(x=>x.id===8);
+    for(let i=0;i<5;i++){setTimeout(()=>{if(gameOn)spawnUnit(mk,(lane+i)%NL,false,{hp:4500,dm:1500,col:"#f0c96e"});},i*260);}
+    return;
+  }
+
+  // 🌵 JUTSO — executa ≤20%
+  if(c.sp==="execute"){
+    const low=units.filter(u=>u.en&&!u.vlt&&u.hp>0&&u.hp/u.maxHp<=.2);
+    if(low.length){
+      low.sort((a,b)=>a.hp-b.hp);const tgt=low[0];
+      tgt.el.style.filter="brightness(5)";setTimeout(()=>rmUnit(tgt),200);
+      flash("rgba(134,239,172,.15)");setLog(`🌵 JUTSO executa ${tgt.card.n}!`,"h");
+    } else {
+      const any=units.filter(u=>u.en&&u.hp>0);
+      if(any.length){any.sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp));setLog(`🌵 Jutso: ${any[0].card.n} tem ${~~(any[0].hp/any[0].maxHp*100)}% (precisa ≤20%)`,"e");}
+      else setLog("🌵 Jutso: sem inimigos!","e");
+      refund(c.c);
+    }return;
+  }
+
+  // 🔮 ESPLADA — clona com mais HP
+  if(c.sp==="clone"){
+    const my=units.filter(u=>!u.en&&!u.vlt);
+    if(!my.length){setLog("🔮 Esplada: sem tropas!","e");refund(c.c);return;}
+    my.sort((a,b)=>b.hp-a.hp);const src=my[0];
+    spawnUnit(src.card,src.lane,false,{hp:~~(src.maxHp*.5),dm:src.dm,col:"#c084fc"});
+    flash("rgba(192,132,252,.15)");setLog(`🔮 ESPLADA clona ${src.card.n}!`,"a");return;
+  }
+
+  // 🌩️ TEMPESTADE — paralisa mais forte
+  if(c.sp==="slow"){
+    const en=units.filter(u=>u.en&&!u.vlt);
+    if(!en.length){setLog("🌩️ Tempestade: sem inimigos!","e");refund(c.c);return;}
+    en.sort((a,b)=>b.maxHp-a.maxHp);const tgt=en[0];
+    tgt.spd=0.005;tgt.el.style.filter="drop-shadow(0 0 12px #818cf8) hue-rotate(260deg)";tgt.el.style.opacity=".5";
+    flash("rgba(129,140,248,.18)");setLog(`🌩️ TEMPESTADE paralisa ${tgt.card.n}!`,"a");return;
+  }
+
+  // 🕳️ VALA — esconde 9s
+  if(c.sp==="vault"){
+    const my=units.filter(u=>!u.en&&!u.vlt);
+    if(!my.length){setLog("🕳️ Vala: sem tropas!","e");refund(c.c);return;}
+    my.forEach(u=>{u.vlt=true;u.el.style.transition="all .3s";u.el.style.opacity="0";u.el.style.transform="translateX(-50%) scale(0)";});
+    flash("rgba(124,58,237,.18)");setLog(`🕳️ VALA: ${my.length} tropa(s) no subsolo!`,"a");
+    setTimeout(()=>{
+      my.forEach(u=>{if(!units.includes(u))return;u.vlt=false;u.el.style.transition="all .5s cubic-bezier(.34,1.56,.64,1)";u.el.style.opacity="1";u.el.style.transform="translateX(-50%) scale(1)";setTimeout(()=>{if(u.el)u.el.style.transition="";},500);});
+      if(gameOn)setLog("🕳️ Tropas voltam!","a");
+    },9000);return;
+  }
+
+  // 🌑 MANTO ESCURO — invisíveis 20s
+  if(c.sp==="invis"){
+    const my=units.filter(u=>!u.en&&!u.vlt);
+    if(!my.length){setLog("🌑 Manto: sem tropas!","e");refund(c.c);return;}
+    my.forEach(u=>{u.inv=true;u.el.style.opacity=".1";});
+    flash("rgba(1311,92,246,.15)");setLog(`🌑 MANTO ESCURO! ${my.length} invisíveis!`,"a");
+    setTimeout(()=>{my.forEach(u=>{if(units.includes(u)){u.inv=false;u.el.style.opacity="1";}});if(gameOn)setLog("🌑 Manto dissipado.","");},20000);return;
+  }
+
+  // 🌫️ NÉVOA — custo >15 viram ratos
+  if(c.sp==="transform"){
+    const tgts=units.filter(u=>u.en&&u.card.c>15);
+    if(!tgts.length){setLog("🌫️ Névoa: sem alvos >15!","e");refund(c.c);return;}
+    const rat=CARDS.find(x=>x.id===12);
+    tgts.forEach(u=>{u.card={...rat};u.dm=100;u.hp=1;u.maxHp=1;u.el.querySelector(".ui").textContent="🐀";u.el.style.setProperty("--uc","#a8a29e");updBar(u);});
+    flash("rgba(220,38,38,.15)");setLog(`🌫️ NÉVOA! ${tgts.length} inimigo(s) viram ratos!`,"d");return;
+  }
+
+  // 🔥 BOLA DE FOGO — AOE em lanes
+  if(c.sp==="aoe_spell"){
+    flash("rgba(249,115,22,.2)");setLog(`${c.i} ${c.n}! ${fk(c.dm)} em ${c.sv} lanes!`,"d");
+    const lanes=[];for(let i=0;i<c.sv;i++)lanes.push((lane+i)%NL);
+    units.filter(u=>u.en&&lanes.includes(u.lane)).forEach(u=>hitUnit(u,c.dm));return;
+  }
+
+  // ❄️ GLACIADOR — congela todos
+  if(c.sp==="freeze_all"){
+    flash("rgba(103,232,249,.2)");setLog(`❄️ GLACIADOR! ${c.sv}s de congelamento!`,"a");
+    units.filter(u=>u.en).forEach(u=>{
+      u.frozen=true;u.el.style.filter="hue-rotate(180deg) brightness(1.5)";
+      setTimeout(()=>{if(units.includes(u)){u.frozen=false;u.el.style.filter="";}},c.sv*1000);
+    });return;
+  }
+
+  // ⚡ TROVÃO DIVINO — encadeia
+  if(c.sp==="chain_spell"){
+    flash("rgba(251,191,36,.2)");setLog(`⚡ TROVÃO DIVINO! Encadeia ${c.sv} inimigos!`,"d");
+    const targets=units.filter(u=>u.en).slice(0,c.sv);
+    targets.forEach((u,i)=>setTimeout(()=>{if(units.includes(u))hitUnit(u,c.dm);},i*150));return;
+  }
+
+  // ⚡ STUN ALL — paralisa tudo
+  if(c.sp==="stun_all"){
+    flash("rgba(168,85,247,.2)");setLog(`${c.i} TERREMOTO! Todos paralisados ${c.sv}s!`,"d");
+    units.filter(u=>u.en).forEach(u=>{
+      u.frozen=true;u.el.style.filter="sepia(1)";
+      setTimeout(()=>{if(units.includes(u)){u.frozen=false;u.el.style.filter="";}},c.sv*1000);
+    });return;
+  }
+
+  // 🩸 SANGUE ARCANO — buff +50% dano
+  if(c.sp==="power_up"){
+    const my=units.filter(u=>!u.en);
+    if(!my.length){setLog("🩸 Sangue Arcano: sem tropas!","e");refund(c.c);return;}
+    my.forEach(u=>{u.dm=~~(u.dm*(1+c.sv/100));u.el.style.filter="drop-shadow(0 0 8px #b91c1c)";setTimeout(()=>{if(u.el)u.el.style.filter="";},15000);});
+    flash("rgba(185,28,28,.15)");setLog(`🩸 SANGUE ARCANO! +${c.sv}% dano por 15s!`,"h");return;
+  }
+
+  // ☀️ BÊNÇÃO SOLAR — cura 30%
+  if(c.sp==="mass_heal"){
+    const my=units.filter(u=>!u.en);
+    if(!my.length){setLog("☀️ Bênção: sem tropas!","e");refund(c.c);return;}
+    my.forEach(u=>{u.hp=Math.min(u.maxHp,u.hp+~~(u.maxHp*c.sv/100));updBar(u);});
+    flash("rgba(254,240,138,.15)");setLog(`☀️ BÊNÇÃO! ${c.sv}% vida curada!`,"h");return;
+  }
+
+  // 🔮 MALDIÇÃO — dot em inimigos
+  if(c.sp==="curse"){
+    const en=units.filter(u=>u.en);
+    if(!en.length){setLog("🔮 Maldição: sem inimigos!","e");refund(c.c);return;}
+    flash("rgba(88,28,135,.2)");setLog(`🔮 MALDIÇÃO ETERNA! 300/s por ${c.sv}s!`,"d");
+    let t=c.sv;
+    const iv=setInterval(()=>{
+      if(!gameOn){clearInterval(iv);return;}
+      [...units].filter(u=>u.en).forEach(u=>hitUnit(u,300));
+      t--;if(t<=0)clearInterval(iv);
+    },1000);return;
+  }
+
+  // 💊 REVIVER — ressuscita mortos
+  if(c.sp==="revive_all"){
+    setLog("💊 REVIVER ativado! (efeito futuro)","g");
+    flash("rgba(52,211,953,.2)");return;
+  }
+
+  // ⚛️ ÁTOMO — explosão nuclear total
+  if(c.sp==="atom"){
+    flash("rgba(0,255,204,.35)");
+    setLog("⚛️ EXPLOSÃO NUCLEAR!! 50.000 em TUDO!!!","g");
+    // Hit all enemy units
+    [...units].filter(u=>u.en).forEach(u=>{if(units.includes(u))hitUnit(u,50000);});
+    // Hit all enemy structures
+    str.en.forEach(s=>{if(s.hp>0)hitStr("en",s.id,50000);});
+    // Nuclear flash effect
+    const bff=document.getElementById("bff");
+    bff.style.background="rgba(0,255,204,.8)";bff.classList.remove("pop");void bff.offsetWidth;bff.classList.add("pop");
+    return;
+  }
+
+  setLog(`${c.i} ${c.n} ativado!`,"a");
+}
+
+// ═══════════════════════════════════════════════════════════
+// WIN / LOSE
+// ═══════════════════════════════════════════════════════════
+</script>
+</body>
+</html>

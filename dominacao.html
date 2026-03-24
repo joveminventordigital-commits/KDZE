@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DOMINAÇÃO</title>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;cursor:none!important}
+:root{
+  --bg:#050a05;--surf:#0a140a;--surf2:#0f1f0f;
+  --grn:#22c55e;--grn2:#16a34a;--grn3:#4ade80;
+  --red:#dc2626;--red2:#ef4444;--red3:#fca5a5;
+  --gold:#fbbf24;--gold2:#f59e0b;
+  --blue:#3b82f6;
+  --txt:#e8f0e8;--mu:rgba(232,240,232,.35);
+  --border:rgba(34,197,94,.15)
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:'Share Tech Mono',monospace;overflow:hidden}
+
+/* CURSOR TÁTICO */
+#domCur{position:fixed;pointer-events:none;z-index:99999;top:0;left:0;width:0;height:0;overflow:visible}
+#domCur svg{overflow:visible}
+#domCur.h circle{stroke:var(--gold);fill:rgba(251,191,36,.1)}
+
+/* TELAS */
+.scr{position:fixed;inset:0;transition:opacity .5s,transform .5s}
+.scr.off{opacity:0;pointer-events:none;transform:scale(.98)}
+
+/* ══ SPLASH ══ */
+#sSplash{background:var(--bg);overflow:hidden;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sp-hex{position:absolute;inset:0;opacity:.05;
+  background-image:linear-gradient(30deg,var(--grn) 1px,transparent 1px),
+  linear-gradient(150deg,var(--grn) 1px,transparent 1px),
+  linear-gradient(90deg,var(--grn) 1px,transparent 1px);
+  background-size:40px 70px,40px 70px,40px 70px;
+  animation:hexMove 12s linear infinite}
+@keyframes hexMove{from{background-position:0 0}to{background-position:40px 70px}}
+.sp-radar{position:absolute;right:10%;top:50%;transform:translateY(-50%);width:200px;height:200px;opacity:.08}
+.sp-radar-ring{position:absolute;inset:0;border:1px solid var(--grn);border-radius:50%}
+.sp-radar-ring:nth-child(2){inset:25%}
+.sp-radar-ring:nth-child(3){inset:50%}
+.sp-radar-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 80%,rgba(34,197,94,.3));animation:radarSweep 3s linear infinite}
+@keyframes radarSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sp-vign{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,transparent 30%,rgba(0,0,0,.92) 80%)}
+.sp-cnt{position:relative;z-index:2;text-align:left;padding-left:8vw;cursor:pointer}
+.sp-ey{font-family:'Share Tech Mono';font-size:.5rem;letter-spacing:.5em;color:rgba(34,197,94,.6);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:spF .7s .2s forwards}
+.sp-t1{display:block;font-family:'Orbitron';font-size:clamp(3rem,10vw,8rem);font-weight:900;color:#fff;letter-spacing:.06em;opacity:0;animation:spF .7s .5s forwards}
+.sp-t2{display:block;font-family:'Russo One';font-size:clamp(1rem,3vw,2rem);color:var(--grn);letter-spacing:.4em;text-transform:uppercase;opacity:0;animation:spF .6s .8s forwards;margin-top:4px}
+.sp-desc{font-family:'Share Tech Mono';font-size:.54rem;color:var(--mu);margin-top:18px;line-height:1.9;max-width:420px;opacity:0;animation:spF .6s 1s forwards}
+.sp-desc b{color:var(--grn3)}
+.sp-cl{font-family:'Orbitron';font-size:.52rem;letter-spacing:.25em;color:var(--mu);margin-top:24px;opacity:0;animation:spF .5s 1.3s forwards,spBl 1.6s 2s ease-in-out infinite;text-transform:uppercase}
+@keyframes spBl{0%,100%{opacity:.3}50%{opacity:.8}}
+@keyframes spF{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* Zonas decorativas no splash */
+.sp-zone{position:absolute;border-radius:50%;border:2px solid;opacity:.06;pointer-events:none}
+
+/* ══ TUTORIAL ══ */
+#sTut{background:var(--bg);z-index:9;display:block;overflow-y:auto;overflow-x:hidden}
+.tw{max-width:640px;width:100%;margin:0 auto;padding:40px 22px 100px}
+.tbk{font-family:'Share Tech Mono';font-size:.5rem;letter-spacing:.15em;color:var(--mu);cursor:pointer;transition:color .2s;text-transform:uppercase;margin-bottom:30px;display:block}
+.tbk:hover{color:var(--grn)}
+.thtag{font-family:'Share Tech Mono';font-size:.46rem;letter-spacing:.28em;color:rgba(34,197,94,.5);text-transform:uppercase;margin-bottom:8px}
+.thtt{font-family:'Orbitron';font-size:clamp(2rem,7vw,3.5rem);font-weight:900;color:#fff;line-height:.9}
+.thtt span{color:var(--grn)}
+.thsub{font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu);margin-top:10px;line-height:1.85;max-width:500px}
+.ts{margin-bottom:30px;opacity:0;transform:translateY(12px);transition:all .5s}
+.ts.vis{opacity:1;transform:none}
+.ts-t{font-family:'Orbitron';font-size:.7rem;font-weight:700;letter-spacing:.14em;color:var(--grn);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.ts-t::after{content:'';flex:1;height:1px;background:var(--border)}
+.t-list{display:flex;flex-direction:column;gap:6px}
+.t-item{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:8px}
+.t-item em{font-size:1rem;flex-shrink:0;margin-top:1px;font-style:normal}
+.t-item b{font-family:'Russo One';font-size:.65rem;color:var(--txt);display:block}
+.t-item p{font-family:'Share Tech Mono';font-size:.45rem;color:var(--mu);margin-top:2px;line-height:1.6}
+/* Tabela de pontos */
+.pts-table{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.pts-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px}
+.pts-row:last-child{border-bottom:none}
+.pts-row.hd{background:rgba(34,197,94,.06);font-family:'Orbitron';font-size:.55rem;color:var(--grn)}
+.pts-zones{display:flex;gap:6px;font-size:1.1rem}
+.pts-val{font-family:'Orbitron';font-size:.75rem;color:var(--gold);margin-left:auto}
+.pts-lbl{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);flex:1}
+/* Eventos */
+.evt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.evt-card{background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:8px;padding:12px}
+.evt-card em{font-size:1.2rem;display:block;margin-bottom:5px;font-style:normal}
+.evt-card b{font-family:'Russo One';font-size:.65rem;color:var(--txt);display:block;margin-bottom:3px}
+.evt-card p{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);line-height:1.55}
+/* Resumo */
+.res-blk{background:rgba(220,38,38,.04);border:1px solid rgba(220,38,38,.2);border-radius:12px;padding:18px;position:relative}
+.res-blk::before{content:"DOMINAÇÃO";position:absolute;top:0;left:20px;font-family:'Orbitron';font-size:.38rem;letter-spacing:.18em;color:var(--red2);background:var(--bg);padding:0 8px;transform:translateY(-50%)}
+.res-blk p{font-family:'Share Tech Mono';font-size:.5rem;color:var(--mu);line-height:1.9;margin-bottom:14px}
+.res-blk p b{color:var(--txt)}
+.res-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.rs{background:rgba(0,0,0,.3);border:1px solid rgba(220,38,38,.15);border-radius:7px;padding:9px 5px;text-align:center}
+.rs em{font-family:'Orbitron';font-size:.9rem;color:var(--red2);display:block;font-style:normal}
+.rs span{font-family:'Share Tech Mono';font-size:.37rem;color:var(--mu);display:block;margin-top:2px}
+.tut-start{width:100%;margin-top:22px;padding:15px;background:linear-gradient(135deg,rgba(220,38,38,.15),rgba(220,38,38,.06));border:1px solid rgba(220,38,38,.45);border-radius:11px;color:var(--red2);font-family:'Orbitron';font-size:.85rem;letter-spacing:.15em;cursor:pointer;transition:all .25s;text-transform:uppercase;font-weight:700}
+.tut-start:hover{background:linear-gradient(135deg,rgba(220,38,38,.28),rgba(220,38,38,.12));box-shadow:0 0 28px rgba(220,38,38,.25);transform:translateY(-2px)}
+
+/* ══ DECK ══ */
+#sDeck{background:var(--bg);z-index:8;display:flex;flex-direction:column;overflow:hidden;align-items:stretch;justify-content:flex-start}
+.dk-hd{padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.dk-hd h2{font-family:'Orbitron';font-size:1rem;color:var(--grn);font-weight:900}
+.dk-hd p{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu);margin-top:4px}
+.dk-cnt{font-family:'Orbitron';font-size:.55rem;color:var(--grn);margin-top:6px}
+.dk-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;padding:14px;align-content:start}
+.dc{position:relative;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:9px;padding:8px 7px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.dc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--hc,#888);opacity:.5}
+.dc:hover{transform:translateY(-3px);border-color:rgba(34,197,94,.3)}
+.dc.on{border-color:var(--grn);box-shadow:0 0 12px rgba(34,197,94,.2);background:rgba(34,197,94,.07)}
+.dct{font-family:'Share Tech Mono';font-size:.36rem;color:var(--mu);text-transform:uppercase}
+.dci{font-size:1.4rem;text-align:center;line-height:1.1}
+.dcn{font-family:'Russo One';font-size:.62rem;color:var(--txt);text-align:center}
+.dcc{font-family:'Orbitron';font-size:.48rem;color:var(--grn);text-align:center}
+.dcd{font-size:.43rem;color:var(--mu);font-style:italic;line-height:1.25;text-align:center}
+.dk-ft{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.btn-go{padding:11px 28px;border-radius:9px;font-family:'Orbitron';font-size:.75rem;letter-spacing:.1em;border:none;cursor:pointer;transition:all .2s;text-transform:uppercase;font-weight:700}
+.btn-go.rdy{background:var(--red);color:#fff}
+.btn-go.rdy:hover{box-shadow:0 0 24px rgba(220,38,38,.4);transform:translateY(-2px)}
+.btn-go.dis{background:rgba(255,255,255,.04);color:var(--mu);border:1px solid rgba(255,255,255,.1);pointer-events:none;opacity:.5}
+.btn-bk{font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-bk:hover{color:var(--txt);border-color:rgba(255,255,255,.25)}
+
+/* ══ BATALHA ══ */
+#sBattle{background:var(--bg);z-index:7;display:flex;flex-direction:column;overflow:hidden}
+/* HUD Principal */
+.dom-hud{display:flex;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,0,0,.7);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.dom-hud-pts{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.dom-pts-lbl{font-family:'Share Tech Mono';font-size:.38rem;color:var(--mu);text-transform:uppercase}
+.dom-pts-val{font-family:'Orbitron';font-size:1.1rem;color:var(--grn);font-weight:900;text-shadow:0 0 10px rgba(34,197,94,.4)}
+.dom-pts-bar{width:76px;height:4px;background:rgba(34,197,94,.1);border-radius:2px;overflow:hidden;margin-top:2px}
+.dom-pts-fill{height:100%;background:var(--grn);border-radius:2px;transition:width .5s;box-shadow:0 0 6px var(--grn)}
+.dom-vs{font-family:'Orbitron';font-size:.55rem;color:rgba(255,255,255,.1)}
+.dom-hud-pts.enemy .dom-pts-val{color:var(--red2);text-shadow:0 0 10px rgba(220,38,38,.4)}
+.dom-hud-pts.enemy .dom-pts-bar{background:rgba(220,38,38,.1)}
+.dom-hud-pts.enemy .dom-pts-fill{background:var(--red2);box-shadow:0 0 6px var(--red2)}
+/* Zonas */
+.zones-bar{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
+.zone-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;border-radius:6px;border:2px solid;transition:all .3s;position:relative;min-width:52px}
+.zone-chip.neutral{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.03)}
+.zone-chip.player{border-color:var(--grn);background:rgba(34,197,94,.1);box-shadow:0 0 10px rgba(34,197,94,.2)}
+.zone-chip.enemy{border-color:var(--red2);background:rgba(220,38,38,.1);box-shadow:0 0 10px rgba(220,38,38,.2)}
+.zone-chip.overdrive{border-color:var(--gold);background:rgba(251,191,36,.12);box-shadow:0 0 16px rgba(251,191,36,.3);animation:odPulse .8s ease-in-out infinite}
+@keyframes odPulse{0%,100%{box-shadow:0 0 12px rgba(251,191,36,.3)}50%{box-shadow:0 0 28px rgba(251,191,36,.6)}}
+.zone-name{font-family:'Orbitron';font-size:.6rem;font-weight:900}
+.zone-pct{height:3px;width:100%;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:1px}
+.zone-pct-fill{height:100%;border-radius:2px;transition:width .3s}
+.zone-od{font-family:'Share Tech Mono';font-size:.32rem;color:var(--gold);position:absolute;top:-8px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--bg);padding:0 4px}
+/* Timer + souls */
+.dom-hud-r{display:flex;align-items:center;gap:8px}
+.dom-timer{font-family:'Orbitron';font-size:.75rem;color:var(--txt)}
+.dom-souls{font-family:'Orbitron';font-size:.65rem;color:var(--gold)}
+.dom-quit{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:4px 9px;border-radius:5px;cursor:pointer;transition:all .2s}
+.dom-quit:hover{color:var(--red2);border-color:var(--red2)}
+/* Log evento */
+.evt-banner{padding:3px 12px;background:rgba(251,191,36,.08);border-bottom:1px solid rgba(251,191,36,.15);flex-shrink:0;font-family:'Share Tech Mono';font-size:.46rem;color:var(--gold);text-align:center;min-height:1.5em;transition:all .3s;display:none}
+.evt-banner.show{display:block}
+/* Campo de batalha */
+.bf{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.bff{position:absolute;inset:0;pointer-events:none;z-index:0;transition:background .4s}
+/* Grade tática */
+.bf-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(34,197,94,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,.02) 1px,transparent 1px);background-size:36px 36px;pointer-events:none}
+.lns{display:flex;width:100%;height:100%;position:relative;z-index:2}
+.ln{flex:1;border-right:1px solid rgba(34,197,94,.04);cursor:pointer;transition:background .15s;position:relative}
+.ln:last-child{border-right:none}
+.ln:hover{background:rgba(34,197,94,.04)}
+/* Estruturas */
+.st{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-around;padding:5px 8px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.05);z-index:10;flex-shrink:0}
+.sb{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;padding:5px 8px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);z-index:10;flex-shrink:0}
+/* Zonas no campo */
+.zone-marker{position:absolute;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:.8rem;font-weight:900;transition:all .4s;pointer-events:none;z-index:8}
+.zone-marker.neutral{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5)}
+.zone-marker.player{border-color:var(--grn);background:rgba(34,197,94,.15);color:var(--grn);box-shadow:0 0 20px rgba(34,197,94,.3)}
+.zone-marker.enemy{border-color:var(--red2);background:rgba(220,38,38,.15);color:var(--red2);box-shadow:0 0 20px rgba(220,38,38,.3)}
+.zone-marker.overdrive{border-color:var(--gold);background:rgba(251,191,36,.2);color:var(--gold);box-shadow:0 0 30px rgba(251,191,36,.5);animation:odSpin 2s linear infinite}
+@keyframes odSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+/* Captura progressbar */
+.zone-capture-ring{position:absolute;width:72px;height:72px;top:-5px;left:-5px;border-radius:50%;pointer-events:none}
+/* Mão */
+.hnd-row{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(0,0,0,.5);border-top:1px solid rgba(34,197,94,.06);overflow-x:auto;flex-shrink:0}
+.hc{position:relative;flex-shrink:0;width:60px;height:85px;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:4px;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.hc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--hc,#888);opacity:.5}
+.hc:hover{transform:translateY(-5px) scale(1.04);border-color:rgba(34,197,94,.35)}
+.hc.sel{border-color:var(--grn);box-shadow:0 0 14px rgba(34,197,94,.35);transform:translateY(-7px) scale(1.06);background:rgba(34,197,94,.1)}
+.hc.dim{opacity:.4}
+.hcg{position:absolute;top:-3px;right:-3px;width:15px;height:15px;background:var(--grn);border-radius:50%;font-family:'Orbitron';font-size:.46rem;font-weight:bold;color:#000;display:flex;align-items:center;justify-content:center}
+.hci{font-size:1.3rem;text-align:center;line-height:1.15}
+.hcn{font-family:'Russo One';font-size:.5rem;text-align:center;color:var(--txt);line-height:1.1}
+/* Souls bar */
+.souls-row{display:flex;align-items:center;gap:8px;padding:3px 12px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.04);flex-shrink:0}
+.souls-icon{font-size:.85rem}
+#sN{font-family:'Orbitron';font-size:.88rem;color:var(--grn);font-weight:bold}
+.soul-bar{flex:1;height:4px;background:rgba(34,197,94,.1);border-radius:2px;overflow:hidden;max-width:100px}
+.soul-fill{height:100%;background:var(--grn);border-radius:2px;transition:width .3s;box-shadow:0 0 6px var(--grn)}
+/* Pressure warning */
+.pressure-bar{height:4px;background:rgba(220,38,38,.1);flex-shrink:0;overflow:hidden}
+.pressure-fill{height:100%;background:var(--red2);transition:width .5s;box-shadow:0 0 6px var(--red2)}
+/* Unidades */
+.u{position:absolute;display:flex;flex-direction:column;align-items:center;gap:1px;transform:translateX(-50%);z-index:10;transition:top .08s linear}
+.ui{font-size:1.35rem;line-height:1;filter:drop-shadow(0 0 5px var(--uc,#888))}
+.u.en .ui{filter:drop-shadow(0 0 5px var(--red2)) hue-rotate(10deg)}
+.ub{width:26px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.uf{height:100%;background:var(--uc,#888);border-radius:2px;transition:width .2s}
+.u.en .uf{background:var(--red2)}
+.ud{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-family:'Orbitron';font-size:.52rem;font-weight:bold;pointer-events:none;animation:udUp .85s forwards}
+@keyframes udUp{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-26px)}}
+/* Estruturas fixas */
+.s{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 6px;min-width:46px}
+.si{font-size:1.1rem;line-height:1.2}
+.s.mn .si{font-size:1.6rem}
+.sb2{width:38px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.sf{height:100%;border-radius:2px;background:var(--red2);transition:width .3s}
+.s.pl .sf{background:var(--grn)}
+.sx{font-family:'Share Tech Mono';font-size:.37rem;color:var(--mu)}
+.s.dd{opacity:.12;filter:grayscale(1)}
+.s.ht{animation:sHit .3s}
+@keyframes sHit{0%,100%{transform:scale(1)}50%{transform:scale(1.15);filter:brightness(2)}}
+/* Resultado */
+.res-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;pointer-events:none;transition:opacity .4s}
+.res-ov.show{opacity:1;pointer-events:all}
+.res-icon{font-size:3rem}.res-ttl{font-family:'Orbitron';font-size:2rem;font-weight:900}
+.res-sub{font-family:'Share Tech Mono';font-size:.54rem;color:var(--mu);text-align:center;max-width:320px;line-height:1.7}
+.res-btns{display:flex;gap:10px;margin-top:8px}
+.res-btn{font-family:'Orbitron';font-size:.58rem;letter-spacing:.1em;padding:11px 22px;border-radius:9px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:none;font-weight:700}
+.res-btn.pri{background:var(--grn);color:#000}.res-btn.pri:hover{box-shadow:0 0 20px rgba(34,197,94,.4);transform:translateY(-2px)}
+.res-btn.sec{background:none;color:var(--mu);border:1px solid rgba(255,255,255,.12)}.res-btn.sec:hover{color:var(--txt)}
+</style>
+</head>
+<body>
+
+<svg id="domCur" style="position:fixed;pointer-events:none;z-index:99999;top:0;left:0;width:20px;height:24px;overflow:visible">
+  <polygon id="domPoly" points="0,0 0,20 5,15 9,24 12,23 8,14 15,14" fill="#ff2244" opacity="1" style="filter:drop-shadow(0 0 5px rgba(255,34,68,.6))"/>
+</svg>
+
+<!-- SPLASH -->
+<div class="scr" id="sSplash">
+  <div class="sp-hex"></div>
+  <div class="sp-vign"></div>
+  <div class="sp-radar">
+    <div class="sp-radar-ring"></div><div class="sp-radar-ring"></div><div class="sp-radar-ring"></div>
+    <div class="sp-radar-sweep"></div>
+  </div>
+  <div class="sp-cnt" onclick="goTut()">
+    <div class="sp-ey">Torre,Base Plus · Modo Tático</div>
+    <div><span class="sp-t1">DOMINAÇÃO</span><span class="sp-t2">capture · segure · vença</span></div>
+    <div class="sp-desc">
+      <b>3 zonas. 1.000 pontos.</b> Capture e mantenha as zonas A, B e C.<br>
+      Mais zonas = mais pontos por segundo. <b>Zonas Overdrive</b> valem 3x.<br>
+      Perca todas as zonas e sofra <b>pressão do campo</b>.
+    </div>
+    <div class="sp-cl">CLIQUE PARA INICIAR MISSÃO</div>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div class="scr off" id="sTut">
+  <div class="tw">
+    <span class="tbk" onclick="showScr('sSplash')">← VOLTAR</span>
+    <div style="margin-bottom:30px">
+      <div class="thtag">// briefing tático</div>
+      <div class="thtt">DOMINAÇÃO<br><span>OS 2</span></div>
+      <div class="thsub">Capture e mantenha zonas no mapa. Quanto mais zonas controladas, mais pontos por segundo. Chegue a 1.000 antes do inimigo.</div>
+    </div>
+    <div class="ts" id="ts0">
+      <div class="ts-t">Sistema de Pontos</div>
+      <div class="pts-table">
+        <div class="pts-row hd"><span>Zonas</span><span style="flex:1;text-align:center">Bônus</span><span>Pts/s</span></div>
+        <div class="pts-row"><div class="pts-zones"><span>🟢</span></div><div class="pts-lbl">1 zona controlada</div><div class="pts-val">+5/s</div></div>
+        <div class="pts-row"><div class="pts-zones"><span>🟢</span><span>🟢</span></div><div class="pts-lbl">2 zonas controladas</div><div class="pts-val">+12/s</div></div>
+        <div class="pts-row"><div class="pts-zones"><span>🟢</span><span>🟢</span><span>🟢</span></div><div class="pts-lbl">3 zonas — domínio total</div><div class="pts-val" style="color:var(--gold)">+25/s ⚡</div></div>
+        <div class="pts-row" style="background:rgba(251,191,36,.05)"><div class="pts-zones"><span>⭐</span></div><div class="pts-lbl">Zona Overdrive ativa</div><div class="pts-val" style="color:var(--gold)">×3 pts!</div></div>
+      </div>
+    </div>
+    <div class="ts" id="ts1">
+      <div class="ts-t">Como Capturar</div>
+      <div class="t-list">
+        <div class="t-item"><em>⚔️</em><div><b>Envie tropas para a lane da zona</b><p>Clique numa carta da mão, depois clique na lane onde está a zona para capturar.</p></div></div>
+        <div class="t-item"><em>🕐</em><div><b>Captura progressiva</b><p>Cada unidade sua na zona avança a captura. Inimigos dentro da zona a pausam ou revertem.</p></div></div>
+        <div class="t-item"><em>🔄</em><div><b>Zonas mudam de lugar</b><p>A cada 45s uma zona se move. Adapte sua estratégia constantemente.</p></div></div>
+        <div class="t-item"><em>⭐</em><div><b>Zona Overdrive</b><p>Aleatoriamente, uma zona entra em estado Overdrive — vale 3× pontos por 20s.</p></div></div>
+      </div>
+    </div>
+    <div class="ts" id="ts2">
+      <div class="ts-t">Mecânicas Especiais</div>
+      <div class="evt-grid">
+        <div class="evt-card"><em>☠️</em><b>Pressão do Campo</b><p>Sem nenhuma zona: perde pontos e recebe debuff de velocidade.</p></div>
+        <div class="evt-card"><em>⚡</em><b>Overtake</b><p>Perdendo por 300+ pontos: ganhe bônus temporário de velocidade e almas.</p></div>
+        <div class="evt-card"><em>🌀</em><b>Zona Instável</b><p>Evento aleatório: uma zona muda de posição no meio da disputa.</p></div>
+        <div class="evt-card"><em>💥</em><b>Buff Global</b><p>Evento raro: +50% dano de todas as unidades por 15s.</p></div>
+      </div>
+    </div>
+    <div class="ts" id="ts3">
+      <div class="ts-t">Resumo</div>
+      <div class="res-blk">
+        <p>Use <b>cartas</b> para enviar tropas às lanes. Mantenha zonas para acumular pontos.<br>
+        <b>1.000 pontos</b> = vitória. Zonas Overdrive valem <b>3×</b>.<br>
+        Sem zonas = pressão crescente. Perdendo feio = <b>bônus Overtake</b>.</p>
+        <div class="res-stats">
+          <div class="rs"><em>3</em><span>Zonas</span></div>
+          <div class="rs"><em>1000</em><span>Meta pts</span></div>
+          <div class="rs"><em>5</em><span>Lanes</span></div>
+          <div class="rs"><em>⭐</em><span>Overdrive</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="tut-start" onclick="goDeck()">⚔️ MONTAR DECK</button>
+  </div>
+</div>
+
+<!-- DECK -->
+<div class="scr off" id="sDeck">
+  <div class="dk-hd">
+    <h2>Escolha seu Deck</h2>
+    <p>Selecione 6 cartas para a batalha de dominação</p>
+    <div class="dk-cnt" id="dkCnt">0 / 6 selecionadas</div>
+  </div>
+  <div class="dk-grid" id="dkGrid"></div>
+  <div class="dk-ft">
+    <button class="btn-bk" onclick="showScr('sTut')">← Voltar</button>
+    <button class="btn-go dis" id="btnGo" onclick="startBattle()">⚔️ INICIAR DOMINAÇÃO</button>
+  </div>
+</div>
+
+<!-- BATALHA -->
+<div class="scr off" id="sBattle">
+  <!-- HUD -->
+  <div class="dom-hud">
+    <div class="dom-hud-pts">
+      <div class="dom-pts-lbl">VOCÊ</div>
+      <div class="dom-pts-val" id="ptsPl">0</div>
+      <div class="dom-pts-bar"><div class="dom-pts-fill" id="ptsFillPl" style="width:0%"></div></div>
+    </div>
+    <div class="dom-vs">VS</div>
+    <div class="zones-bar" id="zonesBar"></div>
+    <div class="dom-vs">VS</div>
+    <div class="dom-hud-pts enemy">
+      <div class="dom-pts-lbl">INIMIGO</div>
+      <div class="dom-pts-val" id="ptsEn">0</div>
+      <div class="dom-pts-bar"><div class="dom-pts-fill" id="ptsFillEn" style="width:0%"></div></div>
+    </div>
+    <div class="dom-hud-r">
+      <div class="dom-timer" id="domTimer">3:00</div>
+      <div class="dom-souls" id="domSoulsHud">⚡<span id="sNhud">0</span></div>
+      <button class="dom-quit" onclick="quitBattle()">✕</button>
+    </div>
+  </div>
+  <div class="pressure-bar"><div class="pressure-fill" id="pressureFill" style="width:0%"></div></div>
+  <div class="evt-banner" id="evtBanner">Evento!</div>
+  <!-- Campo -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
+    <div class="st" id="stT" style="position:relative;display:flex;justify-content:space-around;padding:5px 8px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.05);z-index:10;flex-shrink:0"></div>
+    <div class="bf" id="bf" style="flex:1;position:relative;overflow:hidden">
+      <div class="bff" id="bff"></div>
+      <div class="bf-grid"></div>
+      <div class="lns" id="lns"></div>
+      <!-- Marcadores de zona serão injetados aqui -->
+    </div>
+    <div class="sb" id="stB" style="position:relative;display:flex;justify-content:space-around;padding:5px 8px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);z-index:10;flex-shrink:0"></div>
+  </div>
+  <div class="souls-row">
+    <span class="souls-icon">⚡</span>
+    <span id="sN">0</span>
+    <div class="soul-bar"><div class="soul-fill" id="sB3" style="width:0%"></div></div>
+    <div id="sB2" style="display:none"></div>
+  </div>
+  <div class="hnd-row" id="hnd"></div>
+</div>
+
+<!-- Resultado -->
+<div class="res-ov" id="resOv">
+  <div class="res-icon" id="resIcon">🏆</div>
+  <div class="res-ttl" id="resTtl" style="color:var(--grn)">—</div>
+  <div class="res-sub" id="resSub"></div>
+  <div class="res-btns">
+    <button class="res-btn pri" onclick="goDeck()">⚔️ NOVA PARTIDA</button>
+    <button class="res-btn sec" onclick="showScr('sSplash')">← MENU</button>
+  </div>
+</div>
+
+<script>
+// ── Cursor tático ──────────────────────────────────────────────────────
+(function(){
+  var svg=document.getElementById('domCur');
+  var poly=document.getElementById('domPoly');
+  document.addEventListener('mousemove',function(e){
+    svg.style.left=e.clientX+'px';svg.style.top=e.clientY+'px';
+  });
+
+})();
+
+function showScr(id){
+  ['sSplash','sTut','sDeck','sBattle'].forEach(function(s){document.getElementById(s).classList.toggle('off',s!==id);});
+  document.body.style.overflow=(id==='sTut')?'auto':'hidden';
+  if(id==='sTut')document.getElementById('sTut').scrollTop=0;
+}
+function goTut(){showScr('sTut');document.querySelectorAll('.ts').forEach(function(s,i){s.classList.remove('vis');setTimeout(function(){s.classList.add('vis');},80+i*110);});}
+function fk(n){return n>=1000?(n>=1000000?(n/1000000).toFixed(1)+'M':(n/1000).toFixed(1)+'k'):String(~~n);}
+
+// ── Estado ─────────────────────────────────────────────────────────────
+let deck=[],souls=0,floor=1,secs=0,gameOn=false,paused=false;
+let units=[],UID=0,picked=null,raf=null,str={en:[],pl:[]};
+let lastT=0,soulT=0,aiT=0;
+let sansMode=false,sansPhase=1;
+const NL=5;
+const AI_POOL=[2,4,8,17,5,16,23,31,32,51,52,71,76];
+const cfg={spd:1,initSouls:0,sps:1,aiDiff:'normal',sfx:'off'};
+const TL={tropa:'Tropa',estrutura:'Estrutura',feitico:'Feitiço',controle:'Controle',aereo:'Aéreo'};
+
+// ── ESTADO DA DOMINAÇÃO ─────────────────────────────────────────────────
+var DOM={
+  ptsPl:0, ptsEn:0, maxPts:1000,
+  timer:180, // 3 minutos
+  timerLoop:null,
+  pressure:0, // pressão do campo (sem zonas)
+  // 3 zonas: A, B, C
+  zones:[
+    {id:'A',lane:1,owner:'neutral',capture:0,overdrive:false,label:'A'},
+    {id:'B',lane:2,owner:'neutral',capture:0,overdrive:false,label:'B'},
+    {id:'C',lane:3,owner:'neutral',capture:0,overdrive:false,label:'C'},
+  ],
+  zoneMoveTimer:0, // zona se move a cada 45s
+  odTimer:0,       // overdrive a cada 30s
+  evtTimer:0,
+  globalBuff:false, buffTimer:0,
+  overtakeActive:false,
+};
+
+// ── CARDS ─────────────────────────────────────────────────────────────
+const CARDS=[
+{id:1,n:"Hetir",t:"tropa",c:5,i:"⚡",col:"#4ec9f0",hp:200,dm:1500,sp:"explode",sv:9000,d:"Explode ao morrer"},
+{id:2,n:"Morbito",t:"tropa",c:9,i:"👁️",col:"#a855f7",hp:2000,dm:3000,sp:"convert",sv:5,d:"Controla inimigo 5s"},
+{id:3,n:"Dor",t:"feitico",c:4,i:"🩸",col:"#f43f5e",hp:0,dm:500,sp:"dot",sv:10,d:"500 dano/s por 10s"},
+{id:4,n:"C.Voador",t:"aereo",c:3,i:"🦅",col:"#84cc16",hp:900,dm:500,sp:"aerial",sv:0,d:"Ataque aéreo"},
+{id:5,n:"Vigilante",t:"tropa",c:8,i:"🗿",col:"#78716c",hp:9000,dm:0,sp:"",sv:0,d:"Tanque gigante"},
+{id:7,n:"Monge",t:"tropa",c:6,i:"⛩️",col:"#f0c96e",hp:2000,dm:800,sp:"heal",sv:25,d:"Cura tropas aliadas"},
+{id:8,n:"Escorpião",t:"tropa",c:5,i:"🦂",col:"#f97316",hp:3500,dm:1200,sp:"poison",sv:3,d:"Envenena por 3 turnos"},
+{id:9,n:"Vampiro",t:"tropa",c:6,i:"🦇",col:"#c084fc",hp:2800,dm:1100,sp:"lifesteal",sv:30,d:"Rouba 30% de vida"},
+{id:10,n:"Golem",t:"tropa",c:7,i:"🪨",col:"#92400e",hp:8000,dm:600,sp:"",sv:0,d:"Muralha viva"},
+{id:11,n:"Espectro",t:"aereo",c:4,i:"👻",col:"#818cf8",hp:1500,dm:1800,sp:"invis",sv:10,d:"Invisível 10s"},
+{id:12,n:"Dragão",t:"aereo",c:9,i:"🐉",col:"#ef4444",hp:6000,dm:2200,sp:"aoe_attack",sv:1200,d:"Dano em área"},
+{id:13,n:"Lich",t:"tropa",c:7,i:"💀",col:"#6366f1",hp:4500,dm:3000,sp:"poison",sv:3,d:"Veneno poderoso"},
+{id:14,n:"Ciclope",t:"tropa",c:8,i:"🔮",col:"#06b6d4",hp:7500,dm:2500,sp:"stun",sv:2,d:"Stun 2s"},
+{id:15,n:"Titan",t:"tropa",c:10,i:"⚙️",col:"#64748b",hp:12000,dm:2000,sp:"",sv:0,d:"Imensurável"},
+{id:16,n:"Arqueiro",t:"tropa",c:3,i:"🏹",col:"#84cc16",hp:800,dm:700,sp:"",sv:0,d:"Rápido e barato"},
+{id:17,n:"Mago",t:"tropa",c:5,i:"🔮",col:"#8b5cf6",hp:1200,dm:1800,sp:"chain_lightning",sv:2,d:"Relâmpago em cadeia"},
+{id:23,n:"Bomba",t:"feitico",c:4,i:"💣",col:"#f97316",hp:0,dm:2000,sp:"aoe_spell",sv:3,d:"AOE em 3 lanes"},
+{id:31,n:"Cura",t:"feitico",c:3,i:"💚",col:"#22c55e",hp:0,dm:0,sp:"mass_heal",sv:30,d:"Cura 30% das tropas"},
+{id:32,n:"Trovão",t:"feitico",c:6,i:"⚡",col:"#fbbf24",hp:0,dm:3000,sp:"chain_spell",sv:4,d:"Encadeia 4 inimigos"},
+{id:51,n:"Glaciador",t:"feitico",c:7,i:"❄️",col:"#67e8f9",hp:0,dm:0,sp:"freeze_all",sv:5,d:"Congela tudo 5s"},
+{id:52,n:"Selva",t:"feitico",c:5,i:"🌿",col:"#4ade80",hp:0,dm:0,sp:"weaken",sv:0,d:"Inimigos –99% stats"},
+{id:71,n:"Berserker",t:"tropa",c:6,i:"🪓",col:"#dc2626",hp:3000,dm:2800,sp:"slow_self",sv:0.5,d:"Muito forte, lento"},
+{id:76,n:"Fênix",t:"aereo",c:8,i:"🔥",col:"#f97316",hp:4000,dm:2000,sp:"revive",sv:0,d:"Renasce uma vez"},
+];
+
+// ── DECK ─────────────────────────────────────────────────────────────
+function goDeck(){
+  deck=[];showScr('sDeck');
+  var g=document.getElementById('dkGrid');g.innerHTML='';
+  CARDS.forEach(function(card){
+    var el=document.createElement('div');el.className='dc';el.id='dc'+card.id;
+    el.style.setProperty('--hc',card.col||'#888');
+    el.onclick=function(){togCard(card,el);};
+    el.innerHTML='<div class="dct">'+(TL[card.t]||card.t)+'</div><div class="dci">'+card.i+'</div><div class="dcn">'+card.n+'</div><div class="dcc">⚡'+card.c+'</div><div class="dcd">'+card.d+'</div>';
+    g.appendChild(el);
+  });
+}
+function togCard(card,el){
+  var i=deck.findIndex(function(x){return x.id===card.id;});
+  if(i>=0){deck.splice(i,1);el.classList.remove('on');}
+  else if(deck.length<6){deck.push(card);el.classList.add('on');}
+  document.getElementById('dkCnt').textContent=deck.length+' / 6 selecionadas';
+  var btn=document.getElementById('btnGo');
+  btn.classList.toggle('dis',deck.length!==6);btn.classList.toggle('rdy',deck.length===6);
+}
+
+// ── BATALHA ─────────────────────────────────────────────────────────────
+function startBattle(){
+  if(deck.length!==6)return;
+  // Reset estado
+  floor=1;secs=0;souls=0;gameOn=true;paused=false;units=[];picked=null;
+  str={en:[],pl:[]};lastT=0;soulT=0;aiT=0;sansMode=false;
+  DOM.ptsPl=0;DOM.ptsEn=0;DOM.timer=180;DOM.pressure=0;
+  DOM.zoneMoveTimer=0;DOM.odTimer=0;DOM.evtTimer=0;
+  DOM.globalBuff=false;DOM.buffTimer=0;DOM.overtakeActive=false;
+  DOM.zones=[
+    {id:'A',lane:0,owner:'neutral',capture:0,overdrive:false},
+    {id:'B',lane:2,owner:'neutral',capture:0,overdrive:false},
+    {id:'C',lane:4,owner:'neutral',capture:0,overdrive:false},
+  ];
+  mkStr();buildLanes();renderStr();renderHand();souls=0;updSouls();
+  buildZoneMarkers();updZonesBar();
+  document.getElementById('flN')&&(document.getElementById('flN').textContent='01');
+  setLog('⚔️ Capture as zonas A, B e C!');
+  showScr('sBattle');
+  souls=0;updSouls();
+  if(DOM.timerLoop)clearInterval(DOM.timerLoop);
+  DOM.timerLoop=setInterval(domTick,1000);
+  lastT=performance.now();
+  raf=requestAnimationFrame(loop);
+}
+
+function quitBattle(){
+  gameOn=false;cancelAnimationFrame(raf);
+  clearInterval(DOM.timerLoop);
+  showScr('sSplash');
+}
+
+// ── DOM TICK (1/s) ────────────────────────────────────────────────────
+function domTick(){
+  if(!gameOn)return;
+  secs++;
+  DOM.timer--;
+
+  // Timer display
+  var m=~~(DOM.timer/60),s=DOM.timer%60;
+  var tel=document.getElementById('domTimer');
+  if(tel)tel.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  if(DOM.timer<=10&&tel)tel.style.color='var(--red2)';
+
+  // Pontos por zonas
+  var plZones=DOM.zones.filter(function(z){return z.owner==='player';}).length;
+  var enZones=DOM.zones.filter(function(z){return z.owner==='enemy';}).length;
+  var pts_rate=[0,5,12,25];
+  var plPts=pts_rate[plZones]||0;
+  var enPts=pts_rate[enZones]||0;
+  // Overdrive multiplica
+  DOM.zones.forEach(function(z){
+    if(z.overdrive&&z.owner==='player')plPts+=pts_rate[1]*2;
+    if(z.overdrive&&z.owner==='enemy')enPts+=pts_rate[1]*2;
+  });
+  DOM.ptsPl+=plPts;
+  DOM.ptsEn+=enPts;
+
+  // Pressão do campo (sem zonas)
+  if(plZones===0){
+    DOM.pressure=Math.min(100,DOM.pressure+3);
+    DOM.ptsPl=Math.max(0,DOM.ptsPl-2); // perde pontos
+    if(DOM.pressure%20===0)setLog('☠️ Pressão do campo! Capture uma zona!');
+  }else{DOM.pressure=Math.max(0,DOM.pressure-5);}
+
+  // Overtake: perdendo por 300+
+  if(DOM.ptsEn-DOM.ptsPl>=300&&!DOM.overtakeActive){
+    DOM.overtakeActive=true;
+    souls=Math.min(20,souls+5);
+    showEvt('⚡ OVERTAKE! Bônus de emergência ativado!');
+  }else if(DOM.ptsPl>=DOM.ptsEn)DOM.overtakeActive=false;
+
+  // Buff global (a cada 60s)
+  DOM.evtTimer++;
+  if(DOM.evtTimer%60===0)triggerRandomEvt();
+
+  // Zona se move a cada 45s
+  DOM.zoneMoveTimer++;
+  if(DOM.zoneMoveTimer>=45){DOM.zoneMoveTimer=0;moveRandomZone();}
+
+  // Overdrive a cada 35s
+  DOM.odTimer++;
+  if(DOM.odTimer>=35){DOM.odTimer=0;triggerOverdrive();}
+
+  // Captura progressiva de zonas
+  DOM.zones.forEach(function(z){
+    var plUnits=units.filter(function(u){return !u.en&&u.lane===z.lane&&!u.vlt;});
+    var enUnits=units.filter(function(u){return u.en&&u.lane===z.lane&&!u.vlt;});
+    if(plUnits.length>0&&enUnits.length===0){
+      z.capture=Math.min(100,z.capture+4);
+      if(z.capture>=100&&z.owner!=='player'){z.owner='player';showEvt('🟢 Zona '+z.id+' capturada pelo JOGADOR!');}
+    }else if(enUnits.length>0&&plUnits.length===0){
+      z.capture=Math.max(0,z.capture-4);
+      if(z.capture<=0&&z.owner!=='enemy'){z.owner='enemy';showEvt('🔴 Zona '+z.id+' capturada pelo INIMIGO!');}
+    }
+  });
+
+  // Buff decay
+  if(DOM.buffTimer>0){DOM.buffTimer--;if(DOM.buffTimer===0){DOM.globalBuff=false;}}
+
+  updDomHud();
+
+  // Vitória por pontos
+  if(DOM.ptsPl>=DOM.maxPts){endGame(true,'pontos');}
+  else if(DOM.ptsEn>=DOM.maxPts){endGame(false,'pontos');}
+  else if(DOM.timer<=0){endGame(DOM.ptsPl>=DOM.ptsEn,'tempo');}
+}
+
+function triggerRandomEvt(){
+  var evts=[
+    {txt:'💥 BUFF GLOBAL! +50% dano por 15s!',fn:function(){DOM.globalBuff=true;DOM.buffTimer=15;}},
+    {txt:'🌀 Zona instável! Uma zona se moveu!',fn:function(){moveRandomZone();}},
+    {txt:'⚡ Almas extras!',fn:function(){souls=Math.min(20,souls+8);}},
+  ];
+  var e=evts[~~(Math.random()*evts.length)];
+  e.fn();showEvt(e.txt);
+}
+
+function moveRandomZone(){
+  var z=DOM.zones[~~(Math.random()*DOM.zones.length)];
+  var lanes=[0,1,2,3,4].filter(function(l){return !DOM.zones.some(function(oz){return oz!==z&&oz.lane===l;});});
+  if(lanes.length){z.lane=lanes[~~(Math.random()*lanes.length)];z.owner='neutral';z.capture=50;}
+  buildZoneMarkers();updZonesBar();showEvt('🌀 Zona '+z.id+' se moveu!');
+}
+
+function triggerOverdrive(){
+  DOM.zones.forEach(function(z){z.overdrive=false;});
+  var z=DOM.zones[~~(Math.random()*DOM.zones.length)];
+  z.overdrive=true;
+  setTimeout(function(){z.overdrive=false;buildZoneMarkers();updZonesBar();},20000);
+  showEvt('⭐ Zona '+z.id+' OVERDRIVE! ×3 pontos por 20s!');
+  buildZoneMarkers();updZonesBar();
+}
+
+function showEvt(txt){
+  var b=document.getElementById('evtBanner');
+  if(b){b.textContent=txt;b.classList.add('show');setTimeout(function(){b.classList.remove('show');},3000);}
+}
+
+// ── HUD DOMINAÇÃO ──────────────────────────────────────────────────────
+function updDomHud(){
+  var pe=document.getElementById('ptsPl'),ee=document.getElementById('ptsEn');
+  if(pe)pe.textContent=fk(DOM.ptsPl);
+  if(ee)ee.textContent=fk(DOM.ptsEn);
+  var pf=document.getElementById('ptsFillPl'),ef=document.getElementById('ptsFillEn');
+  if(pf)pf.style.width=Math.min(100,DOM.ptsPl/DOM.maxPts*100)+'%';
+  if(ef)ef.style.width=Math.min(100,DOM.ptsEn/DOM.maxPts*100)+'%';
+  var pr=document.getElementById('pressureFill');
+  if(pr)pr.style.width=DOM.pressure+'%';
+  updZonesBar();buildZoneMarkers();
+}
+
+function updZonesBar(){
+  var bar=document.getElementById('zonesBar');
+  if(!bar)return;
+  bar.innerHTML='';
+  DOM.zones.forEach(function(z){
+    var cls='zone-chip '+z.owner+(z.overdrive?' overdrive':'');
+    var nameCol=z.owner==='player'?'var(--grn)':z.owner==='enemy'?'var(--red2)':'rgba(255,255,255,.4)';
+    var pctCol=z.owner==='player'?'var(--grn)':z.owner==='enemy'?'var(--red2)':'rgba(255,255,255,.3)';
+    var div=document.createElement('div');div.className=cls;
+    div.innerHTML=(z.overdrive?'<div class="zone-od">⭐ OVERDRIVE</div>':'')+
+      '<div class="zone-name" style="color:'+nameCol+'">'+z.id+'</div>'+
+      '<div class="zone-pct"><div class="zone-pct-fill" style="width:'+z.capture+'%;background:'+pctCol+'"></div></div>';
+    bar.appendChild(div);
+  });
+}
+
+function buildZoneMarkers(){
+  var bf=document.getElementById('bf');
+  if(!bf)return;
+  bf.querySelectorAll('.zone-marker').forEach(function(e){e.remove();});
+  var bW=bf.offsetWidth,bH=bf.offsetHeight,lW=bW/NL;
+  DOM.zones.forEach(function(z){
+    var cls='zone-marker '+z.owner+(z.overdrive?' overdrive':'');
+    var x=z.lane*lW+lW/2,y=bH/2+(z.id==='A'?-bH*0.2:z.id==='C'?bH*0.2:0);
+    var el=document.createElement('div');el.className=cls;
+    el.style.cssText='left:'+x+'px;top:'+y+'px;transform:translate(-50%,-50%);width:60px;height:60px';
+    el.textContent=z.id+(z.overdrive?'⭐':'');
+    bf.appendChild(el);
+  });
+}
+
+// ── ESTRUTURAS ──────────────────────────────────────────────────────────
+function mkStr(){
+  var hp=8000+floor*1500,mhp=25000+floor*3000;
+  str={
+    en:[{id:'e0',hp:hp,max:hp},{id:'e1',hp:hp,max:hp},{id:'em',hp:mhp,max:mhp,main:true},{id:'e2',hp:hp,max:hp},{id:'e3',hp:hp,max:hp}],
+    pl:[{id:'p0',hp:8000,max:8000},{id:'pm',hp:25000,max:25000,main:true},{id:'p1',hp:8000,max:8000}]
+  };
+}
+
+function buildLanes(){
+  var el=document.getElementById('lns');el.innerHTML='';
+  ['I','II','III','IV','V'].forEach(function(lbl,i){
+    var ln=document.createElement('div');ln.className='ln';
+    ln.innerHTML='<div class="ln-lbl" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:Share Tech Mono,monospace;font-size:.36rem;color:rgba(255,255,255,.08)">'+lbl+'</div>';
+    ln.onclick=function(){onLane(i,ln);};
+    el.appendChild(ln);
+  });
+  setTimeout(buildZoneMarkers,100);
+}
+
+function renderStr(){
+  var top=document.getElementById('stT'),bot=document.getElementById('stB');
+  if(!top||!bot)return;
+  top.innerHTML='';bot.innerHTML='';
+  str.en.forEach(function(s){
+    var icon=s.main?'🏰':'🏚️';
+    var el=document.createElement('div');el.className='s en'+(s.main?' mn':'')+(s.hp<=0?' dd':'');el.id='s_'+s.id;
+    el.innerHTML='<div class="si">'+icon+'</div><div class="sb2"><div class="sf" style="width:'+s.hp/s.max*100+'%"></div></div><div class="sx">'+fk(s.hp)+'</div>';
+    top.appendChild(el);
+  });
+  str.pl.forEach(function(s,i){
+    var icons=['🏠','🏡','🏠'];
+    var el=document.createElement('div');el.className='s pl'+(s.main?' mn':'')+(s.hp<=0?' dd':'');el.id='s_'+s.id;
+    el.innerHTML='<div class="si">'+icons[i]+'</div><div class="sb2"><div class="sf" style="width:'+s.hp/s.max*100+'%;background:var(--grn)"></div></div><div class="sx">'+fk(s.hp)+'</div>';
+    bot.appendChild(el);
+  });
+}
+
+function renderHand(){
+  var h=document.getElementById('hnd');h.innerHTML='';
+  deck.forEach(function(c){
+    var el=document.createElement('div');el.className='hc'+(souls<c.c?' dim':'');
+    el.style.setProperty('--hc',c.col||'#888');
+    el.onclick=function(){
+      if(picked&&picked.id===c.id){picked=null;el.classList.remove('sel');return;}
+      picked=c;document.querySelectorAll('.hc').forEach(function(h2){h2.classList.remove('sel');});
+      el.classList.add('sel');setLog(c.n+' ('+c.c+'⚡) — clique numa lane');
+    };
+    el.innerHTML='<div class="hcg">'+c.c+'</div><div class="hci">'+c.i+'</div><div class="hcn">'+c.n+'</div>';
+    h.appendChild(el);
+  });
+}
+
+function updSouls(){
+  // Atualiza todos os displays de almas
+  document.querySelectorAll('#sN,#sNhud').forEach(function(el){el.textContent=Math.floor(souls);});
+  var b=document.getElementById('sB3');if(b)b.style.width=(souls/20*100)+'%';
+}
+
+function onLane(i,ln){
+  if(!picked||!gameOn||paused)return;
+  var c=picked;
+  if(souls<c.c){setLog('Almas insuficientes!');return;}
+  souls-=c.c;updSouls();
+  spawnUnit(c,i,false);
+  picked=null;renderHand();
+}
+
+function setLog(msg){var el=document.getElementById('evtBanner');/* usa banner */}
+function flash(col){var b=document.getElementById('bff');if(b){b.style.background=col;setTimeout(function(){b.style.background='transparent';},350);}}
+function playSound(){}
+function refund(cost){souls=Math.min(20,souls+cost);updSouls();}
+function updTm(){}
+
+function winRound(){endGame(true,'estrutura');}
+function loseGame(){endGame(false,'estrutura');}
+
+function endGame(win,reason){
+  gameOn=false;cancelAnimationFrame(raf);clearInterval(DOM.timerLoop);
+  document.getElementById('resIcon').textContent=win?'🏆':'💀';
+  document.getElementById('resTtl').textContent=win?'DOMINAÇÃO TOTAL':'DERROTA TÁTICA';
+  document.getElementById('resTtl').style.color=win?'var(--grn)':'var(--red2)';
+  var r=reason==='pontos'?'por pontuação':'por '+(reason==='tempo'?'tempo':'estrutura');
+  document.getElementById('resSub').textContent=(win?'Você venceu ':'Você perdeu ')+r+'!\n'+'Pts: '+fk(DOM.ptsPl)+' × '+fk(DOM.ptsEn)+'\nZonas capturadas: '+DOM.zones.filter(function(z){return z.owner==='player';}).length+'/3';
+  document.getElementById('resOv').classList.add('show');
+  window.removeEventListener('keydown',onKeyD);window.removeEventListener('keyup',onKeyU);
+}
+
+function onKeyD(e){if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();}
+function onKeyU(){}
+
+// ── FUNÇÕES DO MOTOR (extraídas do jogo principal) ─────────────────────
+function spawnUnit(card,lane,isEn,opts){
+  opts=opts||{};
+  var bf=document.getElementById('bf');
+  var bH=bf.offsetHeight,bW=bf.offsetWidth,lW=bW/NL;
+  var cnt=1;
+  if(card.sp==='swarm')cnt=Math.min(card.sv||3,15);
+  else if(card.sp==='multi')cnt=card.sv||2;
+  var hpBase=opts.hp||card.hp||500;
+  for(var i=0;i<cnt;i++){
+    var id=++UID;
+    var lx=lane*lW+lW/2,ox=(i%4-1.5)*20;
+    var yBase=isEn?90:bH-110;
+    var yo=(~~(i/4))*18*(isEn?1:-1);
+    var y=Math.max(62,Math.min(bH-62,yBase+yo));
+    var el=document.createElement('div');
+    el.className='u'+(isEn?' en':'');el.id='u'+id;
+    el.style.cssText='left:'+(lx+ox)+'px;top:'+y+'px;--uc:'+(opts.col||card.col||'#888');
+    el.innerHTML='<div class="ui">'+(opts.icon||card.i)+'</div><div class="ub"><div class="uf" style="width:100%"></div></div>';
+    bf.appendChild(el);
+    var dmgMult=DOM.globalBuff?1.5:1;
+    units.push({id:id,card:card,lane:lane,y:y,hp:hpBase,maxHp:hpBase,dm:(opts.dm||card.dm||200)*dmgMult,en:isEn,spd:opts.spd||1,atk:0,el:el,vlt:false,inv:false,static:false,frozen:false,revived:false});
+  }
+}
+
+function hitUnit(u,dmg){
+  if(!u||u.vlt||!units.includes(u))return;
+  u.hp-=dmg;updBar(u);
+  if(dmg>=80){var d=document.createElement('div');d.className='ud';d.textContent='-'+fk(dmg);d.style.color=dmg>3000?'#ff3c00':dmg>1000?'#f97316':'#fbbf24';u.el.appendChild(d);setTimeout(function(){d.remove();},900);}
+  if(u.hp<=0){rmUnit(u);}
+}
+function updBar(u){var f=u.el&&u.el.querySelector('.uf');if(f)f.style.width=Math.max(0,u.hp/u.maxHp*100)+'%';}
+function rmUnit(u){units=units.filter(function(x){return x.id!==u.id;});if(u.el&&u.el.parentNode)u.el.parentNode.removeChild(u.el);}
+
+function hitStr(side,id,dmg){
+  var s=str[side].find(function(x){return x.id===id;});if(!s||s.hp<=0)return;
+  s.hp=Math.max(0,s.hp-dmg);
+  var el=document.getElementById('s_'+id);if(!el)return;
+  var f=el.querySelector('.sf');if(f)f.style.width=(s.hp/s.max*100)+'%';
+  var tx=el.querySelector('.sx');if(tx)tx.textContent=fk(s.hp);
+  el.classList.add('ht');setTimeout(function(){el.classList.remove('ht');},300);
+  if(s.hp<=0)el.classList.add('dd');
+  if(side==='en'&&s.main&&s.hp<=0)winRound();
+  if(side==='pl'&&s.main&&s.hp<=0)loseGame();
+}
+
+function aiSpawn(){
+  var pool=AI_POOL.map(function(id){return CARDS.find(function(c){return c.id===id;});}).filter(Boolean);
+  var card=pool[~~(Math.random()*pool.length)];
+  var lane=~~(Math.random()*NL);
+  spawnUnit(card,lane,true);
+}
+
+const AI_TIMERS={easy:7,normal:4,hard:2.5,insane:1.5};
+function loop(ts){
+  if(!gameOn||paused)return;
+  var dt=Math.min((ts-lastT)/1000,.05)*cfg.spd;
+  lastT=ts;
+  soulT+=dt;aiT+=dt;
+  if(soulT>=1){soulT=0;souls=Math.min(20,souls+cfg.sps);updSouls();secs++;}
+  var aiInterval=AI_TIMERS[cfg.aiDiff]||4;
+  if(aiT>=aiInterval){aiT=0;aiSpawn();}
+  var bf=document.getElementById('bf');
+  var bH=bf.offsetHeight,bW=bf.offsetWidth,lW=bW/NL;
+  var strEnAlive=str.en.filter(function(s){return s.hp>0;});
+  var strPlAlive=str.pl.filter(function(s){return s.hp>0;});
+  [...units].forEach(function(u){
+    if(u.vlt||u.inv||u.frozen||u.static)return;
+    u.atk+=dt;
+    var spd=(u.spd||1)*45*cfg.spd;
+    var dir=u.en?1:-1;
+    var foes=units.filter(function(x){return x.en!==u.en&&x.lane===u.lane&&!x.vlt&&!x.inv;});
+    var near=foes.find(function(x){return Math.abs(x.y-u.y)<52;});
+    if(near){
+      if(u.atk>=1.2){u.atk=0;if(u.dm>0)hitUnit(near,u.dm);}
+    }else{
+      u.y+=dir*spd*dt;
+      u.y=Math.max(62,Math.min(bH-62,u.y));
+      u.el.style.top=u.y+'px';
+      // Ataca estruturas
+      if(u.en&&u.y>=bH-130){
+        var tgt=strPlAlive.find(function(){return true;});
+        if(tgt&&u.atk>=1.2){u.atk=0;hitStr('pl',tgt.id,u.dm||200);flash('rgba(220,38,38,.12)');}
+      }
+      if(!u.en&&u.y<=130){
+        var tgt2=strEnAlive.find(function(){return true;});
+        if(tgt2&&u.atk>=1.2){u.atk=0;hitStr('en',tgt2.id,u.dm||200);flash('rgba(34,197,94,.1)');}
+      }
+    }
+  });
+  raf=requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIK LUTA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Share+Tech+Mono&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000;--green:#00ff88;--green2:#00cc66;
+  --red:#ff2244;--gold:#ffd166;--txt:#e8e0cc;
+  --surf:#0a0f0a;--mu:rgba(232,224,204,.35)
+}
+html,body{width:100%;height:100%;background:#000;cursor:none}
+body{overflow:hidden}
+
+/* ── CURSOR ── */
+#cursor{position:fixed;width:18px;height:18px;border:2px solid var(--green);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s,border-color .15s;mix-blend-mode:difference}
+#cursor.hover{width:28px;height:28px;border-color:var(--gold)}
+#cursor-dot{position:fixed;width:4px;height:4px;background:var(--green);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+
+/* ── TELAS ── */
+.scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,transform .6s}
+.scr.off{opacity:0;pointer-events:none;transform:scale(.97)}
+
+/* ── SPLASH ── */
+#sSplash{background:#000;z-index:10;overflow:hidden}
+.splash-noise{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+.splash-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,136,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.04) 1px,transparent 1px);background-size:40px 40px;animation:gridDrift 12s linear infinite}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:40px 40px}}
+.splash-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.95) 100%)}
+
+.splash-center{position:relative;z-index:2;text-align:center;user-select:none}
+.splash-eyebrow{font-family:'Share Tech Mono';font-size:.58rem;letter-spacing:.6em;color:var(--green);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:fadeUp .8s .3s forwards}
+.splash-title{font-family:'Cinzel Decorative',serif;font-size:clamp(4rem,12vw,9rem);font-weight:900;color:#fff;line-height:.9;letter-spacing:-.02em;cursor:pointer;position:relative;opacity:0;animation:fadeUp .8s .6s forwards}
+.splash-title span{display:block}
+.splash-title .t1{color:#fff;text-shadow:0 0 60px rgba(255,255,255,.1)}
+.splash-title .t2{color:var(--green);text-shadow:0 0 40px rgba(0,255,136,.4),0 0 80px rgba(0,255,136,.2);animation:greenPulse 2.5s ease-in-out infinite}
+@keyframes greenPulse{0%,100%{text-shadow:0 0 40px rgba(0,255,136,.4)}50%{text-shadow:0 0 80px rgba(0,255,136,.8),0 0 120px rgba(0,255,136,.3)}}
+.splash-click{font-family:'Share Tech Mono';font-size:.6rem;letter-spacing:.3em;color:var(--mu);margin-top:28px;opacity:0;animation:fadeUp .8s 1.2s forwards,blink 1.8s 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:.8}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Scanlines */
+.scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);z-index:3}
+
+/* Partículas */
+.particle{position:absolute;width:2px;height:2px;background:var(--green);border-radius:50%;pointer-events:none;animation:particleDrift linear infinite}
+@keyframes particleDrift{from{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.4}to{transform:translateY(-10vh) translateX(var(--dx));opacity:0}}
+
+/* ── TUTORIAL ── */
+#sTut{background:#000;z-index:9;overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:0;display:block}
+.tut-wrap{max-width:640px;width:100%;margin:0 auto;padding:40px 24px 120px;min-height:100%}
+.tut-back{font-family:'Share Tech Mono';font-size:.52rem;letter-spacing:.15em;color:var(--mu);cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:36px;transition:color .2s;width:fit-content}
+.tut-back:hover{color:var(--green)}
+.tut-header{margin-bottom:40px}
+.tut-tag{font-family:'Share Tech Mono';font-size:.48rem;letter-spacing:.25em;color:var(--green);margin-bottom:10px}
+.tut-title{font-family:'Cinzel Decorative';font-size:2.2rem;color:#fff;line-height:1}
+.tut-title span{color:var(--green)}
+.tut-sub{font-family:'Share Tech Mono';font-size:.58rem;color:var(--mu);margin-top:10px;line-height:1.7}
+
+.tut-section{margin-bottom:36px;opacity:0;transform:translateY(16px);transition:all .5s}
+.tut-section.vis{opacity:1;transform:none}
+.tut-section-title{font-family:'Cinzel';font-size:.85rem;font-weight:700;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.tut-section-title::before{content:'';display:block;width:24px;height:1px;background:var(--gold);opacity:.5}
+
+.tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tut-card{background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);border-radius:10px;padding:14px 16px;transition:border-color .2s}
+.tut-card:hover{border-color:rgba(0,255,136,.3)}
+.tut-card-icon{font-size:1.4rem;margin-bottom:6px}
+.tut-card-name{font-family:'Cinzel';font-size:.65rem;color:var(--txt);margin-bottom:4px}
+.tut-card-desc{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu);line-height:1.6}
+
+.tut-floor-list{display:flex;flex-direction:column;gap:8px}
+.tut-floor{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px;border-left:3px solid var(--c)}
+.tut-floor-num{font-family:'Cinzel Decorative';font-size:1rem;color:var(--c);flex-shrink:0;width:28px;text-align:center}
+.tut-floor-info{flex:1}
+.tut-floor-name{font-family:'Cinzel';font-size:.65rem;color:var(--txt);margin-bottom:2px}
+.tut-floor-desc{font-family:'Share Tech Mono';font-size:.46rem;color:var(--mu);line-height:1.5}
+.tut-floor-hp{font-family:'Share Tech Mono';font-size:.44rem;color:var(--c);flex-shrink:0}
+
+.tut-controls{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:center}
+.tut-key{font-family:'Share Tech Mono';font-size:.6rem;color:#000;background:var(--txt);border-radius:5px;padding:3px 10px;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.5);width:fit-content}
+.tut-key-desc{font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu)}
+
+.tut-moves-list{display:flex;flex-direction:column;gap:6px}
+.tut-move{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px}
+.tut-move-emoji{font-size:1.1rem;flex-shrink:0}
+.tut-move-info{flex:1}
+.tut-move-name{font-family:'Share Tech Mono';font-size:.55rem;color:var(--txt)}
+.tut-move-desc{font-family:'Share Tech Mono';font-size:.46rem;color:var(--mu);margin-top:2px}
+.tut-move-tag{font-family:'Share Tech Mono';font-size:.42rem;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.tag-dmg{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.tag-heal{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.tag-ctrl{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.tag-spec{background:rgba(168,85,247,.1);color:#c084fc;border:1px solid rgba(168,85,247,.2)}
+
+.tut-start-btn{width:100%;padding:16px;background:linear-gradient(135deg,rgba(0,255,136,.1),rgba(0,204,102,.05));border:1px solid rgba(0,255,136,.35);border-radius:12px;color:var(--green);font-family:'Cinzel';font-size:.9rem;letter-spacing:.15em;cursor:pointer;transition:all .25s;margin-top:32px;text-transform:uppercase}
+.tut-start-btn:hover{background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,204,102,.1));border-color:var(--green);box-shadow:0 0 30px rgba(0,255,136,.2);transform:translateY(-2px)}
+
+/* ── JOGO ── */
+#sGame{background:#000;z-index:8;flex-direction:column;align-items:stretch;justify-content:flex-start}
+.game-hud{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(0,0,0,.8);border-bottom:1px solid rgba(0,255,136,.1);flex-shrink:0}
+.hud-hero{display:flex;align-items:center;gap:10px}
+.hud-icon{font-size:1.3rem;filter:drop-shadow(0 0 8px var(--green))}
+.hud-name{font-family:'Cinzel';font-size:.7rem;color:var(--txt)}
+.hud-hp-bar{width:80px;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:3px}
+.hud-hp-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+.hud-hp-txt{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);margin-top:2px}
+.hud-info{text-align:right}
+.hud-room{font-family:'Share Tech Mono';font-size:.48rem;color:var(--green)}
+.hud-kills{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu)}
+.hud-quit{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s}
+.hud-quit:hover{color:var(--red);border-color:var(--red)}
+#pikCanvas{flex:1;display:block;width:100%}
+
+/* ── BATALHA ── */
+.battle-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:50;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s}
+.battle-overlay.show{opacity:1;pointer-events:all}
+.battle-title{font-family:'Cinzel Decorative';font-size:1.4rem;color:var(--red);text-shadow:0 0 30px rgba(255,34,68,.5);letter-spacing:.1em}
+.battle-fighters{display:flex;align-items:center;gap:24px}
+.fighter{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px}
+.fighter-icon{font-size:2.4rem;transition:transform .15s}
+.fighter-icon.shake{animation:fShake .2s}
+@keyframes fShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fighter-name{font-family:'Cinzel';font-size:.65rem;color:var(--txt);text-align:center}
+.fighter-bar{width:90px;height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.fighter-fill{height:100%;border-radius:3px;transition:width .3s}
+.fighter-hp{font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu)}
+.battle-vs{font-family:'Cinzel Decorative';font-size:1.2rem;color:rgba(255,255,255,.15)}
+.battle-status{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);display:flex;gap:12px;min-height:1em}
+.battle-log{font-family:'Share Tech Mono';font-size:.58rem;color:var(--mu);text-align:center;min-height:1.4em;padding:0 20px;transition:color .2s}
+.battle-log.hit{color:var(--gold)}
+.battle-log.crit{color:var(--red)}
+.battle-log.win{color:var(--green)}
+.moves-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:340px}
+.move-btn{padding:10px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--txt);font-family:'Share Tech Mono';font-size:.5rem;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.move-btn:hover:not(:disabled){background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.35);transform:translateY(-2px)}
+.move-btn:disabled{opacity:.25;cursor:not-allowed}
+.move-btn .mv-e{font-size:1rem}
+.move-btn .mv-n{font-size:.52rem;color:var(--txt)}
+.move-btn .mv-cd{font-size:.42rem;color:var(--red)}
+.move-btn .mv-d{font-size:.4rem;color:var(--mu);text-align:center}
+.flee-btn{font-family:'Share Tech Mono';font-size:.58rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:8px 20px;border-radius:8px;cursor:pointer;transition:all .2s}
+.flee-btn:hover{color:var(--red);border-color:var(--red)}
+
+/* ── RESULTADO ── */
+.result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:60;opacity:0;pointer-events:none;transition:opacity .4s}
+.result-overlay.show{opacity:1;pointer-events:all}
+.result-icon{font-size:3.5rem}
+.result-title{font-family:'Cinzel Decorative';font-size:2rem}
+.result-sub{font-family:'Share Tech Mono';font-size:.56rem;color:var(--mu);text-align:center}
+.result-btns{display:flex;gap:12px;margin-top:8px}
+.result-btn{font-family:'Share Tech Mono';font-size:.6rem;letter-spacing:.12em;padding:12px 28px;border-radius:10px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.result-btn.primary{background:var(--green);color:#000;border:none}
+.result-btn.primary:hover{box-shadow:0 0 24px rgba(0,255,136,.4);transform:translateY(-2px)}
+.result-btn.secondary{background:none;color:var(--mu);border:1px solid rgba(255,255,255,.12)}
+.result-btn.secondary:hover{color:var(--txt);border-color:rgba(255,255,255,.3)}
+
+/* Minimap */
+#minimap{position:fixed;top:52px;right:12px;z-index:20;pointer-events:none}
+
+/* ── RESUMO ── */
+#sResumo{background:#000;z-index:11;overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:0;display:block}
+.resumo-wrap{width:100%;min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px 20px 60px;position:relative}
+.resumo-noise{position:fixed;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;pointer-events:none}
+.resumo-content{max-width:520px;width:100%;display:flex;flex-direction:column;gap:24px;position:relative;z-index:2}
+.resumo-eyebrow{font-family:'Share Tech Mono';font-size:.5rem;letter-spacing:.35em;color:var(--green);opacity:.6}
+.resumo-title{font-family:'Cinzel Decorative';font-size:clamp(2rem,7vw,3.5rem);font-weight:900;color:#fff;line-height:.95}
+.resumo-title span{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,.4)}
+.resumo-tagline{font-family:'Share Tech Mono';font-size:.58rem;color:var(--mu);margin-top:-8px}
+
+.resumo-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rc{background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.1);border-radius:10px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s}
+.rc:hover{border-color:rgba(0,255,136,.3)}
+.rc-icon{font-size:1.2rem}
+.rc-val{font-family:'Cinzel Decorative';font-size:1rem;color:var(--green)}
+.rc-lbl{font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu);text-align:center;line-height:1.4}
+
+.resumo-rules{display:flex;flex-direction:column;gap:8px;padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.resumo-rule{display:flex;align-items:flex-start;gap:10px;font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu);line-height:1.6}
+.resumo-rule.rr-gold{color:rgba(255,209,102,.7)}
+.rr-dot{width:5px;height:5px;border-radius:50%;background:rgba(0,255,136,.4);flex-shrink:0;margin-top:5px}
+.rr-dot.gold{background:#ffd166}
+
+.resumo-andares{display:flex;flex-direction:column;gap:5px}
+.resumo-andar{display:flex;align-items:center;gap:12px;padding:8px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-left:3px solid var(--fc);border-radius:0 8px 8px 0}
+.ra-num{font-family:'Cinzel Decorative';font-size:.8rem;color:var(--fc);width:16px;text-align:center;flex-shrink:0}
+.ra-name{font-family:'Share Tech Mono';font-size:.52rem;color:var(--txt);flex:1}
+.ra-hp{font-family:'Share Tech Mono';font-size:.46rem;color:var(--fc);flex-shrink:0;opacity:.7}
+
+.resumo-btns{display:flex;gap:10px;margin-top:4px}
+.resumo-btn-pri{flex:1;padding:15px;background:linear-gradient(135deg,rgba(0,255,136,.12),rgba(0,204,102,.06));border:1px solid rgba(0,255,136,.4);border-radius:11px;color:var(--green);font-family:'Cinzel';font-size:.9rem;letter-spacing:.12em;cursor:pointer;transition:all .25s;text-transform:uppercase}
+.resumo-btn-pri:hover{background:linear-gradient(135deg,rgba(0,255,136,.22),rgba(0,204,102,.12));box-shadow:0 0 28px rgba(0,255,136,.2);transform:translateY(-2px)}
+.resumo-btn-sec{padding:15px 20px;background:none;border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(--mu);font-family:'Share Tech Mono';font-size:.6rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.resumo-btn-sec:hover{color:var(--txt);border-color:rgba(255,255,255,.25)}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- ── SPLASH ── -->
+<div class="scr" id="sSplash">
+  <div class="splash-noise"></div>
+  <div class="splash-grid"></div>
+  <div class="splash-vignette"></div>
+  <div class="scanlines"></div>
+  <div class="splash-center" id="splashCenter">
+    <div class="splash-eyebrow">Torre,Base Plus · 12,smech</div>
+    <div class="splash-title" id="splashTitle" onclick="openTutorial()">
+      <span class="t1">PIK</span>
+      <span class="t2">LUTA</span>
+    </div>
+    <div class="splash-click">CLIQUE PARA COMEÇAR</div>
+  </div>
+</div>
+
+<!-- ── TUTORIAL ── -->
+<div class="scr off" id="sTut">
+  <div class="tut-wrap" id="tutWrap">
+    <div class="tut-back" onclick="showSplash()">← VOLTAR</div>
+    <div class="tut-header">
+      <div class="tut-tag">// MANUAL DO EXPLORADOR</div>
+      <div class="tut-title">PIK <span>LUTA</span></div>
+      <div class="tut-sub">Você controla uma tropa aleatória em um dungeon gerado na hora.<br>Explore salas, enfrente inimigos, suba 5 andares, chegue ao fim.</div>
+    </div>
+
+
+    <div class="tut-section" id="ts0">
+      <div class="tut-section-title">Controles</div>
+      <div class="tut-controls">
+        <div class="tut-key">W A S D</div><div class="tut-key-desc">Mover pelo mapa</div>
+        <div class="tut-key">↑ ↓ ← →</div><div class="tut-key-desc">Alternativa ao WASD</div>
+        <div class="tut-key">▶ Porta</div><div class="tut-key-desc">Encoste para trocar de sala</div>
+        <div class="tut-key">🔼 Escada</div><div class="tut-key-desc">Sobe/desce de andar</div>
+        <div class="tut-key">👾 Inimigo</div><div class="tut-key-desc">Encoste para batalhar</div>
+      </div>
+    </div>
+
+    <div class="tut-section" id="ts1">
+      <div class="tut-section-title">Andares & Inimigos</div>
+      <div class="tut-floor-list">
+        <div class="tut-floor" style="--c:#94a3b8">
+          <div class="tut-floor-num">1</div>
+          <div class="tut-floor-info">
+            <div class="tut-floor-name">Cripta Rasa</div>
+            <div class="tut-floor-desc">Esqueletos, ratos, criaturas fracas. Aprenda os ataques aqui.</div>
+          </div>
+          <div class="tut-floor-hp">HP ≤ 2.000</div>
+        </div>
+        <div class="tut-floor" style="--c:#22c55e">
+          <div class="tut-floor-num">2</div>
+          <div class="tut-floor-info">
+            <div class="tut-floor-name">Floresta Corrompida</div>
+            <div class="tut-floor-desc">Inimigos com veneno e ataques de área. Cuide do HP.</div>
+          </div>
+          <div class="tut-floor-hp">HP 2k–4k</div>
+        </div>
+        <div class="tut-floor" style="--c:#38bdf8">
+          <div class="tut-floor-num">3</div>
+          <div class="tut-floor-info">
+            <div class="tut-floor-name">Ruínas Antigas</div>
+            <div class="tut-floor-desc">Inimigos com controle (stun) e evasão. Atenção aos turnos.</div>
+          </div>
+          <div class="tut-floor-hp">HP 4k–7k</div>
+        </div>
+        <div class="tut-floor" style="--c:#f97316">
+          <div class="tut-floor-num">4</div>
+          <div class="tut-floor-info">
+            <div class="tut-floor-name">Abismo Ardente</div>
+            <div class="tut-floor-desc">Elites com combos e habilidades múltiplas. Alta pressão.</div>
+          </div>
+          <div class="tut-floor-hp">HP 7k–12k</div>
+        </div>
+        <div class="tut-floor" style="--c:#ef4444">
+          <div class="tut-floor-num">5</div>
+          <div class="tut-floor-info">
+            <div class="tut-floor-name">Núcleo do Caos</div>
+            <div class="tut-floor-desc">Bosses e o Átomo. ⭐ chegue à sala final para vencer.</div>
+          </div>
+          <div class="tut-floor-hp">HP 12k+</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tut-section" id="ts2">
+      <div class="tut-section-title">Tipos de Ataque</div>
+      <div class="tut-moves-list">
+        <div class="tut-move"><span class="tut-move-emoji">⚔️</span><div class="tut-move-info"><div class="tut-move-name">Dano Direto</div><div class="tut-move-desc">Golpe simples. Sempre disponível.</div></div><span class="tut-move-tag tag-dmg">DANO</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">💢</span><div class="tut-move-info"><div class="tut-move-name">Splash / Área</div><div class="tut-move-desc">Dano multiplicado, atinge múltiplos alvos.</div></div><span class="tut-move-tag tag-dmg">ÁREA</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">💥</span><div class="tut-move-info"><div class="tut-move-name">Crítico Garantido</div><div class="tut-move-desc">Dano muito alto. Cooldown longo.</div></div><span class="tut-move-tag tag-dmg">CRIT</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">💚</span><div class="tut-move-info"><div class="tut-move-name">Cura</div><div class="tut-move-desc">Restaura % do HP máximo.</div></div><span class="tut-move-tag tag-heal">CURA</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">☠️</span><div class="tut-move-info"><div class="tut-move-name">Veneno</div><div class="tut-move-desc">Dano durante 3 turnos após o ataque.</div></div><span class="tut-move-tag tag-ctrl">VENENO</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">⚡</span><div class="tut-move-info"><div class="tut-move-name">Atordoar</div><div class="tut-move-desc">Inimigo pula um turno.</div></div><span class="tut-move-tag tag-ctrl">STUN</span></div>
+        <div class="tut-move"><span class="tut-move-emoji">🦅</span><div class="tut-move-info"><div class="tut-move-name">Ataque Aéreo</div><div class="tut-move-desc">Ataca sem receber dano de volta.</div></div><span class="tut-move-tag tag-spec">AÉREO</span></div>
+      </div>
+    </div>
+
+    <div class="tut-section" id="ts3">
+      <div class="tut-section-title">Dicas</div>
+      <div class="tut-grid">
+        <div class="tut-card"><div class="tut-card-icon">💡</div><div class="tut-card-name">HP ao vencer</div><div class="tut-card-desc">Ganhe 15% do HP máximo após cada batalha vencida.</div></div>
+        <div class="tut-card"><div class="tut-card-icon">🏃</div><div class="tut-card-name">Fuga</div><div class="tut-card-desc">50% de chance de fugir. Falhar causa dano extra.</div></div>
+        <div class="tut-card"><div class="tut-card-icon">🔼</div><div class="tut-card-name">Escadas</div><div class="tut-card-desc">Encontre 🔼 para subir de andar. Inimigos ficam mais fortes.</div></div>
+        <div class="tut-card"><div class="tut-card-icon">⭐</div><div class="tut-card-name">Vitória</div><div class="tut-card-desc">Chegue à sala com ⭐ no andar 5 para vencer a run.</div></div>
+      </div>
+    </div>
+
+    
+    <div class="tut-section" id="ts_resumo">
+      <div class="tut-section-title">📋 Resumo do Modo</div>
+      <div style="background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-family:'Cinzel Decorative';font-size:.85rem;color:var(--green);letter-spacing:.05em">PIK LUTA</div>
+        <div style="font-family:'Share Tech Mono';font-size:.52rem;color:rgba(232,224,204,.6);line-height:1.9">
+          Você controla uma <b style="color:var(--txt)">tropa aleatória</b> num dungeon gerado a cada run.<br>
+          Explore salas em <b style="color:var(--txt)">4 direções</b>, suba <b style="color:var(--txt)">5 andares</b> por escadas.<br>
+          Encoste em inimigos para <b style="color:var(--txt)">batalhar turno a turno</b> com 4 ataques únicos e cooldown.<br>
+          Chegue à <b style="color:#ffd166">⭐ sala final do andar 5</b> para vencer a run.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div style="text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(0,255,136,.1);border-radius:8px;padding:10px 4px">
+            <div style="font-family:'Cinzel Decorative';font-size:.85rem;color:var(--green)">10–50</div>
+            <div style="font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu)">Salas</div>
+          </div>
+          <div style="text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(0,255,136,.1);border-radius:8px;padding:10px 4px">
+            <div style="font-family:'Cinzel Decorative';font-size:.85rem;color:var(--green)">5</div>
+            <div style="font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu)">Andares</div>
+          </div>
+          <div style="text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(0,255,136,.1);border-radius:8px;padding:10px 4px">
+            <div style="font-family:'Cinzel Decorative';font-size:.85rem;color:var(--green)">4</div>
+            <div style="font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu)">Ataques</div>
+          </div>
+          <div style="text-align:center;background:rgba(0,0,0,.35);border:1px solid rgba(0,255,136,.1);border-radius:8px;padding:10px 4px">
+            <div style="font-family:'Cinzel Decorative';font-size:.85rem;color:var(--green)">?</div>
+            <div style="font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu)">Tropa</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="tut-start-btn" onclick="showResumo()">▶ VER RESUMO & INICIAR</button>
+  </div>
+</div>
+
+<!-- ── JOGO ── -->
+<div class="scr off" id="sGame">
+  <div class="game-hud">
+    <div class="hud-hero">
+      <button class="hud-quit" onclick="quitGame()">✕</button>
+      <div class="hud-icon" id="hudIcon">⚔️</div>
+      <div>
+        <div class="hud-name" id="hudName">—</div>
+        <div class="hud-hp-bar"><div class="hud-hp-fill" id="hudHpFill" style="width:100%"></div></div>
+        <div class="hud-hp-txt" id="hudHpTxt">—</div>
+      </div>
+    </div>
+    <div class="hud-info">
+      <div class="hud-room" id="hudRoom">Andar 1</div>
+      <div class="hud-kills" id="hudKills">0 derrotados</div>
+    </div>
+  </div>
+  <canvas id="pikCanvas"></canvas>
+  <canvas id="minimap" width="100" height="100"></canvas>
+</div>
+
+<!-- ── BATALHA ── -->
+<div class="battle-overlay" id="battleOv">
+  <div class="battle-title">⚔ BATALHA</div>
+  <div class="battle-fighters">
+    <div class="fighter">
+      <div class="fighter-icon" id="bHeroIcon">⚔️</div>
+      <div class="fighter-name" id="bHeroName">—</div>
+      <div class="fighter-bar"><div class="fighter-fill" id="bHeroBar" style="width:100%;background:var(--green)"></div></div>
+      <div class="fighter-hp" id="bHeroHp">—</div>
+    </div>
+    <div class="battle-vs">VS</div>
+    <div class="fighter">
+      <div class="fighter-icon" id="bEnIcon">👾</div>
+      <div class="fighter-name" id="bEnName">—</div>
+      <div class="fighter-bar"><div class="fighter-fill" id="bEnBar" style="width:100%;background:var(--red)"></div></div>
+      <div class="fighter-hp" id="bEnHp">—</div>
+    </div>
+  </div>
+  <div class="battle-status" id="battleStatus"></div>
+  <div class="battle-log" id="battleLog">Escolha um ataque!</div>
+  <div class="moves-grid" id="movesGrid"></div>
+  <button class="flee-btn" onclick="pikFugir()">🏃 Fugir</button>
+</div>
+
+<!-- ── RESULTADO ── -->
+<div class="result-overlay" id="resultOv">
+  <div class="result-icon" id="resIcon">🏆</div>
+  <div class="result-title" id="resTitle" style="color:var(--green)">Vitória!</div>
+  <div class="result-sub" id="resSub"></div>
+  <div class="result-btns">
+    <button class="result-btn primary" onclick="startGame()">▶ Nova Run</button>
+    <button class="result-btn secondary" onclick="showSplash()">← Menu</button>
+  </div>
+</div>
+
+<script>
+// ── Cursor ──────────────────────────────────────────────────────────────
+const cur=document.getElementById('cursor'),curD=document.getElementById('cursor-dot');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';
+  curD.style.left=e.clientX+'px';curD.style.top=e.clientY+'px';
+});
+document.querySelectorAll('button,[onclick]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('hover'));
+});
+
+// ── Partículas splash ───────────────────────────────────────────────────
+(function spawnParticles(){
+  const sp=document.getElementById('sSplash');
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;--dx:${(Math.random()-0.5)*80}px;animation-duration:${6+Math.random()*8}s;animation-delay:${-Math.random()*10}s`;
+    sp.appendChild(p);
+  }
+})();
+
+// ── Telas ───────────────────────────────────────────────────────────────
+function showScr(id){
+  ['sSplash','sTut','sGame','sResumo'].forEach(s=>document.getElementById(s).classList.toggle('off',s!==id));
+  // Scroll: libera body só no tutorial e resumo
+  document.body.style.overflow=(id==='sTut'||id==='sResumo')?'auto':'hidden';
+  // Scroll pro topo do tutorial
+  if(id==='sTut'||id==='sResumo'){
+    const el=document.getElementById(id);
+    if(el) el.scrollTop=0;
+  }
+}
+function showSplash(){ showScr('sSplash'); }
+
+function showResumo(){
+  showScr('sResumo');
+  document.querySelectorAll('.resumo-rule,.resumo-andar,.rc').forEach((el,i)=>{
+    el.style.opacity='0';el.style.transform='translateY(12px)';
+    setTimeout(()=>{el.style.transition='all .4s';el.style.opacity='1';el.style.transform='none';},80+i*60);
+  });
+}
+function openTutorial(){
+  showScr('sTut');
+  // Stagger sections
+  document.querySelectorAll('.tut-section').forEach((s,i)=>{
+    setTimeout(()=>s.classList.add('vis'),80+i*100);
+  });
+}
+
+// ── CARDS de referência (subset para Pik standalone) ────────────────────
+const CARDS=[
+  {id:1,n:'Hetir',i:'⚡',hp:200,dm:1500,t:'tropa'},{id:2,n:'Morbito',i:'👁️',hp:2000,dm:3000,t:'tropa'},
+  {id:3,n:'Dor',i:'🩸',hp:0,dm:500,t:'feitico'},{id:4,n:'C.Voador',i:'🦅',hp:900,dm:500,t:'aereo'},
+  {id:5,n:'Vigilante',i:'🗿',hp:9000,dm:0,t:'tropa'},{id:6,n:'Tempestade',i:'🌩️',hp:0,dm:0,t:'controle'},
+  {id:7,n:'Monge',i:'⛩️',hp:2000,dm:0,t:'tropa'},{id:8,n:'Escorpião',i:'🦂',hp:3500,dm:1200,t:'tropa'},
+  {id:9,n:'Vampiro',i:'🦇',hp:2800,dm:1100,t:'tropa'},{id:10,n:'Golem',i:'🪨',hp:8000,dm:600,t:'tropa'},
+  {id:11,n:'Espectro',i:'👻',hp:1500,dm:1800,t:'aereo'},{id:12,n:'Dragão',i:'🐉',hp:6000,dm:2200,t:'aereo'},
+  {id:13,n:'Lich',i:'💀',hp:4500,dm:3000,t:'tropa'},{id:14,n:'Ciclope',i:'🔮',hp:7500,dm:2500,t:'tropa'},
+  {id:15,n:'Titan',i:'⚙️',hp:12000,dm:2000,t:'tropa'},{id:101,n:'Átomo',i:'⚛️',hp:50000,dm:50000,t:'tropa'},
+];
+
+const CARD_MOVES={
+  default:[
+    {nome:'Golpe',emoji:'⚔️',poder:1.0,efeito:'direct',cd:0,cdMax:0,desc:'Dano direto'},
+    {nome:'Rajada',emoji:'💨',poder:1.3,efeito:'direct',cd:0,cdMax:2,desc:'Golpe forte (CD 2)'},
+    {nome:'Escudo',emoji:'🛡️',poder:0,efeito:'heal',cd:0,cdMax:3,desc:'Cura 20% HP (CD 3)'},
+    {nome:'Crítico',emoji:'💥',poder:2.0,efeito:'crit',cd:0,cdMax:4,desc:'Crit garantido (CD 4)'},
+  ],
+  1:[{nome:'Explosão',emoji:'💥',poder:1.5,efeito:'splash',cd:0,cdMax:0,desc:'Área'},
+     {nome:'Raio',emoji:'⚡',poder:1.8,efeito:'crit',cd:0,cdMax:3,desc:'Crit (CD 3)'},
+     {nome:'Cicatriz',emoji:'🩹',poder:0,efeito:'heal',cd:0,cdMax:4,desc:'Cura (CD 4)'},
+     {nome:'Fantasma',emoji:'👻',poder:1.2,efeito:'aerial',cd:0,cdMax:2,desc:'Aéreo (CD 2)'}],
+  4:[{nome:'Voo',emoji:'🦅',poder:1.2,efeito:'aerial',cd:0,cdMax:0,desc:'Aéreo'},
+     {nome:'Mordida',emoji:'🐾',poder:1.0,efeito:'direct',cd:0,cdMax:0,desc:'Direto'},
+     {nome:'Uivo',emoji:'🐺',poder:0,efeito:'stun',cd:0,cdMax:3,desc:'Stun (CD 3)'},
+     {nome:'Mergulho',emoji:'💨',poder:1.9,efeito:'crit',cd:0,cdMax:4,desc:'Crit (CD 4)'}],
+  13:[{nome:'Maldição',emoji:'☠️',poder:0.6,efeito:'poison',cd:0,cdMax:0,desc:'Veneno'},
+      {nome:'Dreno',emoji:'💀',poder:1.2,efeito:'direct',cd:0,cdMax:0,desc:'Direto'},
+      {nome:'Gelo',emoji:'❄️',poder:0,efeito:'stun',cd:0,cdMax:2,desc:'Stun (CD 2)'},
+      {nome:'Apocalipse',emoji:'🌑',poder:2.5,efeito:'crit',cd:0,cdMax:5,desc:'Devastador (CD 5)'}],
+};
+function getMoves(card){
+  const base=CARD_MOVES[card.id]||CARD_MOVES.default;
+  return base.map(m=>({...m,cd:0}));
+}
+function fk(n){if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';return n;}
+
+// ── Mapa ────────────────────────────────────────────────────────────────
+const TILE=32,COLS=20,ROWS=14;
+const TF=0,TW=1,TDR=2,TDL=3,TDU=4,TDD=5,TSU=6,TSD=7;
+
+const PIK={
+  hero:null,map:null,curKey:'0_0_1',kills:0,
+  keys:{},animId:null,inBattle:false,enemy:null,
+  heroMoves:[],enemyMoves:[],
+  poisonHero:0,poisonEnemy:0,stunEnemy:0,
+  floor:1,locked:false,_tcd:0
+};
+
+function buildRoom(x,y,fl,map){
+  const grid=[];
+  for(let r=0;r<ROWS;r++){grid.push([]);for(let col=0;col<COLS;col++)grid[r].push((r===0||r===ROWS-1||col===0||col===COLS-1)?TW:TF);}
+  for(let i=0;i<5+~~(Math.random()*5);i++){const pr=2+~~(Math.random()*(ROWS-4)),pc=2+~~(Math.random()*(COLS-4));grid[pr][pc]=TW;}
+  const dirs={R:{dx:1,dy:0,tc:COLS-1,tr:~~(ROWS/2),t:TDR},L:{dx:-1,dy:0,tc:0,tr:~~(ROWS/2),t:TDL},D:{dx:0,dy:1,tc:~~(COLS/2),tr:ROWS-1,t:TDD},U:{dx:0,dy:-1,tc:~~(COLS/2),tr:0,t:TDU}};
+  for(const[,{dx,dy,tc,tr,t}] of Object.entries(dirs)){
+    const nk=`${x+dx}_${y+dy}_${fl}`;
+    if(map[nk]||Math.random()<.45){grid[tr][tc]=t;if(t===TDR||t===TDL)grid[tr-1][tc]=t;else grid[tr][tc+1]=t;}
+  }
+  const pools={1:CARDS.filter(c=>c.hp>0&&c.hp<=2000),2:CARDS.filter(c=>c.hp>2000&&c.hp<=4000),3:CARDS.filter(c=>c.hp>4000&&c.hp<=7000),4:CARDS.filter(c=>c.hp>7000&&c.hp<=12000),5:CARDS.filter(c=>c.hp>12000||c.id===101)};
+  const pool=(pools[fl]&&pools[fl].length)?pools[fl]:CARDS.filter(c=>c.t==='tropa');
+  const enemies=[];
+  for(let i=0;i<1+~~(Math.random()*3);i++){
+    let ex,ey,ok=false,tries=0;
+    while(!ok&&tries<40){ex=2+~~(Math.random()*(COLS-4));ey=2+~~(Math.random()*(ROWS-4));ok=grid[ey][ex]===TF&&!(ex<4&&ey>ROWS/2-2&&ey<ROWS/2+2);tries++;}
+    const ec=pool[~~(Math.random()*pool.length)];
+    enemies.push({card:ec,icon:ec.i,name:ec.n,hp:ec.hp||300,maxHp:ec.hp||300,atk:ec.dm||200,x:ex*TILE+TILE/2,y:ey*TILE+TILE/2,alive:true});
+  }
+  return {grid,enemies,visited:false,x,y,fl,isExit:false,hasStairUp:false};
+}
+
+function genMap(){
+  const map={};
+  const total=10+~~(Math.random()*41);
+  for(let fl=1;fl<=5;fl++){
+    const target=Math.ceil(total/5);
+    const queue=[[0,0]],vis=new Set(['0_0']);
+    let placed=0;
+    while(placed<target&&queue.length){
+      const[x,y]=queue.shift();
+      const k=`${x}_${y}_${fl}`;
+      if(!map[k]){map[k]=buildRoom(x,y,fl,map);placed++;}
+      [[1,0],[-1,0],[0,1],[0,-1]].sort(()=>Math.random()-.5).forEach(([dx,dy])=>{
+        const nk=`${x+dx}_${y+dy}`;if(!vis.has(nk)&&placed<target){vis.add(nk);queue.push([x+dx,y+dy]);}
+      });
+    }
+  }
+  // Escadas
+  for(let fl=1;fl<5;fl++){
+    const r=Object.keys(map).filter(k=>k.endsWith('_'+fl));
+    const n=Object.keys(map).filter(k=>k.endsWith('_'+(fl+1)));
+    if(r.length&&n.length){const s=r[~~(Math.random()*r.length)];map[s].hasStairUp=true;map[s].grid[2][COLS-3]=TSU;}
+  }
+  for(let fl=2;fl<=5;fl++){
+    const r=Object.keys(map).filter(k=>k.endsWith('_'+fl));
+    if(r.length){const s=r[~~(Math.random()*r.length)];map[s].grid[ROWS-3][COLS-3]=TSD;}
+  }
+  const fl5=Object.keys(map).filter(k=>k.endsWith('_5'));
+  if(fl5.length){const b=fl5[fl5.length-1];map[b].isExit=true;map[b].grid[~~(ROWS/2)][~~(COLS/2)]=TSU;}
+  if(!map['0_0_1'])map['0_0_1']=buildRoom(0,0,1,map);
+  map['0_0_1'].visited=true;
+  return map;
+}
+
+function startGame(){
+  document.getElementById('resultOv').classList.remove('show');
+  document.getElementById('battleOv').classList.remove('show');
+  showScr('sGame');
+  const pool=CARDS.filter(c=>c.t==='tropa'||c.t==='aereo');
+  const card=pool[~~(Math.random()*pool.length)];
+  PIK.hero={card,icon:card.i,name:card.n,hp:Math.max(card.hp,500),maxHp:Math.max(card.hp,500),atk:Math.max(card.dm,200),x:3*TILE+TILE/2,y:~~(ROWS*.85)*TILE+TILE/2,spd:3};
+  PIK.kills=0;PIK.curKey='0_0_1';PIK.floor=1;PIK.inBattle=false;PIK.locked=false;PIK._tcd=0;
+  PIK.map=genMap();
+  const cv=document.getElementById('pikCanvas');
+  cv.width=COLS*TILE;cv.height=ROWS*TILE;
+  updHud();
+  window.removeEventListener('keydown',onKeyD);window.removeEventListener('keyup',onKeyU);
+  window.addEventListener('keydown',onKeyD);window.addEventListener('keyup',onKeyU);
+  cancelAnimationFrame(PIK.animId);
+  PIK.animId=requestAnimationFrame(frame);
+}
+
+function quitGame(){cancelAnimationFrame(PIK.animId);window.removeEventListener('keydown',onKeyD);window.removeEventListener('keyup',onKeyU);showSplash();}
+function onKeyD(e){PIK.keys[e.key]=true;if(!['F5','F12'].includes(e.key))e.preventDefault();}
+function onKeyU(e){PIK.keys[e.key]=false;}
+
+function frame(){
+  if(document.getElementById('sGame').classList.contains('off')){cancelAnimationFrame(PIK.animId);return;}
+  if(!PIK.inBattle)move();
+  draw();
+  PIK.animId=requestAnimationFrame(frame);
+}
+
+function tileAt(room,px,py){const tc=~~(px/TILE),tr=~~(py/TILE);if(tr<0||tr>=ROWS||tc<0||tc>=COLS)return TW;return room.grid[tr][tc];}
+
+function transit(dx,dy,dfl,ny,nx){
+  const[x,y,fl]=PIK.curKey.split('_').map(Number);
+  const nfl=Math.max(1,Math.min(5,fl+dfl));
+  const nk=`${x+dx}_${y+dy}_${nfl}`;
+  if(!PIK.map[nk])return;
+  PIK.curKey=nk;PIK.floor=nfl;PIK.map[nk].visited=true;
+  PIK.hero.x=nx;PIK.hero.y=ny;PIK._tcd=Date.now()+400;updHud();
+}
+
+function move(){
+  const h=PIK.hero,k=PIK.keys;
+  let dx=0,dy=0;
+  if(k['ArrowLeft']||k['a']||k['A'])dx=-1;
+  if(k['ArrowRight']||k['d']||k['D'])dx=1;
+  if(k['ArrowUp']||k['w']||k['W'])dy=-1;
+  if(k['ArrowDown']||k['s']||k['S'])dy=1;
+  if(dx&&dy){dx*=0.707;dy*=0.707;}
+  const room=PIK.map[PIK.curKey];if(!room)return;
+  const nx=h.x+dx*h.spd,ny=h.y+dy*h.spd,r=8;
+  const tiles=[tileAt(room,nx+r,h.y),tileAt(room,nx-r,h.y),tileAt(room,h.x,ny+r),tileAt(room,h.x,ny-r)];
+  if(Date.now()>PIK._tcd){
+    for(const t of [...new Set(tiles)]){
+      if(t===TDR){transit(1,0,0,~~(ROWS/2)*TILE+TILE/2,2*TILE+TILE/2);return;}
+      if(t===TDL){transit(-1,0,0,~~(ROWS/2)*TILE+TILE/2,(COLS-3)*TILE+TILE/2);return;}
+      if(t===TDD){transit(0,1,0,2*TILE+TILE/2,~~(COLS/2)*TILE+TILE/2);return;}
+      if(t===TDU){transit(0,-1,0,(ROWS-3)*TILE+TILE/2,~~(COLS/2)*TILE+TILE/2);return;}
+      if(t===TSU){PIK._tcd=Date.now()+600;if(room.isExit){win();return;}transit(0,0,1,~~(ROWS/2)*TILE+TILE/2,3*TILE+TILE/2);return;}
+      if(t===TSD){PIK._tcd=Date.now()+600;transit(0,0,-1,~~(ROWS/2)*TILE+TILE/2,3*TILE+TILE/2);return;}
+    }
+  }
+  if(tileAt(room,nx+r,h.y)===TF&&tileAt(room,nx-r,h.y)===TF)h.x=nx;
+  if(tileAt(room,h.x,ny+r)===TF&&tileAt(room,h.x,ny-r)===TF)h.y=ny;
+  room.enemies.forEach(en=>{if(!en.alive)return;if(Math.hypot(h.x-en.x,h.y-en.y)<TILE*.85)startBattle(en);});
+}
+
+// ── Desenho ─────────────────────────────────────────────────────────────
+function draw(){
+  const cv=document.getElementById('pikCanvas');if(!cv)return;
+  const ctx=cv.getContext('2d'),room=PIK.map[PIK.curKey];if(!room)return;
+  ctx.fillStyle='#111';ctx.fillRect(0,0,cv.width,cv.height);
+  for(let r=0;r<ROWS;r++)for(let col=0;col<COLS;col++){
+    const t=room.grid[r][col],tx=col*TILE,ty=r*TILE;
+    if(t===TW){ctx.fillStyle='#3a4a3a';ctx.fillRect(tx,ty,TILE,TILE);ctx.fillStyle='#2a3a2a';ctx.fillRect(tx+1,ty+1,TILE-2,TILE-2);ctx.strokeStyle='rgba(0,255,136,.08)';ctx.lineWidth=.5;ctx.strokeRect(tx+1,ty+1,TILE-2,TILE-2);}
+    else if(t===TF){ctx.fillStyle='#141814';ctx.fillRect(tx,ty,TILE,TILE);ctx.strokeStyle='rgba(255,255,255,.025)';ctx.lineWidth=.5;ctx.strokeRect(tx,ty,TILE,TILE);}
+    else if(t===TDR||t===TDL||t===TDU||t===TDD){
+      const[x,y,fl]=PIK.curKey.split('_').map(Number);
+      const ex=t===TDR?PIK.map[`${x+1}_${y}_${fl}`]:t===TDL?PIK.map[`${x-1}_${y}_${fl}`]:t===TDD?PIK.map[`${x}_${y+1}_${fl}`]:PIK.map[`${x}_${y-1}_${fl}`];
+      ctx.fillStyle=ex?'#2a5a2a':'#1e2e1e';ctx.fillRect(tx,ty,TILE,TILE);
+      if(ex){ctx.fillStyle='rgba(0,255,136,.5)';ctx.font='11px serif';ctx.textAlign='center';ctx.fillText(t===TDR?'▶':t===TDL?'◀':t===TDD?'▼':'▲',tx+TILE/2,ty+TILE/2+4);}
+    }else if(t===TSU||t===TSD){
+      ctx.fillStyle='#1a2a1a';ctx.fillRect(tx,ty,TILE,TILE);
+      const p=.5+.5*Math.sin(Date.now()*.004);
+      ctx.fillStyle=`rgba(0,255,136,${.3+p*.4})`;ctx.beginPath();ctx.arc(tx+TILE/2,ty+TILE/2,9+p*3,0,Math.PI*2);ctx.fill();
+      ctx.font='14px serif';ctx.textAlign='center';
+      ctx.fillText(t===TSU?(room.isExit?'⭐':'🔼'):'🔽',tx+TILE/2,ty+TILE/2+5);
+    }
+  }
+  room.enemies.forEach(en=>{
+    if(!en.alive)return;
+    const p=.5+.5*Math.sin(Date.now()*.003+en.x);
+    ctx.fillStyle=`rgba(255,34,68,${.12+p*.08})`;ctx.beginPath();ctx.arc(en.x,en.y,12,0,Math.PI*2);ctx.fill();
+    ctx.font='18px serif';ctx.textAlign='center';ctx.fillText(en.icon,en.x,en.y+7);
+    const bw=26,bx=en.x-bw/2,by=en.y-17;
+    ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,bw,3);
+    ctx.fillStyle='#ff2244';ctx.fillRect(bx,by,bw*Math.max(0,en.hp/en.maxHp),3);
+  });
+  const h=PIK.hero;
+  ctx.fillStyle='rgba(0,255,136,.15)';ctx.beginPath();ctx.arc(h.x,h.y,14,0,Math.PI*2);ctx.fill();
+  ctx.font='20px serif';ctx.textAlign='center';ctx.fillText(h.icon,h.x,h.y+7);
+  drawMinimap();
+}
+
+function drawMinimap(){
+  const mc=document.getElementById('minimap');if(!mc)return;
+  const ctx=mc.getContext('2d'),S=7,fl=PIK.floor;
+  const keys=Object.keys(PIK.map).filter(k=>k.endsWith('_'+fl));
+  let mnX=Infinity,mnY=Infinity,mxX=-Infinity,mxY=-Infinity;
+  keys.forEach(k=>{const[x,y]=k.split('_').map(Number);mnX=Math.min(mnX,x);mnY=Math.min(mnY,y);mxX=Math.max(mxX,x);mxY=Math.max(mxY,y);});
+  const w=(mxX-mnX+1)*(S+2),h=(mxY-mnY+1)*(S+2);
+  mc.width=w+8;mc.height=h+18;
+  ctx.clearRect(0,0,mc.width,mc.height);
+  ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,0,mc.width,mc.height);
+  ctx.fillStyle='rgba(0,255,136,.3)';ctx.font='7px "Share Tech Mono"';ctx.textAlign='left';
+  ctx.fillText('A'+fl+'/5',3,mc.height-3);
+  keys.forEach(k=>{
+    const[x,y]=k.split('_').map(Number);
+    const rx=4+(x-mnX)*(S+2),ry=4+(y-mnY)*(S+2);
+    const room=PIK.map[k],cur=k===PIK.curKey;
+    ctx.fillStyle=cur?'#00ff88':room.visited?'rgba(0,255,136,.35)':'rgba(255,255,255,.08)';
+    ctx.fillRect(rx,ry,S,S);
+    if(room.hasStairUp||room.isExit){ctx.fillStyle='#ffd166';ctx.fillRect(rx+2,ry+2,3,3);}
+  });
+}
+
+// ── Batalha ──────────────────────────────────────────────────────────────
+function startBattle(enemy){
+  if(PIK.inBattle)return;
+  PIK.inBattle=true;PIK.enemy=enemy;PIK.locked=false;
+  PIK.heroMoves=getMoves(PIK.hero.card);PIK.enemyMoves=getMoves(enemy.card);
+  PIK.poisonHero=0;PIK.poisonEnemy=0;PIK.stunEnemy=0;
+  document.getElementById('bHeroIcon').textContent=PIK.hero.icon;
+  document.getElementById('bHeroName').textContent=PIK.hero.name;
+  document.getElementById('bEnIcon').textContent=enemy.icon;
+  document.getElementById('bEnName').textContent=enemy.name;
+  updBattle();renderMoves();
+  document.getElementById('battleLog').textContent='Escolha um ataque!';
+  document.getElementById('battleLog').className='battle-log';
+  document.getElementById('battleOv').classList.add('show');
+}
+
+function updBattle(){
+  const h=PIK.hero,en=PIK.enemy;
+  document.getElementById('bHeroHp').textContent=Math.max(0,~~h.hp)+' HP';
+  document.getElementById('bHeroBar').style.width=(Math.max(0,h.hp/h.maxHp)*100)+'%';
+  document.getElementById('bEnHp').textContent=Math.max(0,~~en.hp)+' HP';
+  document.getElementById('bEnBar').style.width=(Math.max(0,en.hp/en.maxHp)*100)+'%';
+  const sr=document.getElementById('battleStatus');
+  const icons={poisonEnemy:'☠️ Inimigo envenenado',poisonHero:'☠️ Você envenenado',stunEnemy:'⚡ Inimigo atordoado'};
+  sr.innerHTML=Object.entries(icons).filter(([k])=>PIK[k]>0).map(([,v])=>`<span style="color:#a855f7;font-size:.44rem">${v}</span>`).join(' ');
+}
+
+function renderMoves(){
+  document.getElementById('movesGrid').innerHTML=PIK.heroMoves.map((m,i)=>`
+    <button class="move-btn" ${(m.cd>0||PIK.locked)?'disabled':''} onclick="useMove(${i})">
+      <span class="mv-e">${m.emoji}</span>
+      <span class="mv-n">${m.nome}</span>
+      ${m.cd>0?`<span class="mv-cd">CD ${m.cd}</span>`:''}
+      <span class="mv-d">${m.desc}</span>
+    </button>`).join('');
+}
+
+function useMove(idx){
+  if(PIK.locked)return;PIK.locked=true;
+  const m=PIK.heroMoves[idx],h=PIK.hero,en=PIK.enemy;
+  const log=document.getElementById('battleLog');
+  let dmg=0,msg='';
+  switch(m.efeito){
+    case 'direct': dmg=~~(h.atk*m.poder*(0.85+Math.random()*.3));en.hp-=dmg;msg=`${m.emoji} ${m.nome}! ${dmg} dano`;log.className='battle-log hit';document.getElementById('bEnIcon').classList.add('shake');setTimeout(()=>document.getElementById('bEnIcon').classList.remove('shake'),200);break;
+    case 'splash': dmg=~~(h.atk*m.poder*(0.85+Math.random()*.3));en.hp-=dmg;msg=`${m.emoji} Área! ${dmg} dano`;log.className='battle-log hit';document.getElementById('bEnIcon').classList.add('shake');setTimeout(()=>document.getElementById('bEnIcon').classList.remove('shake'),200);break;
+    case 'crit':   dmg=~~(h.atk*m.poder);en.hp-=dmg;msg=`💥 CRÍTICO! ${dmg} dano!`;log.className='battle-log crit';document.getElementById('bEnIcon').classList.add('shake');setTimeout(()=>document.getElementById('bEnIcon').classList.remove('shake'),200);break;
+    case 'heal':   const cur=~~(h.maxHp*.22);h.hp=Math.min(h.maxHp,h.hp+cur);msg=`${m.emoji} Curou ${cur} HP!`;log.className='battle-log win';break;
+    case 'poison': PIK.poisonEnemy=3;dmg=~~(h.atk*m.poder*(0.85+Math.random()*.3));en.hp-=dmg;msg=`${m.emoji} Veneno! ${dmg}+3 turnos`;log.className='battle-log hit';break;
+    case 'stun':   PIK.stunEnemy=1;msg=`${m.emoji} Atordoado!`;log.className='battle-log crit';break;
+    case 'aerial': dmg=~~(h.atk*m.poder*(0.85+Math.random()*.3));en.hp-=dmg;msg=`${m.emoji} Aéreo! ${dmg} sem retaliação`;log.className='battle-log hit';break;
+  }
+  log.textContent=msg;
+  if(m.cdMax>0)m.cd=m.cdMax;
+  updBattle();updHud();renderMoves();
+  if(en.hp<=0){setTimeout(battleWin,600);return;}
+
+  setTimeout(()=>{
+    if(PIK.poisonEnemy>0){const pd=~~(h.atk*.3);en.hp-=pd;PIK.poisonEnemy--;log.textContent=`☠️ Veneno! ${en.name} -${pd} HP`;updBattle();if(en.hp<=0){setTimeout(battleWin,500);return;}}
+    if(PIK.stunEnemy>0){PIK.stunEnemy--;log.textContent=`⚡ ${en.name} atordoado, pula turno!`;PIK.heroMoves.forEach(mv=>{if(mv.cd>0)mv.cd--;});setTimeout(()=>{log.textContent='Sua vez!';log.className='battle-log';PIK.locked=false;renderMoves();},700);return;}
+    // Inimigo ataca
+    const em=PIK.enemyMoves.filter(mv=>mv.cd===0)[0]||PIK.enemyMoves[0];
+    let edmg=0;
+    if(em.efeito==='aerial'){edmg=~~(en.atk*em.poder*(0.85+Math.random()*.3));h.hp-=edmg;log.textContent=`${em.emoji} ${en.name}: Aéreo! ${edmg} dano`;}
+    else if(em.efeito==='heal'){const ec=~~(en.maxHp*.2);en.hp=Math.min(en.maxHp,en.hp+ec);log.textContent=`${em.emoji} ${en.name} curou ${ec} HP`;}
+    else if(em.efeito==='poison'){PIK.poisonHero=3;edmg=~~(en.atk*em.poder*(0.85+Math.random()*.3));h.hp-=edmg;log.textContent=`${em.emoji} Você foi envenenado! ${edmg} dano`;}
+    else{edmg=~~(en.atk*(em.efeito==='crit'?em.poder:em.poder*(0.85+Math.random()*.3)));h.hp-=edmg;log.textContent=`${em.emoji} ${en.name} usou ${em.nome}! ${edmg} dano`;}
+    log.className='battle-log hit';
+    if(PIK.poisonHero>0){const phd=~~(en.atk*.25);h.hp-=phd;PIK.poisonHero--;}
+    document.getElementById('bHeroIcon').classList.add('shake');setTimeout(()=>document.getElementById('bHeroIcon').classList.remove('shake'),200);
+    PIK.enemyMoves.forEach(mv=>{if(mv.cd>0)mv.cd--;});PIK.heroMoves.forEach(mv=>{if(mv.cd>0)mv.cd--;});
+    if(em.cdMax>0)em.cd=em.cdMax;
+    updBattle();updHud();
+    if(h.hp<=0){setTimeout(lose,600);return;}
+    setTimeout(()=>{log.textContent='Sua vez!';log.className='battle-log';PIK.locked=false;renderMoves();},700);
+  },900);
+}
+
+function pikFugir(){
+  if(Math.random()<.5){document.getElementById('battleOv').classList.remove('show');PIK.inBattle=false;PIK.hero.x=3*TILE+TILE/2;PIK.hero.y=~~(ROWS/2)*TILE+TILE/2;}
+  else{const edmg=~~(PIK.enemy.atk*1.2);PIK.hero.hp-=edmg;document.getElementById('battleLog').textContent='❌ Fuga falhou! –'+edmg+' HP';updBattle();updHud();if(PIK.hero.hp<=0)setTimeout(lose,600);}
+}
+
+function battleWin(){
+  PIK.enemy.alive=false;PIK.kills++;PIK.inBattle=false;
+  document.getElementById('battleOv').classList.remove('show');
+  PIK.hero.hp=Math.min(PIK.hero.maxHp,PIK.hero.hp+~~(PIK.hero.maxHp*.15));
+  updHud();
+}
+
+function win(){
+  cancelAnimationFrame(PIK.animId);
+  document.getElementById('resIcon').textContent='🏆';
+  document.getElementById('resTitle').textContent='Vitória!';
+  document.getElementById('resTitle').style.color='var(--green)';
+  document.getElementById('resSub').textContent=PIK.hero.name+' completou o dungeon! '+PIK.kills+' inimigos derrotados.';
+  document.getElementById('resultOv').classList.add('show');
+}
+function lose(){
+  cancelAnimationFrame(PIK.animId);
+  document.getElementById('battleOv').classList.remove('show');
+  document.getElementById('resIcon').textContent='💀';
+  document.getElementById('resTitle').textContent='Derrota...';
+  document.getElementById('resTitle').style.color='var(--red)';
+  document.getElementById('resSub').textContent=PIK.hero.name+' caiu após '+PIK.kills+' inimigos.';
+  document.getElementById('resultOv').classList.add('show');
+}
+
+function updHud(){
+  const h=PIK.hero;
+  document.getElementById('hudIcon').textContent=h.icon;
+  document.getElementById('hudName').textContent=h.name;
+  document.getElementById('hudHpFill').style.width=(Math.max(0,h.hp/h.maxHp)*100)+'%';
+  document.getElementById('hudHpTxt').textContent=Math.max(0,~~h.hp)+'/'+h.maxHp+' HP';
+  const tot=Object.keys(PIK.map).length,vis=Object.values(PIK.map).filter(r=>r.visited).length;
+  document.getElementById('hudRoom').textContent='Andar '+PIK.floor+'/5 · '+vis+'/'+tot;
+  document.getElementById('hudKills').textContent=PIK.kills+' derrotados';
+}
+</script>
+
+<!-- ── RESUMO ── -->
+<div class="scr off" id="sResumo">
+  <div class="resumo-wrap">
+    <div class="resumo-noise"></div>
+    <div class="resumo-content">
+
+      <div class="resumo-eyebrow">// ANTES DE ENTRAR</div>
+      <div class="resumo-title">PIK <span>LUTA</span></div>
+      <div class="resumo-tagline">Um dungeon. Uma tropa. Sem segunda chance.</div>
+
+      <div class="resumo-cards">
+        <div class="rc">
+          <div class="rc-icon">🗺️</div>
+          <div class="rc-val">10–50</div>
+          <div class="rc-lbl">Salas geradas</div>
+        </div>
+        <div class="rc">
+          <div class="rc-icon">🏰</div>
+          <div class="rc-val">5</div>
+          <div class="rc-lbl">Andares</div>
+        </div>
+        <div class="rc">
+          <div class="rc-icon">⚔️</div>
+          <div class="rc-val">4</div>
+          <div class="rc-lbl">Ataques únicos</div>
+        </div>
+        <div class="rc">
+          <div class="rc-icon">🎲</div>
+          <div class="rc-val">?</div>
+          <div class="rc-lbl">Tropa aleatória</div>
+        </div>
+      </div>
+
+      <div class="resumo-rules">
+        <div class="resumo-rule"><span class="rr-dot"></span><span>Explore salas em 4 direções via WASD ou setas</span></div>
+        <div class="resumo-rule"><span class="rr-dot"></span><span>Encoste num inimigo para batalhar turno a turno</span></div>
+        <div class="resumo-rule"><span class="rr-dot"></span><span>Cada andar tem inimigos mais fortes — use cooldowns com sabedoria</span></div>
+        <div class="resumo-rule"><span class="rr-dot"></span><span>Vencer restaura 15% do HP máximo</span></div>
+        <div class="resumo-rule rr-gold"><span class="rr-dot gold"></span><span>Chegue à <b>⭐ sala final</b> do andar 5 para vencer a run</span></div>
+      </div>
+
+      <div class="resumo-andares">
+        <div class="resumo-andar" style="--fc:#94a3b8"><span class="ra-num">1</span><span class="ra-name">Cripta Rasa</span><span class="ra-hp">HP ≤ 2k</span></div>
+        <div class="resumo-andar" style="--fc:#22c55e"><span class="ra-num">2</span><span class="ra-name">Floresta Corrompida</span><span class="ra-hp">2k–4k</span></div>
+        <div class="resumo-andar" style="--fc:#38bdf8"><span class="ra-num">3</span><span class="ra-name">Ruínas Antigas</span><span class="ra-hp">4k–7k</span></div>
+        <div class="resumo-andar" style="--fc:#f97316"><span class="ra-num">4</span><span class="ra-name">Abismo Ardente</span><span class="ra-hp">7k–12k</span></div>
+        <div class="resumo-andar" style="--fc:#ef4444"><span class="ra-num">5</span><span class="ra-name">Núcleo do Caos ⭐</span><span class="ra-hp">12k+</span></div>
+      </div>
+
+      <div class="resumo-btns">
+        <button class="resumo-btn-sec" onclick="openTutorial()">← Tutorial</button>
+        <button class="resumo-btn-pri" onclick="startGame()">▶ ENTRAR NO DUNGEON</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

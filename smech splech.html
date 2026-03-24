@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SMECH SPLECH</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Share+Tech+Mono&family=Black+Ops+One&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;cursor:none!important;user-select:none}
+:root{
+  --bg:#08010f;--surf:#110320;--surf2:#1a0530;
+  --pur:#c026d3;--pur2:#a855f7;--pur3:#7c3aed;
+  --pink:#f0abfc;--neon:#e879f9;
+  --grn:#22c55e;--red:#ff3366;--gold:#ffd166;
+  --txt:#f0e0ff;--mu:rgba(240,224,255,.35);
+  --border:rgba(192,38,211,.2)
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:'Share Tech Mono',monospace;overflow:hidden}
+
+/* CURSOR CAÓTICO */
+#smCur{position:fixed;pointer-events:none;z-index:99999;top:0;left:0;transition:transform .05s}
+#smCur div{width:16px;height:16px;border:2px solid var(--neon);border-radius:50% 0 50% 0;transform:rotate(45deg);box-shadow:0 0 8px var(--neon);transition:all .1s;background:transparent}
+#smCur.h div{width:22px;height:22px;border-color:var(--gold);box-shadow:0 0 14px var(--gold);background:rgba(255,209,102,.1)}
+
+/* TELAS */
+.scr{position:fixed;inset:0;transition:opacity .45s,transform .45s}
+.scr.off{opacity:0;pointer-events:none;transform:scale(.97)}
+
+/* ══ SPLASH ══ */
+#sSplash{background:var(--bg);overflow:hidden;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sp-bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 20% 50%,rgba(192,38,211,.15),transparent 50%),
+  radial-gradient(ellipse at 80% 30%,rgba(168,85,247,.1),transparent 50%),
+  radial-gradient(ellipse at 50% 80%,rgba(124,58,237,.08),transparent 50%)}
+.sp-hex{position:absolute;inset:0;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52'%3E%3Cpolygon points='30,2 58,16 58,36 30,50 2,36 2,16' fill='none' stroke='%23c026d3' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:60px 52px;
+  animation:hexDrift 20s linear infinite}
+@keyframes hexDrift{from{background-position:0 0}to{background-position:60px 52px}}
+.sp-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(192,38,211,.04) 3px,rgba(192,38,211,.04) 4px);pointer-events:none}
+.sp-vign{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.9) 100%)}
+/* Energia caindo */
+.sp-drop{position:absolute;width:2px;background:linear-gradient(transparent,var(--pur),transparent);pointer-events:none;animation:dropFall linear infinite;opacity:.6}
+@keyframes dropFall{from{transform:translateY(-100px)}to{transform:translateY(110vh)}}
+.sp-cnt{position:relative;z-index:2;text-align:center;cursor:pointer}
+.sp-ey{font-family:'Share Tech Mono';font-size:.52rem;letter-spacing:.55em;color:rgba(192,38,211,.7);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:spF .6s .2s forwards}
+.sp-t1{display:block;font-family:'Black Ops One';font-size:clamp(3.5rem,11vw,8rem);color:#fff;letter-spacing:.06em;opacity:0;animation:spF .7s .5s forwards;text-shadow:0 0 40px rgba(192,38,211,.3)}
+.sp-t2{display:block;font-family:'Boogaloo';font-size:clamp(2.5rem,8vw,6rem);color:var(--neon);letter-spacing:.1em;opacity:0;animation:spF .7s .75s forwards,purPulse 1.8s 1.5s ease-in-out infinite;text-shadow:0 0 30px var(--pur),0 0 60px rgba(192,38,211,.4)}
+@keyframes purPulse{0%,100%{text-shadow:0 0 30px var(--pur)}50%{text-shadow:0 0 60px var(--neon),0 0 100px var(--pur2),0 0 140px rgba(168,85,247,.3)}}
+.sp-cl{font-family:'Share Tech Mono';font-size:.55rem;letter-spacing:.3em;color:var(--mu);margin-top:24px;opacity:0;animation:spF .5s 1.4s forwards,spBl 1.6s 2s ease-in-out infinite}
+@keyframes spBl{0%,100%{opacity:.3}50%{opacity:.8}}
+@keyframes spF{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* Corpo do smech decorativo */
+.sp-smech{position:absolute;right:60px;top:50%;transform:translateY(-50%);opacity:.15;font-size:5rem;animation:smFloat 3s ease-in-out infinite}
+@keyframes smFloat{0%,100%{transform:translateY(-50%) rotate(-5deg)}50%{transform:translateY(-55%) rotate(5deg)}}
+
+/* ══ CLICKER ══ */
+#sClicker{background:var(--bg);z-index:8;display:flex;flex-direction:column;overflow:hidden}
+/* HUD top */
+.cl-hud{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(0,0,0,.6);border-bottom:1px solid var(--border);flex-shrink:0}
+.cl-souls{display:flex;align-items:baseline;gap:6px}
+.cl-souls-n{font-family:'Black Ops One';font-size:1.6rem;color:var(--neon);text-shadow:0 0 12px var(--pur)}
+.cl-souls-l{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu)}
+.cl-combo{font-family:'Boogaloo';font-size:1.1rem;color:var(--gold);text-shadow:0 0 8px var(--gold);min-width:80px;text-align:center}
+.cl-sps{font-family:'Share Tech Mono';font-size:.52rem;color:var(--pur2);text-align:right}
+.cl-menu-btn{font-family:'Share Tech Mono';font-size:.44rem;padding:4px 10px;background:rgba(192,38,211,.08);border:1px solid var(--border);color:var(--pur2);border-radius:5px;cursor:pointer;transition:all .18s}
+.cl-menu-btn:hover{background:rgba(192,38,211,.2);color:var(--pink)}
+
+/* Painel esquerdo — upgrades */
+.cl-left{background:rgba(0,0,0,.4);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;padding:6px;height:100%}
+.panel-ttl{font-family:'Black Ops One';font-size:.62rem;letter-spacing:.15em;color:var(--pur2);padding:6px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;text-transform:uppercase}
+.upg-btn{background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);border-radius:7px;padding:8px 9px;margin-bottom:5px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.upg-btn:hover:not(.dis){background:rgba(168,85,247,.14);border-color:rgba(168,85,247,.4);transform:translateX(2px)}
+.upg-btn.dis{opacity:.28;cursor:not-allowed}
+.upg-btn.bought{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2)}
+.upg-n{font-family:'Boogaloo';font-size:.75rem;color:var(--txt)}
+.upg-d{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);margin-top:2px;line-height:1.4}
+.upg-c{font-family:'Black Ops One';font-size:.58rem;color:var(--neon);margin-top:3px}
+
+/* Centro — área de clique */
+.cl-center{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;flex:1;min-height:0}
+.cl-center-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(192,38,211,.06),transparent 70%)}
+/* Partículas */
+.splech-p{position:absolute;pointer-events:none;font-size:1.2rem;animation:splechFly .7s ease-out forwards;z-index:5}
+@keyframes splechFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.dmg-num{position:absolute;pointer-events:none;font-family:'Black Ops One';font-size:1.2rem;color:var(--neon);text-shadow:0 0 8px var(--pur);animation:dmgUp .8s ease-out forwards;z-index:6}
+@keyframes dmgUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+.dmg-num.crit{color:var(--gold);font-size:1.8rem;text-shadow:0 0 16px var(--gold)}
+/* Botão de clique */
+.splech-btn{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(192,38,211,.25),rgba(124,58,237,.1));border:3px solid var(--pur);cursor:pointer;transition:all .08s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;box-shadow:0 0 30px rgba(192,38,211,.3),0 0 60px rgba(192,38,211,.1);z-index:2}
+.splech-btn:hover{box-shadow:0 0 50px rgba(192,38,211,.5),0 0 100px rgba(192,38,211,.2);border-color:var(--neon)}
+.splech-btn:active{transform:scale(.93);box-shadow:0 0 80px rgba(192,38,211,.8),0 0 140px rgba(192,38,211,.4)}
+.splech-icon{font-size:3.5rem;animation:iconSpin 4s linear infinite;filter:drop-shadow(0 0 12px var(--pur))}
+@keyframes iconSpin{0%{transform:rotate(0deg)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}100%{transform:rotate(0deg)}}
+.splech-btn-lbl{font-family:'Boogaloo';font-size:.8rem;color:var(--pink);letter-spacing:.1em}
+.splech-cps{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu)}
+/* Barra de chain */
+.chain-wrap{width:160px;margin-top:12px;text-align:center}
+.chain-lbl{font-family:'Share Tech Mono';font-size:.44rem;color:var(--pur2);margin-bottom:4px}
+.chain-bar{height:6px;background:rgba(192,38,211,.15);border-radius:3px;overflow:hidden}
+.chain-fill{height:100%;background:linear-gradient(90deg,var(--pur3),var(--neon));border-radius:3px;transition:width .2s;box-shadow:0 0 8px var(--pur)}
+/* Auto-click visual */
+.auto-ring{position:absolute;width:200px;height:200px;border-radius:50%;border:1px solid rgba(192,38,211,.2);animation:autoRing 2s linear infinite;pointer-events:none}
+@keyframes autoRing{from{transform:rotate(0deg) scale(1);opacity:.5}to{transform:rotate(360deg) scale(1.08);opacity:.1}}
+
+/* Painel direito — Smech */
+.cl-right{background:rgba(0,0,0,.4);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;padding:6px;height:100%}
+.smech-display{background:rgba(192,38,211,.06);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;cursor:pointer;transition:all .2s}
+.smech-display:hover{background:rgba(192,38,211,.12);border-color:var(--pur2)}
+.smech-emoji{font-size:2.5rem;margin-bottom:4px;display:block;filter:drop-shadow(0 0 8px var(--pur))}
+.smech-name{font-family:'Boogaloo';font-size:.75rem;color:var(--pink)}
+.smech-stats{font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu);margin-top:4px;line-height:1.7}
+/* Batalhas desbloqueadas */
+.battle-btn{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+.battle-btn:hover:not(.locked){border-color:var(--pur2);background:rgba(168,85,247,.08);transform:translateX(2px)}
+.battle-btn.locked{opacity:.3;cursor:not-allowed}
+.battle-btn.active{border-color:var(--pur);background:rgba(192,38,211,.1)}
+.battle-icon{font-size:1.4rem;flex-shrink:0}
+.battle-info{flex:1}
+.battle-name{font-family:'Boogaloo';font-size:.72rem;color:var(--txt)}
+.battle-desc{font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu);margin-top:2px}
+.battle-reward{font-family:'Share Tech Mono';font-size:.38rem;color:var(--neon)}
+
+/* ══ CRIAR SMECH ══ */
+#sSmech{background:var(--bg);z-index:9;display:block;overflow-y:auto;overflow-x:hidden}
+.smech-wrap{max-width:600px;width:100%;margin:0 auto;padding:36px 20px 100px}
+.smech-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}
+.smech-bk{font-family:'Share Tech Mono';font-size:.5rem;letter-spacing:.15em;color:var(--mu);cursor:pointer;transition:color .2s;text-transform:uppercase}
+.smech-bk:hover{color:var(--neon)}
+.smech-hero-ttl{font-family:'Black Ops One';font-size:clamp(2rem,7vw,3.5rem);color:#fff;line-height:.9}
+.smech-hero-ttl span{color:var(--neon);text-shadow:0 0 20px var(--pur)}
+.smech-hero-sub{font-family:'Share Tech Mono';font-size:.52rem;color:var(--mu);margin-top:10px;line-height:1.8}
+.sc-section{margin-bottom:28px}
+.sc-ttl{font-family:'Black Ops One';font-size:.72rem;letter-spacing:.12em;color:var(--pur2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sc-ttl::after{content:'';flex:1;height:1px;background:var(--border)}
+.sc-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sc-opt{background:rgba(192,38,211,.04);border:2px solid rgba(192,38,211,.12);border-radius:10px;padding:12px 8px;cursor:pointer;transition:all .2s;text-align:center}
+.sc-opt:hover{border-color:rgba(192,38,211,.4);background:rgba(192,38,211,.1)}
+.sc-opt.sel{border-color:var(--neon);background:rgba(232,121,249,.1);box-shadow:0 0 16px rgba(192,38,211,.25)}
+.sc-opt-icon{font-size:1.6rem;display:block;margin-bottom:6px}
+.sc-opt-n{font-family:'Boogaloo';font-size:.72rem;color:var(--txt)}
+.sc-opt-d{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);margin-top:3px;line-height:1.4}
+.sc-mods{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-mod{background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.12);border-radius:8px;padding:10px;cursor:pointer;transition:all .18s;display:flex;align-items:flex-start;gap:8px}
+.sc-mod:hover:not(.locked-mod){border-color:rgba(168,85,247,.35)}
+.sc-mod.sel-mod{border-color:var(--pur2);background:rgba(168,85,247,.1)}
+.sc-mod.locked-mod{opacity:.3;cursor:not-allowed}
+.sc-mod-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.sc-mod-n{font-family:'Boogaloo';font-size:.65rem;color:var(--txt)}
+.sc-mod-d{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);margin-top:2px;line-height:1.4}
+.sc-hab{display:flex;flex-direction:column;gap:6px}
+.sc-h{background:rgba(240,171,252,.04);border:1px solid rgba(240,171,252,.1);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:10px}
+.sc-h:hover{border-color:rgba(240,171,252,.35);background:rgba(240,171,252,.08)}
+.sc-h.sel-h{border-color:var(--pink);background:rgba(240,171,252,.1)}
+.sc-h-icon{font-size:1.2rem;flex-shrink:0}
+.sc-h-n{font-family:'Boogaloo';font-size:.7rem;color:var(--txt);flex:1}
+.sc-h-d{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu)}
+.smech-preview{background:rgba(192,38,211,.06);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.smech-prev-icon{font-size:3rem;filter:drop-shadow(0 0 10px var(--pur));animation:smFloat 3s ease-in-out infinite}
+.smech-prev-info{flex:1}
+.smech-prev-n{font-family:'Boogaloo';font-size:1rem;color:var(--pink)}
+.smech-prev-s{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);margin-top:4px;line-height:1.8}
+.smech-build-btn{width:100%;padding:15px;background:linear-gradient(135deg,rgba(192,38,211,.2),rgba(124,58,237,.12));border:1px solid rgba(192,38,211,.5);border-radius:11px;color:var(--neon);font-family:'Black Ops One';font-size:.9rem;letter-spacing:.15em;cursor:pointer;transition:all .25s;text-transform:uppercase}
+.smech-build-btn:hover{background:linear-gradient(135deg,rgba(192,38,211,.35),rgba(124,58,237,.2));box-shadow:0 0 30px rgba(192,38,211,.35);transform:translateY(-2px)}
+
+/* ══ BATALHA ══ */
+#sClicker{display:grid!important;grid-template-rows:auto 1fr;background:var(--bg);z-index:8}
+#sClicker.off{display:none!important}
+#sBattle{background:var(--bg);z-index:11;display:flex;flex-direction:column;overflow:hidden}
+.bt-hud{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,.6);border-bottom:1px solid var(--border);flex-shrink:0}
+.bt-ttl{font-family:'Black Ops One';font-size:.9rem;letter-spacing:.12em;color:var(--neon)}
+.bt-souls{font-family:'Share Tech Mono';font-size:.6rem;color:var(--pur2)}
+.bt-quit{font-family:'Share Tech Mono';font-size:.46rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:4px 10px;border-radius:5px;cursor:pointer;transition:all .2s}
+.bt-quit:hover{color:var(--red);border-color:var(--red)}
+/* Arena */
+.bt-arena{flex:1;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,rgba(192,38,211,.08),var(--bg) 70%)}
+.bt-arena-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(192,38,211,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(192,38,211,.03) 1px,transparent 1px);background-size:32px 32px}
+/* Inimigos */
+.enemy-card{position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .1s}
+.enemy-card:hover{transform:scale(1.1)}
+.enemy-card:active{transform:scale(.95)}
+.enemy-icon{font-size:2rem;filter:drop-shadow(0 0 8px var(--red));animation:enemyBob ease-in-out infinite}
+@keyframes enemyBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.enemy-hp{width:48px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+.enemy-hp-fill{height:100%;background:var(--red);border-radius:2px;transition:width .2s}
+.enemy-dmg{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:'Black Ops One';font-size:.7rem;pointer-events:none;animation:dmgUp .7s forwards}
+/* Player bar */
+.bt-player{display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(0,0,0,.5);border-top:1px solid var(--border);flex-shrink:0}
+.bt-player-icon{font-size:1.4rem;filter:drop-shadow(0 0 6px var(--pur))}
+.bt-hp-wrap{flex:1}
+.bt-hp-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.bt-hp-fill{height:100%;background:linear-gradient(90deg,var(--pur3),var(--neon));border-radius:4px;transition:width .3s;box-shadow:0 0 8px var(--pur)}
+.bt-hp-txt{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);margin-top:2px}
+/* Habilidade */
+.bt-skill-btn{padding:8px 16px;background:rgba(192,38,211,.1);border:1px solid rgba(192,38,211,.3);border-radius:8px;color:var(--neon);font-family:'Boogaloo';font-size:.75rem;cursor:pointer;transition:all .2s}
+.bt-skill-btn:hover:not(:disabled){background:rgba(192,38,211,.25);box-shadow:0 0 16px rgba(192,38,211,.3)}
+.bt-skill-btn:disabled{opacity:.3;cursor:not-allowed}
+/* Resultado */
+.res-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;pointer-events:none;transition:opacity .4s}
+.res-ov.show{opacity:1;pointer-events:all}
+.res-icon{font-size:3rem}
+.res-ttl{font-family:'Black Ops One';font-size:2rem}
+.res-sub{font-family:'Share Tech Mono';font-size:.54rem;color:var(--mu);text-align:center;max-width:300px;line-height:1.7}
+.res-btns{display:flex;gap:10px;margin-top:8px}
+.res-btn{font-family:'Share Tech Mono';font-size:.58rem;letter-spacing:.1em;padding:11px 22px;border-radius:9px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:none}
+.res-btn.pri{background:var(--neon);color:#000}.res-btn.pri:hover{box-shadow:0 0 20px rgba(192,38,211,.5)}
+.res-btn.sec{background:none;color:var(--mu);border:1px solid rgba(255,255,255,.12)}.res-btn.sec:hover{color:var(--txt)}
+/* Log */
+.bt-log{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu);padding:4px 14px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.04);flex-shrink:0;min-height:1.6em;text-align:center;transition:color .2s}
+.bt-log.hit{color:var(--neon)}.bt-log.crit{color:var(--gold)}.bt-log.hurt{color:var(--red)}
+/* Sobrecarga */
+.overdrive-bar{height:5px;background:rgba(232,121,249,.1);overflow:hidden;flex-shrink:0}
+.overdrive-fill{height:100%;background:linear-gradient(90deg,var(--pur2),var(--pink));transition:width .3s;box-shadow:0 0 6px var(--neon)}
+</style>
+</head>
+<body>
+
+<div id="smCur"><div></div></div>
+
+<!-- SPLASH -->
+<div class="scr" id="sSplash">
+  <div class="sp-bg"></div>
+  <div class="sp-hex"></div>
+  <div class="sp-scan"></div>
+  <div class="sp-vign"></div>
+  <div class="sp-smech">🤖</div>
+  <div class="sp-cnt" onclick="startClicker()">
+    <div class="sp-ey">Torre,Base Plus · O Clicker</div>
+    <div><span class="sp-t1">SMECH</span><span class="sp-t2">SPLECH!</span></div>
+    <div class="sp-cl">CLIQUE PARA COMEÇAR O CAOS</div>
+  </div>
+</div>
+
+<!-- CLICKER PRINCIPAL -->
+<div class="scr off" id="sClicker">
+  <div class="cl-hud">
+    <div class="cl-souls">
+      <span class="cl-souls-n" id="clSouls">0</span>
+      <span class="cl-souls-l">💀 ALMAS</span>
+      <span class="cl-sps" id="clSps">(+0/s)</span>
+    </div>
+    <div class="cl-combo" id="clCombo">x1</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="cl-menu-btn" onclick="goSmech()">🤖 CRIAR SMECH</button>
+      <button class="cl-menu-btn" onclick="showScr('sSplash')">← MENU</button>
+    </div>
+  </div>
+  <!-- Layout 3 colunas -->
+  <div style="display:grid;grid-template-columns:200px 1fr 200px;flex:1;min-height:0;overflow:hidden;height:100%">
+    <!-- Upgrades -->
+    <div class="cl-left" id="upgPanel">
+      <div class="panel-ttl">⬆ UPGRADES</div>
+    </div>
+    <!-- Centro -->
+    <div class="cl-center" id="clCenter">
+      <div class="cl-center-bg"></div>
+      <div class="auto-ring" id="autoRing" style="display:none"></div>
+      <div class="splech-btn" id="splechBtn" onclick="doClick(event)">
+        <span class="splech-icon" id="splechIcon">💀</span>
+        <span class="splech-btn-lbl">SPLECH!</span>
+        <span class="splech-cps" id="splechCps">+1 por clique</span>
+      </div>
+      <div class="chain-wrap">
+        <div class="chain-lbl" id="chainLbl">CHAIN: 0</div>
+        <div class="chain-bar"><div class="chain-fill" id="chainFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <!-- Smech + batalhas -->
+    <div class="cl-right" id="smechPanel">
+      <div class="panel-ttl">🤖 SMECH</div>
+      <div class="smech-display" onclick="goSmech()" id="smechDisplay">
+        <span class="smech-emoji" id="smechEmoji">❓</span>
+        <div class="smech-name" id="smechName">Não criado</div>
+        <div class="smech-stats" id="smechStats">Clique para criar seu Smech</div>
+      </div>
+      <div class="panel-ttl" style="margin-top:4px">⚔️ BATALHAS</div>
+      <div id="battleList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CRIAR SMECH -->
+<div class="scr off" id="sSmech">
+  <div class="smech-wrap">
+    <div class="smech-nav">
+      <div class="smech-bk" onclick="showScr('sClicker')">← VOLTAR</div>
+      <div style="font-family:'Share Tech Mono';font-size:.46rem;letter-spacing:.2em;color:var(--pur2);border:1px solid var(--border);padding:3px 10px">FORJA DO SMECH</div>
+    </div>
+    <div style="margin-bottom:32px">
+      <div style="font-family:'Share Tech Mono';font-size:.48rem;letter-spacing:.28em;color:rgba(192,38,211,.55);margin-bottom:8px;text-transform:uppercase">// construa sua máquina</div>
+      <div class="smech-hero-ttl">CRIE SEU<br><span>SMECH</span></div>
+      <div class="smech-hero-sub">Smech = máquina que transforma Splech em poder.<br>Cada escolha muda completamente seu estilo de jogo.</div>
+    </div>
+    <!-- Preview -->
+    <div class="smech-preview">
+      <span id="prevIcon" style="font-size:3rem;filter:drop-shadow(0 0 10px var(--pur));animation:smFloat 3s ease-in-out infinite">🤖</span>
+      <div>
+        <div class="smech-prev-n" id="prevName">Smech Indefinido</div>
+        <div class="smech-prev-s" id="prevStats">Selecione as partes abaixo</div>
+      </div>
+    </div>
+    <!-- Corpo -->
+    <div class="sc-section">
+      <div class="sc-ttl">🧱 CORPO</div>
+      <div class="sc-opts">
+        <div class="sc-opt sel" data-part="corpo" data-val="leve" onclick="selPart('corpo','leve',this)">
+          <span class="sc-opt-icon">🪶</span>
+          <div class="sc-opt-n">Leve</div>
+          <div class="sc-opt-d">+50% velocidade de clique. Menos ganho base.</div>
+        </div>
+        <div class="sc-opt" data-part="corpo" data-val="pesado" onclick="selPart('corpo','pesado',this)">
+          <span class="sc-opt-icon">🪨</span>
+          <div class="sc-opt-n">Pesado</div>
+          <div class="sc-opt-d">+100% ganho por clique. Mais lento.</div>
+        </div>
+        <div class="sc-opt" data-part="corpo" data-val="instavel" onclick="selPart('corpo','instavel',this)">
+          <span class="sc-opt-icon">💥</span>
+          <div class="sc-opt-n">Instável</div>
+          <div class="sc-opt-d">Efeitos aleatórios. Caótico mas poderoso.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Núcleo -->
+    <div class="sc-section">
+      <div class="sc-ttl">⚙️ NÚCLEO</div>
+      <div class="sc-opts">
+        <div class="sc-opt sel" data-part="nucleo" data-val="explosivo" onclick="selPart('nucleo','explosivo',this)">
+          <span class="sc-opt-icon">💣</span>
+          <div class="sc-opt-n">Explosivo</div>
+          <div class="sc-opt-d">Dano em área. Splech atinge múltiplos alvos.</div>
+        </div>
+        <div class="sc-opt" data-part="nucleo" data-val="concentrado" onclick="selPart('nucleo','concentrado',this)">
+          <span class="sc-opt-icon">🎯</span>
+          <div class="sc-opt-n">Concentrado</div>
+          <div class="sc-opt-d">Muito mais forte em alvo único.</div>
+        </div>
+        <div class="sc-opt" data-part="nucleo" data-val="reativo" onclick="selPart('nucleo','reativo',this)">
+          <span class="sc-opt-icon">⚡</span>
+          <div class="sc-opt-n">Reativo</div>
+          <div class="sc-opt-d">Chance de cadeia — gera mais cliques.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Módulos -->
+    <div class="sc-section">
+      <div class="sc-ttl">🦾 MÓDULOS (escolha 2)</div>
+      <div class="sc-mods" id="modGrid"></div>
+    </div>
+    <!-- Habilidade -->
+    <div class="sc-section">
+      <div class="sc-ttl">💥 HABILIDADE</div>
+      <div class="sc-hab" id="habGrid"></div>
+    </div>
+    <button class="smech-build-btn" onclick="buildSmech()">🤖 FORJAR SMECH</button>
+  </div>
+</div>
+
+<!-- BATALHA -->
+<div class="scr off" id="sBattle">
+  <div class="bt-hud">
+    <div class="bt-ttl" id="btTtl">⚔️ BATALHA</div>
+    <div class="bt-souls" id="btSouls">💀 0</div>
+    <button class="bt-quit" onclick="quitBattle()">✕ SAIR</button>
+  </div>
+  <div class="bt-log" id="btLog">Clique nos inimigos para atacar!</div>
+  <div class="overdrive-bar"><div class="overdrive-fill" id="odFill" style="width:0%"></div></div>
+  <div class="bt-arena" id="btArena">
+    <div class="bt-arena-grid"></div>
+  </div>
+  <div class="bt-player">
+    <span class="bt-player-icon" id="btPlIcon">🤖</span>
+    <div class="bt-hp-wrap">
+      <div class="bt-hp-bar"><div class="bt-hp-fill" id="btHpFill" style="width:100%"></div></div>
+      <div class="bt-hp-txt" id="btHpTxt">HP: —</div>
+    </div>
+    <button class="bt-skill-btn" id="btSkillBtn" onclick="useSkill()">💥 OVERDRIVE</button>
+  </div>
+</div>
+
+<!-- Resultado -->
+<div class="res-ov" id="resOv">
+  <div class="res-icon" id="resIcon">💀</div>
+  <div class="res-ttl" id="resTtl" style="color:var(--neon)">—</div>
+  <div class="res-sub" id="resSub"></div>
+  <div class="res-btns">
+    <button class="res-btn pri" onclick="resAct()">▶ CONTINUAR</button>
+    <button class="res-btn sec" onclick="showScr('sClicker')">← CLICKER</button>
+  </div>
+</div>
+
+<script>
+// ── Cursor ─────────────────────────────────────────────────────────────
+(function(){
+  var cur=document.getElementById('smCur');
+  document.addEventListener('mousemove',function(e){
+    cur.style.left=(e.clientX-8)+'px';cur.style.top=(e.clientY-8)+'px';
+  });
+  document.addEventListener('mouseover',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.upg-btn,.sc-opt,.sc-mod,.sc-h,.battle-btn,.smech-display,.splech-btn,.enemy-card'))cur.classList.add('h');
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.upg-btn,.sc-opt,.sc-mod,.sc-h,.battle-btn,.smech-display,.splech-btn,.enemy-card'))cur.classList.remove('h');
+  });
+})();
+
+// ── Splash drops ────────────────────────────────────────────────────────
+(function(){
+  var sp=document.getElementById('sSplash');
+  for(var i=0;i<12;i++){
+    var d=document.createElement('div');d.className='sp-drop';
+    d.style.left=Math.random()*100+'%';
+    d.style.height=(40+Math.random()*80)+'px';
+    d.style.animationDuration=(1.5+Math.random()*2)+'s';
+    d.style.animationDelay=(-Math.random()*3)+'s';
+    sp.appendChild(d);
+  }
+})();
+
+// ── Telas ────────────────────────────────────────────────────────────────
+function showScr(id){
+  ['sSplash','sClicker','sSmech','sBattle'].forEach(function(s){
+    var el=document.getElementById(s);
+    if(s===id){
+      el.classList.remove('off');
+      // força display correto
+      if(s==='sClicker'){el.style.display='grid';}
+      else if(s==='sSplash'){el.style.display='flex';}
+      else if(s==='sBattle'){el.style.display='flex';}
+      else if(s==='sSmech'){el.style.display='block';}
+    } else {
+      el.classList.add('off');
+      el.style.display='none';
+    }
+  });
+  document.body.style.overflow=(id==='sSmech')?'auto':'hidden';
+  if(id==='sSmech')document.getElementById('sSmech').scrollTop=0;
+}
+
+function fk(n){if(n>=1e12)return(n/1e12).toFixed(1)+'T';if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';return Math.floor(n);}
+
+// ── ESTADO CLICKER ────────────────────────────────────────────────────────
+var S={
+  souls:0, spc:1, sps:0, combo:1, comboT:0,
+  chain:0, chainMax:20, chainActive:false,
+  autoClick:false, autoInt:null,
+  upgs:{}, smech:null,
+  loop:null,
+  battles:{olhos:{done:false,lv:1},boca:{done:false,lv:1},coracao:{done:false,lv:1}},
+  overdrive:0, odMax:100,
+};
+
+// ── UPGRADES ──────────────────────────────────────────────────────────────
+var UPGRADES=[
+  {id:'spc1',  n:'Alma Reforçada',  d:'+1 alma por clique',      cost:10,   effect:function(){S.spc+=1;},        icon:'💀'},
+  {id:'spc2',  n:'Garra Dupla',     d:'+3 almas por clique',      cost:50,   effect:function(){S.spc+=3;},        icon:'💪'},
+  {id:'spc3',  n:'Explosão Splech', d:'+10 almas por clique',     cost:200,  effect:function(){S.spc+=10;},       icon:'💥'},
+  {id:'crit1', n:'Olho Crítico',    d:'+15% chance de crítico',   cost:80,   effect:function(){S.critChance=(S.critChance||0)+15;}, icon:'👁️'},
+  {id:'auto1', n:'Auto-Splech I',   d:'+1 click automático/s',    cost:150,  effect:function(){S.sps+=1;startAutoSps();}, icon:'⚡'},
+  {id:'auto2', n:'Auto-Splech II',  d:'+3 clicks auto/s',         cost:500,  effect:function(){S.sps+=3;},        icon:'⚡'},
+  {id:'auto3', n:'Auto-Splech III', d:'+10 clicks auto/s',        cost:2000, effect:function(){S.sps+=10;},       icon:'⚡'},
+  {id:'mult1', n:'Multiplicador',   d:'x2 todas as almas',        cost:300,  effect:function(){S.mult=(S.mult||1)*2;}, icon:'✖️'},
+  {id:'chain1',n:'Splech Chain',    d:'Chain máx +10',            cost:400,  effect:function(){S.chainMax+=10;},  icon:'🔗'},
+  {id:'chain2',n:'Chain Reativa',   d:'Chain dá x3 no pico',      cost:1500, effect:function(){S.chainBonus=3;},  icon:'⚡'},
+  {id:'spc4',  n:'Núcleo Caótico',  d:'+50 almas por clique',     cost:3000, effect:function(){S.spc+=50;},       icon:'🌀'},
+  {id:'od1',   n:'Overdrive Rápido',d:'Overdrive carrega 2x mais', cost:800, effect:function(){S.odRate=2;},       icon:'💜'},
+  {id:'spc5',  n:'Singularidade',   d:'+200 almas por clique',    cost:10000,effect:function(){S.spc+=200;},      icon:'💀'},
+];
+
+// ── MÓDULOS E HABILIDADES DO SMECH ────────────────────────────────────────
+var MODULOS=[
+  {id:'auto',  n:'Auto-Click',      d:'Clica sozinho a cada 2s',  icon:'🤖',req:0},
+  {id:'mult',  n:'Multiplicador',   d:'x1.5 em todas as almas',   icon:'✖️', req:0},
+  {id:'splech',n:'Splech em Área',  d:'Cliques atingem 3 inimigos',icon:'💥',req:50},
+  {id:'roubo', n:'Roubo de Alma',   d:'+2 almas/s passivo',        icon:'👻',req:100},
+  {id:'duplic',n:'Duplicador',      d:'10% chance de dobrar ganho',icon:'🎲',req:200},
+  {id:'chain3',n:'Hyper Chain',     d:'Chain máx +20 e +velocidade',icon:'⚡',req:500},
+];
+var HABILIDADES=[
+  {id:'overdrive',n:'Overdrive',    d:'x5 almas por 5s. CD: 30s',  icon:'💥'},
+  {id:'bigbang',  n:'Big Bang',     d:'Dano x10 por 3s. CD: 45s',   icon:'🌌'},
+  {id:'chain_exp',n:'Chain Explode',d:'Ativa chain máx imediato',   icon:'🔗'},
+];
+
+// ── SMECH CONFIGS ──────────────────────────────────────────────────────────
+var smechBuild={corpo:'leve',nucleo:'explosivo',mods:[],hab:'overdrive'};
+
+var SMECH_ICONS={
+  'leve+explosivo':'💨','leve+concentrado':'🌪️','leve+reativo':'⚡',
+  'pesado+explosivo':'🤖','pesado+concentrado':'🦾','pesado+reativo':'💣',
+  'instavel+explosivo':'😈','instavel+concentrado':'🔮','instavel+reativo':'🌀',
+};
+
+// ── BATALHAS ──────────────────────────────────────────────────────────────
+var BATTLES={
+  olhos:{
+    name:'👁️ Olhos — Ciclopes',desc:'2 Ciclopes. Lento mas pesado.',
+    req:0,
+    spawn:function(){return[
+      {id:0,icon:'🔮',hp:2000+S.battles.olhos.lv*500,maxHp:2000+S.battles.olhos.lv*500,atk:80+S.battles.olhos.lv*20,name:'Ciclope A',x:25,y:35},
+      {id:1,icon:'🔮',hp:2000+S.battles.olhos.lv*500,maxHp:2000+S.battles.olhos.lv*500,atk:80+S.battles.olhos.lv*20,name:'Ciclope B',x:65,y:45},
+    ];},
+    reward:function(){S.critChance=(S.critChance||0)+10;S.souls+=500*S.battles.olhos.lv;return '+10% crítico e +'+fk(500*S.battles.olhos.lv)+' 💀';}
+  },
+  boca:{
+    name:'👄 Boca — Hetir',desc:'1 Hetir ultra-agressivo.',
+    req:500,
+    spawn:function(){return[
+      {id:0,icon:'⚡',hp:5000+S.battles.boca.lv*1000,maxHp:5000+S.battles.boca.lv*1000,atk:200+S.battles.boca.lv*50,name:'Hetir',x:45,y:40,fast:true},
+    ];},
+    reward:function(){S.spc=Math.floor(S.spc*1.5);S.souls+=2000*S.battles.boca.lv;return 'Clique x1.5 e +'+fk(2000*S.battles.boca.lv)+' 💀';}
+  },
+  coracao:{
+    name:'❤️ Coração — Todas as Cartas',desc:'5 cartas por vez. Infinito.',
+    req:5000,
+    spawn:function(){
+      var pool=['💀','⚡','🩸','👁️','🗿','🐉','🔮','🦅','⛩️','💣'];
+      var cards=[];
+      for(var i=0;i<5;i++){
+        var icon=pool[~~(Math.random()*pool.length)];
+        var scale=1+S.battles.coracao.lv*0.2;
+        cards.push({id:i,icon:icon,hp:~~((1500+Math.random()*2000)*scale),maxHp:~~((1500+Math.random()*2000)*scale),atk:~~((50+Math.random()*100)*scale),name:'Carta',x:10+i*18,y:25+Math.random()*30,chaos:true});
+      }
+      return cards;
+    },
+    reward:function(){S.mult=(S.mult||1)*1.5;S.souls+=10000*S.battles.coracao.lv;return 'x1.5 TUDO e +'+fk(10000*S.battles.coracao.lv)+' 💀';}
+  }
+};
+
+// Estado da batalha
+var B={enemies:[],plHp:0,plMaxHp:0,skillCd:0,curBattle:null,loop:null,od:false,odTimer:0};
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function startClicker(){
+  showScr('sClicker');
+  buildUpgPanel();
+  buildBattleList();
+  updClicker();
+  if(!S.loop)S.loop=setInterval(tickClicker,100);
+}
+
+// ── CLIQUE ────────────────────────────────────────────────────────────────
+var SPLECH_EMOJIS=['💜','💥','⚡','🌀','✨','💫','🔮','👾'];
+function doClick(e){
+  var isCrit=Math.random()*100<(S.critChance||5);
+  var base=S.spc*(S.mult||1)*(S.od?5:1);
+  if(S.smech){
+    if(S.smech.corpo==='pesado')base*=2;
+    if(S.smech.corpo==='instavel')base*=(Math.random()<.3?5:Math.random()<.5?0.5:1);
+  }
+  var gain=isCrit?base*3:base;
+  // Chain bonus
+  S.chain=Math.min(S.chain+1,S.chainMax);
+  if(S.chain>=S.chainMax){gain*=(S.chainBonus||2);showChainExplode();}
+  S.souls+=gain;
+  // Overdrive charge
+  S.overdrive=Math.min(S.odMax,S.overdrive+(S.odRate||1)*2);
+  // Combo
+  S.combo=Math.min(S.combo+0.2,10);S.comboT=0;
+  // Partículas
+  var rect=document.getElementById('clCenter').getBoundingClientRect();
+  var mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  spawnParticle(mx,my,isCrit?'💥':SPLECH_EMOJIS[~~(Math.random()*SPLECH_EMOJIS.length)]);
+  spawnDmgNum(mx,my,Math.floor(gain),isCrit);
+  // Chain module
+  if(S.smech&&S.smech.mods&&S.smech.mods.includes('chain3')){S.chain=Math.min(S.chain+2,S.chainMax);}
+  updClicker();
+}
+
+function spawnParticle(x,y,emoji){
+  var el=document.createElement('div');el.className='splech-p';
+  el.textContent=emoji;
+  var dx=(Math.random()-0.5)*120,dy=-(20+Math.random()*80);
+  el.style.cssText='left:'+x+'px;top:'+y+'px;--dx:'+dx+'px;--dy:'+dy+'px;font-size:'+(1+Math.random())+'rem';
+  document.getElementById('clCenter').appendChild(el);
+  setTimeout(function(){el.remove();},700);
+}
+function spawnDmgNum(x,y,n,crit){
+  var el=document.createElement('div');el.className='dmg-num'+(crit?' crit':'');
+  el.textContent=(crit?'💥 CRIT! ':'')+fk(n);
+  el.style.cssText='left:'+(x-20)+'px;top:'+(y-10)+'px';
+  document.getElementById('clCenter').appendChild(el);
+  setTimeout(function(){el.remove();},800);
+}
+function showChainExplode(){
+  var c=document.getElementById('clCenter');
+  c.style.background='rgba(232,121,249,.2)';
+  setTimeout(function(){c.style.background='';},150);
+  S.chain=0;
+}
+
+// ── AUTO-CLICK ─────────────────────────────────────────────────────────────
+function startAutoSps(){
+  if(S.autoInt)clearInterval(S.autoInt);
+  if(S.sps<=0)return;
+  S.autoInt=setInterval(function(){
+    if(!document.getElementById('sClicker').classList.contains('off')){
+      var gain=S.spc*(S.mult||1)*S.sps*0.1;
+      S.souls+=gain;
+      // visual sutil
+      var ar=document.getElementById('autoRing');
+      if(ar){ar.style.display='block';setTimeout(function(){ar.style.display='none';},200);}
+    }
+  },100);
+}
+
+// ── TICK ───────────────────────────────────────────────────────────────────
+function tickClicker(){
+  // Combo decay
+  S.comboT+=0.1;if(S.comboT>2)S.combo=Math.max(1,S.combo-0.1);
+  // Chain decay
+  S.chain=Math.max(0,S.chain-0.3);
+  // Roubo de alma (módulo)
+  if(S.smech&&S.smech.mods&&S.smech.mods.includes('roubo'))S.souls+=0.2;
+  // Overdrive decay
+  if(!S.od)S.overdrive=Math.max(0,S.overdrive-0.5);
+  updClicker();
+}
+function updClicker(){
+  document.getElementById('clSouls').textContent=fk(S.souls);
+  document.getElementById('clSps').textContent='(+'+fk(S.sps*S.spc*(S.mult||1))+'/s)';
+  document.getElementById('clCombo').textContent='x'+S.combo.toFixed(1);
+  document.getElementById('splechCps').textContent='+'+fk(S.spc*(S.mult||1)*(S.od?5:1))+' por clique';
+  // Chain
+  document.getElementById('chainLbl').textContent='CHAIN: '+Math.floor(S.chain)+'/'+S.chainMax;
+  document.getElementById('chainFill').style.width=(S.chain/S.chainMax*100)+'%';
+  // Upgrade buttons
+  document.querySelectorAll('.upg-btn').forEach(function(btn){
+    var id=btn.dataset.id;
+    var upg=UPGRADES.find(function(u){return u.id===id;});
+    if(!upg)return;
+    btn.classList.toggle('dis',S.souls<upg.cost||!!S.upgs[id]);
+    btn.classList.toggle('bought',!!S.upgs[id]);
+  });
+}
+
+// ── UPGRADES PANEL ─────────────────────────────────────────────────────────
+function buildUpgPanel(){
+  var panel=document.getElementById('upgPanel');
+  panel.innerHTML='<div class="panel-ttl">⬆ UPGRADES</div>';
+  UPGRADES.forEach(function(upg){
+    var d=document.createElement('div');d.className='upg-btn'+(S.upgs[upg.id]?' bought':'');d.dataset.id=upg.id;
+    d.onclick=function(){buyUpg(upg.id);};
+    d.innerHTML='<div class="upg-n">'+upg.icon+' '+upg.n+'</div><div class="upg-d">'+upg.d+'</div><div class="upg-c">'+(S.upgs[upg.id]?'✅ COMPRADO':fk(upg.cost)+' 💀')+'</div>';
+    panel.appendChild(d);
+  });
+}
+function buyUpg(id){
+  var upg=UPGRADES.find(function(u){return u.id===id;});
+  if(!upg||S.upgs[id]||S.souls<upg.cost)return;
+  S.souls-=upg.cost;S.upgs[id]=true;
+  upg.effect();
+  buildUpgPanel();updClicker();
+  if(id.startsWith('auto'))startAutoSps();
+}
+
+// ── BATALHA LIST ────────────────────────────────────────────────────────────
+function buildBattleList(){
+  var list=document.getElementById('battleList');list.innerHTML='';
+  Object.entries(BATTLES).forEach(function(e){
+    var key=e[0],bt=e[1];
+    var locked=S.souls<bt.req&&!S.battles[key].done;
+    var d=document.createElement('div');
+    d.className='battle-btn'+(locked?' locked':'');
+    d.onclick=function(){if(!locked)enterBattle(key);};
+    d.innerHTML='<span class="battle-icon">'+bt.name.split(' ')[0]+'</span>'+
+      '<div class="battle-info"><div class="battle-name">'+bt.name.split('—')[1]+'</div>'+
+      '<div class="battle-desc">'+(locked?'Requer '+fk(bt.req)+' 💀':bt.desc)+'</div>'+
+      '<div class="battle-reward">Lv '+S.battles[key].lv+'</div></div>';
+    list.appendChild(d);
+  });
+}
+
+// ── CRIAR SMECH ────────────────────────────────────────────────────────────
+function goSmech(){
+  // Build mod grid
+  var mg=document.getElementById('modGrid');mg.innerHTML='';
+  MODULOS.forEach(function(m){
+    var locked=S.souls<m.req&&!S.upgs['auto1'];
+    var sel=smechBuild.mods.includes(m.id);
+    var d=document.createElement('div');
+    d.className='sc-mod'+(sel?' sel-mod':'')+(locked?' locked-mod':'');
+    d.onclick=function(){if(!locked)toggleMod(m.id,d);};
+    d.innerHTML='<span class="sc-mod-icon">'+m.icon+'</span><div><div class="sc-mod-n">'+m.n+'</div><div class="sc-mod-d">'+m.d+(locked?' (req '+fk(m.req)+' 💀)':'')+'</div></div>';
+    mg.appendChild(d);
+  });
+  var hg=document.getElementById('habGrid');hg.innerHTML='';
+  HABILIDADES.forEach(function(h){
+    var sel=smechBuild.hab===h.id;
+    var d=document.createElement('div');
+    d.className='sc-h'+(sel?' sel-h':'');
+    d.onclick=function(){selHab(h.id,d);};
+    d.innerHTML='<span class="sc-h-icon">'+h.icon+'</span><div><div class="sc-h-n">'+h.n+'</div><div class="sc-h-d">'+h.d+'</div></div>';
+    hg.appendChild(d);
+  });
+  updSmechPreview();
+  showScr('sSmech');
+}
+function selPart(part,val,el){
+  smechBuild[part]=val;
+  document.querySelectorAll('[data-part="'+part+'"]').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');updSmechPreview();
+}
+function toggleMod(id,el){
+  var idx=smechBuild.mods.indexOf(id);
+  if(idx>=0){smechBuild.mods.splice(idx,1);el.classList.remove('sel-mod');}
+  else if(smechBuild.mods.length<2){smechBuild.mods.push(id);el.classList.add('sel-mod');}
+  updSmechPreview();
+}
+function selHab(id,el){
+  smechBuild.hab=id;
+  document.querySelectorAll('.sc-h').forEach(function(e){e.classList.remove('sel-h');});
+  el.classList.add('sel-h');updSmechPreview();
+}
+function updSmechPreview(){
+  var iconKey=smechBuild.corpo+'+'+smechBuild.nucleo;
+  var icon=SMECH_ICONS[iconKey]||'🤖';
+  var corpoNames={leve:'Leve',pesado:'Pesado',nucleoNomes:'',instavel:'Instável'};
+  var nucleoNames={explosivo:'Explosivo',concentrado:'Concentrado',reativo:'Reativo'};
+  var name='Smech '+corpoNames[smechBuild.corpo]+' '+nucleoNames[smechBuild.nucleo];
+  var mods=smechBuild.mods.map(function(id){return MODULOS.find(function(m){return m.id===id;});}).filter(Boolean).map(function(m){return m.n;}).join(', ')||'Nenhum';
+  var hab=HABILIDADES.find(function(h){return h.id===smechBuild.hab;});
+  document.getElementById('prevIcon').textContent=icon;
+  document.getElementById('prevName').textContent=name;
+  document.getElementById('prevStats').textContent='Módulos: '+mods+'\nHabilidade: '+(hab?hab.n:'—');
+}
+function buildSmech(){
+  var iconKey=smechBuild.corpo+'+'+smechBuild.nucleo;
+  S.smech={...smechBuild,icon:SMECH_ICONS[iconKey]||'🤖'};
+  // Aplica bônus
+  if(S.smech.mods.includes('mult'))S.mult=(S.mult||1)*1.5;
+  if(S.smech.mods.includes('auto')){S.sps+=2;startAutoSps();}
+  if(S.smech.mods.includes('roubo')){}; // handled in tick
+  // Atualiza display
+  var nucleoNames={explosivo:'Explosivo',concentrado:'Concentrado',reativo:'Reativo'};
+  var corpoNames={leve:'Leve',pesado:'Pesado',instavel:'Instável'};
+  document.getElementById('smechEmoji').textContent=S.smech.icon;
+  document.getElementById('smechName').textContent='Smech '+corpoNames[S.smech.corpo]+' '+nucleoNames[S.smech.nucleo];
+  document.getElementById('smechStats').textContent='Módulos: '+(S.smech.mods.length?S.smech.mods.join(', '):'Nenhum')+'\nHab: '+S.smech.hab;
+  document.getElementById('splechIcon').textContent=S.smech.icon;
+  buildBattleList();
+  showScr('sClicker');
+}
+
+// ── BATALHA ────────────────────────────────────────────────────────────────
+function enterBattle(key){
+  var bt=BATTLES[key];
+  B.enemies=bt.spawn();B.curBattle=key;
+  B.plMaxHp=1000+S.spc*10;B.plHp=B.plMaxHp;
+  B.skillCd=0;B.od=false;B.odTimer=0;S.overdrive=0;
+  document.getElementById('btTtl').textContent=bt.name;
+  document.getElementById('btSouls').textContent='💀 '+fk(S.souls);
+  document.getElementById('btPlIcon').textContent=S.smech?S.smech.icon:'🤖';
+  document.getElementById('btSkillBtn').textContent=(HABILIDADES.find(function(h){return S.smech&&h.id===S.smech.hab;})||HABILIDADES[0]).icon+' '+(HABILIDADES.find(function(h){return S.smech&&h.id===S.smech.hab;})||HABILIDADES[0]).n;
+  renderArena();updBattleHud();btLog('Clique nos inimigos para atacar!','');
+  if(B.loop)clearInterval(B.loop);
+  B.loop=setInterval(btTick,500);
+  showScr('sBattle');
+}
+
+function renderArena(){
+  var arena=document.getElementById('btArena');
+  // Remove old enemies
+  arena.querySelectorAll('.enemy-card').forEach(function(e){e.remove();});
+  B.enemies.forEach(function(en){
+    if(en.hp<=0)return;
+    var d=document.createElement('div');d.className='enemy-card';d.id='en'+en.id;
+    d.style.cssText='left:'+en.x+'%;top:'+en.y+'%;position:absolute;transform:translate(-50%,-50%)';
+    d.style.animationDelay=(Math.random()*2)+'s';
+    d.innerHTML='<span class="enemy-icon">'+en.icon+'</span><div class="enemy-hp"><div class="enemy-hp-fill" id="enhp'+en.id+'" style="width:100%"></div></div>';
+    d.onclick=function(){attackEnemy(en.id);};
+    arena.appendChild(d);
+  });
+}
+
+function attackEnemy(id){
+  var en=B.enemies.find(function(e){return e.id===id;});
+  if(!en||en.hp<=0)return;
+  var base=S.spc*(S.mult||1);
+  if(S.smech&&S.smech.nucleo==='concentrado')base*=2;
+  if(S.smech&&S.smech.nucleo==='instavel')base*=(Math.random()<.2?8:1);
+  var isCrit=Math.random()*100<(S.critChance||5);
+  var dmg=isCrit?base*3:base;
+  if(B.od)dmg*=10;
+  en.hp=Math.max(0,en.hp-dmg);
+  // Splech em área (módulo)
+  if(S.smech&&S.smech.mods&&S.smech.mods.includes('splech')){
+    B.enemies.filter(function(e){return e.id!==id&&e.hp>0;}).slice(0,2).forEach(function(e){e.hp=Math.max(0,e.hp-dmg*.4);});
+  }
+  // Visual dano no inimigo
+  var elEn=document.getElementById('en'+id);
+  if(elEn){
+    var dd=document.createElement('div');dd.className='enemy-dmg';dd.textContent=(isCrit?'💥':'')+fk(dmg);
+    elEn.appendChild(dd);setTimeout(function(){dd.remove();},700);
+    var bar=document.getElementById('enhp'+id);if(bar)bar.style.width=(en.hp/en.maxHp*100)+'%';
+    if(en.hp<=0){elEn.style.animation='none';elEn.style.opacity='0';setTimeout(function(){elEn.remove();},300);}
+  }
+  btLog((isCrit?'💥 CRÍTICO! ':'')+en.name+' tomou '+fk(dmg)+' de dano!',isCrit?'crit':'hit');
+  S.souls+=Math.floor(dmg*0.1);
+  S.overdrive=Math.min(S.odMax,S.overdrive+5);
+  document.getElementById('odFill').style.width=(S.overdrive/S.odMax*100)+'%';
+  // Atualiza barras
+  B.enemies.forEach(function(e){var b=document.getElementById('enhp'+e.id);if(b)b.style.width=(Math.max(0,e.hp/e.maxHp)*100)+'%';});
+  checkBattleWin();
+}
+
+function useSkill(){
+  if(B.skillCd>0||S.overdrive<S.odMax)return;
+  var hab=S.smech?S.smech.hab:'overdrive';
+  S.overdrive=0;document.getElementById('odFill').style.width='0%';
+  if(hab==='overdrive'){
+    B.od=true;B.odTimer=5;
+    btLog('💥 OVERDRIVE! x10 dano por 5s!','crit');
+    document.getElementById('btArena').style.background='rgba(192,38,211,.25)';
+    setTimeout(function(){B.od=false;document.getElementById('btArena').style.background='';},5000);
+  }else if(hab==='bigbang'){
+    B.enemies.forEach(function(e){e.hp=Math.max(0,e.hp-S.spc*(S.mult||1)*10);});
+    renderArena();btLog('🌌 BIG BANG! Dano massivo em todos!','crit');checkBattleWin();
+  }else if(hab==='chain_exp'){
+    S.chain=S.chainMax;showChainExplode();
+    var bonus=S.spc*(S.mult||1)*S.chainMax;S.souls+=bonus;
+    btLog('🔗 CHAIN EXPLODE! +'+fk(bonus)+' 💀!','crit');
+  }
+  B.skillCd=30;
+  document.getElementById('btSkillBtn').disabled=true;
+  var iv=setInterval(function(){B.skillCd--;document.getElementById('btSkillBtn').textContent='⏳ '+B.skillCd+'s';if(B.skillCd<=0){clearInterval(iv);document.getElementById('btSkillBtn').disabled=false;var hab2=S.smech?S.smech.hab:'overdrive';document.getElementById('btSkillBtn').textContent=(HABILIDADES.find(function(h){return h.id===hab2;})||HABILIDADES[0]).icon+' '+(HABILIDADES.find(function(h){return h.id===hab2;})||HABILIDADES[0]).n;}},1000);
+}
+
+function btTick(){
+  // Inimigos atacam o jogador
+  var alive=B.enemies.filter(function(e){return e.hp>0;});
+  if(!alive.length)return;
+  alive.forEach(function(en){
+    var spd=en.fast?2:1;
+    if(Math.random()<.3*spd){
+      var dmg=en.atk;
+      B.plHp=Math.max(0,B.plHp-dmg);
+      btLog('💢 '+en.name+' atacou! -'+fk(dmg)+' HP','hurt');
+      updBattleHud();
+      if(B.plHp<=0){clearInterval(B.loop);showBattleResult(false);}
+    }
+  });
+  // Coração: repõe cartas
+  if(B.curBattle==='coracao'){
+    var deadCount=B.enemies.filter(function(e){return e.hp<=0;}).length;
+    if(deadCount>0){
+      var bt=BATTLES.coracao;var newEn=bt.spawn().slice(0,deadCount);
+      var maxId=Math.max.apply(null,B.enemies.map(function(e){return e.id;}));
+      newEn.forEach(function(e,i){e.id=maxId+i+1;B.enemies.push(e);});
+      renderArena();
+    }
+  }
+  document.getElementById('btSouls').textContent='💀 '+fk(S.souls);
+}
+
+function checkBattleWin(){
+  if(B.enemies.every(function(e){return e.hp<=0;})){
+    clearInterval(B.loop);showBattleResult(true);
+  }
+}
+
+function showBattleResult(win){
+  var bt=BATTLES[B.curBattle];
+  var reward='';
+  if(win){S.battles[B.curBattle].done=true;S.battles[B.curBattle].lv++;reward=bt.reward();}
+  document.getElementById('resIcon').textContent=win?'🏆':'💀';
+  document.getElementById('resTtl').textContent=win?'VITÓRIA!':'DERROTA...';
+  document.getElementById('resTtl').style.color=win?'var(--neon)':'var(--red)';
+  document.getElementById('resSub').textContent=win?'Recompensa: '+reward:'Você caiu! Volte mais forte.';
+  document.getElementById('resOv').classList.add('show');
+}
+
+function resAct(){document.getElementById('resOv').classList.remove('show');buildBattleList();showScr('sClicker');}
+function quitBattle(){clearInterval(B.loop);document.getElementById('resOv').classList.remove('show');buildBattleList();showScr('sClicker');}
+function updBattleHud(){document.getElementById('btHpFill').style.width=(B.plHp/B.plMaxHp*100)+'%';document.getElementById('btHpTxt').textContent='HP: '+Math.floor(B.plHp)+'/'+B.plMaxHp;}
+function btLog(msg,cls){var el=document.getElementById('btLog');el.textContent=msg;el.className='bt-log '+(cls||'');}
+</script>
+</body>
+</html>

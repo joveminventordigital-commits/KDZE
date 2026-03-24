@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ALDEIA DAS ALMAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Share+Tech+Mono&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;cursor:none!important}
+:root{
+  --bg:#06080f;--surf:#0d1120;--surf2:#111827;
+  --gold:#d4a843;--gold2:#f59e0b;--gem:#38bdf8;
+  --grn:#22c55e;--red:#ef4444;--pur:#a855f7;--sky:#0ea5e9;
+  --txt:#e8dfc8;--mu:rgba(232,223,200,.38);
+  --border:rgba(212,168,67,.12)
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:'Share Tech Mono',monospace;overflow:hidden}
+
+/* ── CURSOR ── */
+#aCur{position:fixed;width:14px;height:14px;border:2px solid var(--gold);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .1s,height .1s;background:transparent}
+#aCur.h{width:22px;height:22px;border-color:#fff;background:rgba(212,168,67,.06)}
+
+/* ── TELAS ── */
+.scr{position:fixed;inset:0;transition:opacity .5s,transform .5s}
+.scr.off{opacity:0;pointer-events:none;transform:translateY(6px)}
+
+/* ══ SPLASH ══ */
+#sS{background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:10}
+.sp-g{position:absolute;inset:0;background-image:linear-gradient(rgba(212,168,67,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(212,168,67,.035) 1px,transparent 1px);background-size:40px 40px;animation:spG 14s linear infinite}
+@keyframes spG{from{background-position:0 0}to{background-position:40px 40px}}
+.sp-v{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 28%,rgba(0,0,0,.94) 100%)}
+.sp-sc{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px);pointer-events:none}
+.sp-c{position:absolute;width:36px;height:36px;border-color:rgba(212,168,67,.35);border-style:solid}
+.sp-c.tl{top:16px;left:16px;border-width:2px 0 0 2px}
+.sp-c.tr{top:16px;right:16px;border-width:2px 2px 0 0}
+.sp-c.bl{bottom:16px;left:16px;border-width:0 0 2px 2px}
+.sp-c.br{bottom:16px;right:16px;border-width:0 2px 2px 0}
+.sp-cnt{position:relative;z-index:2;text-align:center;cursor:pointer}
+.sp-ey{font-family:'Share Tech Mono';font-size:.52rem;letter-spacing:.55em;color:rgba(212,168,67,.55);text-transform:uppercase;margin-bottom:18px;opacity:0;animation:spF .8s .3s forwards}
+.sp-t1{display:block;font-family:'Cinzel Decorative';font-size:clamp(3rem,11vw,8rem);color:#fff;letter-spacing:.04em;opacity:0;animation:spF .8s .6s forwards}
+.sp-t2{display:block;font-family:'Cinzel Decorative';font-size:clamp(2rem,7vw,5rem);color:var(--gold);letter-spacing:.16em;opacity:0;animation:spF .8s .85s forwards,gGlow 2.5s 1.5s ease-in-out infinite}
+@keyframes gGlow{0%,100%{text-shadow:0 0 40px rgba(212,168,67,.3)}50%{text-shadow:0 0 80px rgba(212,168,67,.7),0 0 130px rgba(212,168,67,.2)}}
+.sp-cl{font-family:'Share Tech Mono';font-size:.55rem;letter-spacing:.3em;color:var(--mu);margin-top:26px;opacity:0;animation:spF .6s 1.3s forwards,spBl 1.8s 2s ease-in-out infinite}
+@keyframes spBl{0%,100%{opacity:.3}50%{opacity:.75}}
+@keyframes spF{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.soul-p{position:absolute;font-size:.7rem;pointer-events:none;animation:soF linear infinite;opacity:0}
+@keyframes soF{0%{transform:translateY(100vh);opacity:0}10%{opacity:.4}90%{opacity:.2}100%{transform:translateY(-10vh);opacity:0}}
+
+/* ══ JOGO ══ */
+#sG{background:var(--bg);z-index:8;display:flex;flex-direction:column;overflow:hidden}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:10px;padding:6px 12px;background:rgba(0,0,0,.6);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.hud-quit{font-family:'Share Tech Mono';font-size:.46rem;color:var(--mu);background:none;border:1px solid rgba(255,255,255,.1);padding:4px 9px;border-radius:5px;cursor:pointer;transition:all .2s}
+.hud-quit:hover{color:var(--red);border-color:var(--red)}
+.hud-title{font-family:'Cinzel';font-size:.75rem;color:var(--gold);flex-shrink:0}
+.hud-res{display:flex;gap:10px;flex:1;justify-content:center;flex-wrap:wrap}
+.hud-r{text-align:center}
+.hud-rv{font-family:'Share Tech Mono';font-size:.65rem;color:var(--gold)}
+.hud-rl{font-family:'Share Tech Mono';font-size:.34rem;color:var(--mu);text-transform:uppercase}
+.hud-mkt{font-family:'Share Tech Mono';font-size:.42rem;padding:4px 9px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:5px;color:var(--pur);cursor:pointer;transition:all .2s;flex-shrink:0}
+.hud-mkt:hover{background:rgba(168,85,247,.18)}
+
+/* Barras de status */
+.status-bars{display:flex;flex-shrink:0}
+.sbar{flex:1;display:flex;align-items:center;gap:6px;padding:3px 12px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.04)}
+.sbar-bar{flex:1;height:3px;border-radius:2px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:2px;transition:width .4s}
+.sbar-lbl{font-family:'Share Tech Mono';font-size:.38rem;white-space:nowrap;flex-shrink:0}
+
+/* Especialização */
+.spec-row{display:flex;gap:4px;padding:5px 10px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);flex-shrink:0}
+.spec-btn{flex:1;font-family:'Share Tech Mono';font-size:.4rem;padding:4px;border-radius:5px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);color:var(--mu);cursor:pointer;transition:all .18s;text-align:center}
+.spec-btn.on{border-color:var(--gold);background:rgba(212,168,67,.1);color:var(--gold)}
+.spec-btn:hover:not(.on){background:rgba(255,255,255,.05)}
+
+/* Layout principal */
+.g-body{flex:1;display:grid;grid-template-columns:160px 1fr 160px;overflow:hidden;min-height:0}
+
+/* Painéis */
+.panel{background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0}
+.panel.right{border-right:none;border-left:1px solid var(--border)}
+.panel-hd{font-family:'Share Tech Mono';font-size:.44rem;letter-spacing:.14em;color:var(--gold);padding:7px 9px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.3);flex-shrink:0;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+
+/* Grid de edifícios para construir */
+.bld-list{display:flex;flex-direction:column;gap:3px;padding:5px}
+.bld-btn{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px 7px;cursor:pointer;transition:all .16s;display:flex;align-items:center;gap:6px}
+.bld-btn:hover:not(.dis){border-color:rgba(212,168,67,.3);background:rgba(212,168,67,.05)}
+.bld-btn.dis{opacity:.3;cursor:not-allowed}
+.bld-btn.sel{border-color:var(--gold);background:rgba(212,168,67,.1)}
+.bld-icon{font-size:1rem;flex-shrink:0}
+.bld-info{flex:1;min-width:0}
+.bld-name{font-family:'Share Tech Mono';font-size:.4rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bld-cost{font-family:'Share Tech Mono';font-size:.36rem;color:var(--gold)}
+.bld-cat{font-family:'Share Tech Mono';font-size:.3rem;color:var(--mu)}
+
+/* Arena — canvas + tiles */
+.arena-wrap{position:relative;overflow:auto;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;padding:8px}
+#arenaCanvas{display:block;border:1px solid rgba(255,255,255,.05);border-radius:4px;background:var(--bg)}
+
+/* Popup upgrade */
+.upg-ov{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:30;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.upg-ov.off{display:none}
+.upg-box{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:18px;width:240px;max-height:75vh;overflow-y:auto}
+.upg-ttl{font-family:'Cinzel';font-size:.8rem;color:var(--gold);margin-bottom:10px;text-align:center}
+.upg-info{font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);margin-bottom:10px;line-height:1.7}
+.upg-b{width:100%;padding:8px;margin-bottom:5px;border-radius:7px;font-family:'Share Tech Mono';font-size:.46rem;cursor:pointer;transition:all .18s;border:1px solid}
+.upg-b.up{background:rgba(212,168,67,.07);border-color:rgba(212,168,67,.28);color:var(--gold)}
+.upg-b.up:hover:not(:disabled){background:rgba(212,168,67,.16)}
+.upg-b.dm{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.22);color:var(--red)}
+.upg-b.dm:hover{background:rgba(239,68,68,.14)}
+.upg-b.cl{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);color:var(--mu)}
+.upg-b:disabled{opacity:.3;cursor:not-allowed}
+
+/* Mercado */
+.mkt-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:40;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.mkt-ov.off{display:none}
+.mkt-box{background:var(--surf);border:1px solid rgba(168,85,247,.3);border-radius:13px;padding:18px;width:290px;max-height:70vh;overflow-y:auto}
+.mkt-ttl{font-family:'Cinzel';font-size:.82rem;color:var(--pur);margin-bottom:12px;text-align:center}
+.mkt-item{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border:1px solid rgba(255,255,255,.06);border-radius:7px;margin-bottom:5px}
+.mkt-name{font-family:'Share Tech Mono';font-size:.46rem;color:var(--txt);flex:1}
+.mkt-buy{font-family:'Share Tech Mono';font-size:.42rem;padding:3px 9px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.22);border-radius:5px;color:var(--pur);cursor:pointer}
+.mkt-buy:hover{background:rgba(168,85,247,.2)}
+
+/* Evento banner */
+.evt-bn{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);padding:6px 18px;font-family:'Share Tech Mono';font-size:.5rem;border-radius:0 0 9px 9px;z-index:50;transition:transform .4s;white-space:nowrap;pointer-events:none}
+.evt-bn.show{transform:translateX(-50%) translateY(0)}
+
+/* Log */
+.g-log{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono';font-size:.48rem;color:var(--gold);background:rgba(0,0,0,.75);padding:4px 12px;border:1px solid var(--border);border-radius:5px;z-index:20;max-width:400px;text-align:center;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Floaty */
+.floaty{position:fixed;font-family:'Share Tech Mono';font-size:.6rem;pointer-events:none;z-index:60;animation:ftUp .9s forwards}
+@keyframes ftUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-32px)}}
+
+/* Resultado */
+.res-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;pointer-events:none;transition:opacity .4s}
+.res-ov.show{opacity:1;pointer-events:all}
+.res-icon{font-size:3rem}
+.res-ttl{font-family:'Cinzel Decorative';font-size:2rem}
+.res-sub{font-family:'Share Tech Mono';font-size:.54rem;color:var(--mu);text-align:center;max-width:320px;line-height:1.7}
+.res-btns{display:flex;gap:10px;margin-top:6px}
+.res-b{font-family:'Share Tech Mono';font-size:.58rem;letter-spacing:.1em;padding:11px 24px;border-radius:9px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:none}
+.res-b.pri{background:var(--gold);color:#000}
+.res-b.pri:hover{background:var(--gold2);box-shadow:0 0 22px rgba(212,168,67,.3)}
+.res-b.sec{background:none;color:var(--mu);border:1px solid rgba(255,255,255,.12)}
+.res-b.sec:hover{color:var(--txt)}
+
+/* Painel direito */
+.right-section{padding:6px}
+.right-hd{font-family:'Share Tech Mono';font-size:.4rem;letter-spacing:.12em;color:var(--mu);text-transform:uppercase;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.05)}
+.troop-row{display:flex;align-items:center;gap:5px;padding:5px 6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:6px;margin-bottom:4px;font-family:'Share Tech Mono';font-size:.42rem;color:var(--txt)}
+.stat-row{font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu);line-height:2.1}
+
+/* ── INFO EDIFÍCIO ── */
+.bld-info-pop{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:35;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.bld-info-pop.off{display:none}
+.bld-info-box{background:var(--surf);border:1px solid var(--border);border-radius:13px;padding:20px;width:250px;max-height:80vh;overflow-y:auto}
+.bld-info-icon{font-size:2.5rem;text-align:center;margin-bottom:8px;filter:drop-shadow(0 0 10px var(--gold))}
+.bld-info-name{font-family:'Cinzel';font-size:.9rem;color:var(--gold);text-align:center;margin-bottom:4px}
+.bld-info-cat{font-family:'Share Tech Mono';font-size:.42rem;color:var(--mu);text-align:center;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px}
+.bld-info-desc{font-family:'Share Tech Mono';font-size:.5rem;color:var(--txt);line-height:1.8;margin-bottom:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:10px}
+.bld-info-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.bld-info-stat{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px 8px;text-align:center}
+.bld-info-stat-v{font-family:'Share Tech Mono';font-size:.55rem;color:var(--gold)}
+.bld-info-stat-l{font-family:'Share Tech Mono';font-size:.36rem;color:var(--mu);text-transform:uppercase;margin-top:2px}
+.bld-info-cost{font-family:'Share Tech Mono';font-size:.48rem;color:var(--mu);margin-bottom:12px;text-align:center}
+.bld-info-btn-build{width:100%;padding:11px;margin-bottom:6px;border-radius:9px;background:linear-gradient(135deg,rgba(212,168,67,.15),rgba(212,168,67,.08));border:1px solid rgba(212,168,67,.4);color:var(--gold);font-family:'Share Tech Mono';font-size:.56rem;cursor:pointer;letter-spacing:.1em;transition:all .2s}
+.bld-info-btn-build:hover:not(:disabled){background:linear-gradient(135deg,rgba(212,168,67,.25),rgba(212,168,67,.14));box-shadow:0 0 18px rgba(212,168,67,.2)}
+.bld-info-btn-build:disabled{opacity:.3;cursor:not-allowed}
+.bld-info-btn-save{width:100%;padding:11px;margin-bottom:6px;border-radius:9px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);color:var(--grn);font-family:'Share Tech Mono';font-size:.56rem;cursor:pointer;letter-spacing:.1em;transition:all .2s}
+.bld-info-btn-save:hover{background:rgba(34,197,94,.16);box-shadow:0 0 14px rgba(34,197,94,.2)}
+.bld-info-btn-close{width:100%;padding:9px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);color:var(--mu);font-family:'Share Tech Mono';font-size:.5rem;cursor:pointer}
+/* Limite de construção */
+.bld-limit-bar{display:flex;align-items:center;gap:8px;padding:4px 12px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.04);flex-shrink:0}
+.bld-limit-fill{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.bld-limit-prog{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.bld-limit-lbl{font-family:'Share Tech Mono';font-size:.4rem;color:var(--mu);white-space:nowrap}
+/* Badge desbloqueio */
+.bld-locked{position:relative;overflow:hidden}
+.bld-locked::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:.6rem;opacity:.7}
+.bld-locked .bld-name{color:var(--mu)}
+</style>
+</head>
+<body>
+<div id="aCur"></div>
+
+<!-- SPLASH -->
+<div class="scr" id="sS">
+  <div class="sp-g"></div><div class="sp-v"></div><div class="sp-sc"></div>
+  <div class="sp-c tl"></div><div class="sp-c tr"></div><div class="sp-c bl"></div><div class="sp-c br"></div>
+  <div class="sp-cnt" onclick="startGame()">
+    <div class="sp-ey">Torre,Base Plus · 12,21+</div>
+    <div><span class="sp-t1">ALDEIA</span><span class="sp-t2">DAS ALMAS</span></div>
+    <div class="sp-cl">CLIQUE PARA FUNDAR</div>
+  </div>
+</div>
+
+<!-- JOGO -->
+<div class="scr off" id="sG">
+  <div class="hud">
+    <button class="hud-quit" onclick="quitGame()">✕</button>
+    <div class="hud-title">🏰 ALDEIA DAS ALMAS</div>
+    <div class="hud-res">
+      <div class="hud-r"><div class="hud-rv" id="hGold">0</div><div class="hud-rl">🥇 Ouro</div></div>
+      <div class="hud-r"><div class="hud-rv" id="hGem">0</div><div class="hud-rl">💎 Gemas</div></div>
+      <div class="hud-r"><div class="hud-rv" id="hSoul">0</div><div class="hud-rl">💀 Almas</div></div>
+      <div class="hud-r"><div class="hud-rv" id="hGps" style="font-size:.5rem">0/s</div><div class="hud-rl">⛏️ Prod</div></div>
+      <div class="hud-r"><div class="hud-rv" id="hWave" style="color:var(--red)">--s</div><div class="hud-rl">⚔️ Onda</div></div>
+    </div>
+    <button class="hud-mkt" onclick="openMkt()">🏪 Mercado</button>
+  </div>
+  <!-- Status bars -->
+  <div class="status-bars">
+    <div class="sbar"><span class="sbar-lbl" style="color:rgba(168,85,247,.7)" id="corLbl">☠️ 0%</span><div class="sbar-bar"><div class="sbar-fill" id="corFill" style="width:0%;background:var(--pur)"></div></div></div>
+    <div class="sbar"><span class="sbar-lbl" style="color:rgba(212,168,67,.7)">🏰 Castelo</span><div class="sbar-bar"><div class="sbar-fill" id="castleHpBar" style="width:100%;background:var(--gold)"></div></div><span class="sbar-lbl" id="castleLvLbl" style="color:var(--gold)">Lv1</span></div>
+  </div>
+  <!-- Especialização -->
+  <div class="spec-row">
+    <button class="spec-btn on" id="spEco" onclick="setSpec('eco')">💰 Econômica</button>
+    <button class="spec-btn" id="spMil" onclick="setSpec('mil')">⚔️ Militar</button>
+    <button class="spec-btn" id="spDef" onclick="setSpec('def')">🛡️ Defensiva</button>
+    <button class="spec-btn" id="spMag" onclick="setSpec('mag')" style="flex:1.2">🔮 Mágica</button>
+  </div>
+  <div class="g-body">
+    <!-- Edifícios -->
+    <div class="panel">
+      <div class="bld-limit-bar">
+  <span class="bld-limit-lbl" id="limitLbl">0/10</span>
+  <div class="bld-limit-fill"><div class="bld-limit-prog" id="limitProg" style="width:0%"></div></div>
+  <span class="bld-limit-lbl" style="color:var(--gold)" id="limitUnlock">🏰 Lv1</span>
+</div>
+<div class="panel-hd">🏗 CONSTRUIR <span id="bldCount" style="color:var(--mu);font-size:.34rem">0/90</span></div>
+      <div class="bld-list" id="bldList"></div>
+    </div>
+    <!-- Arena -->
+    <div class="arena-wrap" id="arenaWrap">
+      <canvas id="arenaCanvas"></canvas>
+    </div>
+    <!-- Info -->
+    <div class="panel right">
+      <div class="panel-hd">📊 INFO</div>
+      <div class="right-section">
+        <div class="right-hd">Castelo Principal</div>
+        <div id="castleInfo" style="font-family:'Share Tech Mono';font-size:.44rem;color:var(--mu);line-height:1.9;padding:4px 0"></div>
+        <button id="castleUpgBtn" onclick="upgradeCastle()" style="width:100%;margin-top:5px;padding:7px;font-family:'Share Tech Mono';font-size:.44rem;background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.25);border-radius:6px;color:var(--gold);cursor:pointer">⬆️ Evoluir Castelo</button>
+      </div>
+      <div class="right-section" style="margin-top:4px">
+        <div class="right-hd">Tropas</div>
+        <div id="troopPanel"></div>
+      </div>
+      <div class="right-section" style="margin-top:4px">
+        <div class="right-hd">Estatísticas</div>
+        <div class="stat-row" id="statsPanel"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup upgrade -->
+<div class="upg-ov off" id="upgOv">
+  <div class="upg-box" id="upgBox"></div>
+</div>
+
+<!-- Mercado -->
+<div class="mkt-ov off" id="mktOv">
+  <div class="mkt-box">
+    <div class="mkt-ttl">🏪 Mercado das Almas</div>
+    <div id="mktItems"></div>
+    <button style="width:100%;margin-top:8px;font-family:'Share Tech Mono';font-size:.48rem;padding:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:var(--mu);cursor:pointer" onclick="closeMkt()">✕ Fechar</button>
+  </div>
+</div>
+
+<!-- Evento -->
+<div class="evt-bn" id="evtBn">🎉 Evento!</div>
+<!-- Log -->
+<div class="g-log" id="gLog">Bem-vindo à Aldeia das Almas!</div>
+<!-- Resultado -->
+<div class="res-ov" id="resOv">
+  <div class="res-icon" id="resIcon">🏰</div>
+  <div class="res-ttl" id="resTtl" style="color:var(--gold)">—</div>
+  <div class="res-sub" id="resSub"></div>
+  <div class="res-btns">
+    <button class="res-b pri" onclick="startGame()">🏰 Nova Aldeia</button>
+    <button class="res-b sec" onclick="showSplash()">← Menu</button>
+  </div>
+</div>
+
+<script>
+// ── Cursor ────────────────────────────────────────────────────────────
+var cur=document.getElementById('aCur');
+document.addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+document.addEventListener('mouseover',function(e){if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.bld-btn,.v-tile'))cur.classList.add('h');});
+document.addEventListener('mouseout',function(e){if(e.target&&e.target.matches&&e.target.matches('button,[onclick],.bld-btn,.v-tile'))cur.classList.remove('h');});
+
+// ── Partículas ────────────────────────────────────────────────────────
+(function(){var sp=document.getElementById('sS'),souls=['💀','👻','⚡','🌑','✦'];
+for(var i=0;i<14;i++){var p=document.createElement('div');p.className='soul-p';p.textContent=souls[~~(Math.random()*souls.length)];p.style.left=Math.random()*100+'%';p.style.animationDuration=(7+Math.random()*9)+'s';p.style.animationDelay=(-Math.random()*10)+'s';sp.appendChild(p);}})();
+
+function showSplash(){clearInterval(G.loop);G.loop=null;document.getElementById('sS').classList.remove('off');document.getElementById('sG').classList.add('off');}
+function quitGame(){showSplash();}
+function fk(n){if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';return Math.floor(n);}
+function setLog(m){var el=document.getElementById('gLog');if(el)el.textContent=m;}
+
+// ── DEFINIÇÕES ────────────────────────────────────────────────────────
+// Terreno: 30×30 tiles (5× maior que 6×3 original)
+var TCOLS=30,TROWS=30,TSIZE=26;
+
+// Castelo principal — tile fixo no centro
+var CASTLE_TILE=Math.floor(TROWS/2)*TCOLS+Math.floor(TCOLS/2);
+
+var BLDS=[
+  // RECURSOS
+  {id:'gold_mine',   cat:'res',i:'⛏️',name:'Mina Ouro',    cost:{g:0,  d:0},  prod:{g:25,d:0},  hp:300,maxLv:5, desc:'Gera 25 ouro/s'},
+  {id:'gem_mine',    cat:'res',i:'💎',name:'Mina Gema',     cost:{g:200,d:0},  prod:{g:0, d:5},  hp:250,maxLv:5, desc:'Gera 5 gemas/s'},
+  {id:'soul_altar',  cat:'res',i:'🕯️',name:'Altar Almas',  cost:{g:300,d:5},  prod:{g:0, d:0,s:3}, hp:200,maxLv:5,desc:'Gera 3 almas/s'},
+  {id:'vault',       cat:'res',i:'🏦',name:'Cofre',         cost:{g:300,d:0},  prod:{g:0, d:0},  hp:400,maxLv:5, desc:'Protege recursos dos raids'},
+  {id:'market_stall',cat:'res',i:'🏪',name:'Banca Comércio',cost:{g:180,d:0},  prod:{g:15,d:2},  hp:180,maxLv:5, desc:'Gera ouro e gemas extras'},
+  {id:'crystal_lab', cat:'res',i:'🔬',name:'Lab Cristal',   cost:{g:500,d:10}, prod:{g:0, d:15}, hp:220,maxLv:5, desc:'Produz 15 gemas/s'},
+  // DEFESA
+  {id:'cannon',      cat:'def',i:'💣',name:'Canhão',        cost:{g:150,d:0},  prod:{},hp:350,maxLv:8,atk:120,desc:'Alto dano, alcance médio'},
+  {id:'archer_t',    cat:'def',i:'🏹',name:'Torre Arq.',    cost:{g:100,d:0},  prod:{},hp:250,maxLv:8,atk:50, desc:'Rápido, longo alcance'},
+  {id:'mortar',      cat:'def',i:'💥',name:'Morteiro',      cost:{g:350,d:0},  prod:{},hp:300,maxLv:8,atk:200,aoe:true,desc:'Dano em área'},
+  {id:'wall',        cat:'def',i:'🧱',name:'Muralha',       cost:{g:50, d:0},  prod:{},hp:800,maxLv:10,atk:0, desc:'Bloqueia inimigos'},
+  {id:'air_def',     cat:'def',i:'🔭',name:'Def. Aérea',   cost:{g:400,d:0},  prod:{},hp:280,maxLv:8,atk:160,air:true,desc:'Ataca unidades aéreas'},
+  {id:'tesla',       cat:'def',i:'⚡',name:'Tesla',         cost:{g:600,d:5},  prod:{},hp:200,maxLv:8,atk:180,chain:true,desc:'Dano em cadeia'},
+  {id:'inferno',     cat:'def',i:'🔥',name:'Torre Inferno', cost:{g:800,d:10}, prod:{},hp:300,maxLv:8,atk:300,desc:'Dano crescente'},
+  {id:'bomb_tower',  cat:'def',i:'💢',name:'Torre Bomba',   cost:{g:450,d:5},  prod:{},hp:260,maxLv:8,atk:240,aoe:true,desc:'Explosão em área'},
+  {id:'ice_tower',   cat:'def',i:'❄️',name:'Torre Gelo',   cost:{g:400,d:8},  prod:{},hp:220,maxLv:8,atk:60, slow:true,desc:'Congela inimigos'},
+  {id:'magic_wall',  cat:'def',i:'🔷',name:'Muro Mágico',  cost:{g:300,d:12}, prod:{},hp:1200,maxLv:8,atk:0,magic:true,desc:'Muro encantado'},
+  {id:'sniper',      cat:'def',i:'🎯',name:'Sniper',        cost:{g:700,d:8},  prod:{},hp:180,maxLv:8,atk:400,range:6,desc:'Alcance enorme'},
+  {id:'trap_mine',   cat:'def',i:'💎',name:'Mina Armada',   cost:{g:200,d:3},  prod:{},hp:100,maxLv:5,atk:500,trap:true,desc:'Explode ao pisar'},
+  // TROPAS
+  {id:'barracks',    cat:'trp',i:'⚔️',name:'Quartel',       cost:{g:250,d:0},  prod:{},hp:300,maxLv:8,trains:'soldier', cap:12,desc:'Treina Soldados'},
+  {id:'arch_camp',   cat:'trp',i:'🏕️',name:'Acampamento',   cost:{g:400,d:0},  prod:{},hp:200,maxLv:8,trains:'archer',  cap:10,desc:'Treina Arqueiros'},
+  {id:'giant_hall',  cat:'trp',i:'🏋️',name:'Salão Gigante', cost:{g:800,d:10}, prod:{},hp:250,maxLv:5,trains:'giant',   cap:6, desc:'Treina Gigantes'},
+  {id:'mage_tower',  cat:'trp',i:'🔮',name:'Torre Mago',    cost:{g:600,d:15}, prod:{},hp:200,maxLv:5,trains:'mage',    cap:4, desc:'Treina Magos'},
+  {id:'healer_hut',  cat:'trp',i:'💚',name:'Cab. Cura',     cost:{g:500,d:10}, prod:{},hp:180,maxLv:5,trains:'healer',  cap:4, desc:'Treina Curandeiros'},
+  {id:'dragon_lair', cat:'trp',i:'🐉',name:'Toca Dragão',   cost:{g:1500,d:30},prod:{},hp:350,maxLv:3,trains:'dragon',  cap:2, desc:'Treina Dragões'},
+  {id:'golem_forge', cat:'trp',i:'🪨',name:'Forja Golem',   cost:{g:1200,d:25},prod:{},hp:320,maxLv:3,trains:'golem',   cap:2, desc:'Treina Golems'},
+  // ESPECIAIS
+  {id:'dark_spell',  cat:'spc',i:'🌑',name:'Fábrica Feitiço',cost:{g:700,d:20},prod:{},hp:250,maxLv:5,spell:true,desc:'Cria feitiços de batalha'},
+  {id:'hero_altar',  cat:'spc',i:'👑',name:'Altar Herói',   cost:{g:1000,d:25},prod:{},hp:300,maxLv:3,hero:true,desc:'Invoca heróis'},
+  {id:'clock_tower', cat:'spc',i:'⏰',name:'Torre Tempo',   cost:{g:800,d:20}, prod:{g:0,d:0},hp:280,maxLv:5,timeBoost:true,desc:'Acelera produção temporariamente'},
+];
+
+var TROOP_TYPES={
+  soldier:{icon:'🗡️',name:'Soldado', atk:30,hp:80},
+  archer: {icon:'🏹',name:'Arqueiro',atk:20,hp:50},
+  giant:  {icon:'🪨',name:'Gigante', atk:60,hp:300},
+  mage:   {icon:'🔮',name:'Mago',    atk:80,hp:60},
+  healer: {icon:'💚',name:'Curador', atk:10,hp:70},
+  dragon: {icon:'🐉',name:'Dragão',  atk:200,hp:500},
+  golem:  {icon:'🗿',name:'Golem',   atk:120,hp:800},
+};
+
+var ENEMY_TYPES=[
+  {icon:'💀',name:'Esqueleto',hp:80, atk:15,spd:.6,reward:{g:10}},
+  {icon:'👹',name:'Goblin',   hp:120,atk:25,spd:.9,reward:{g:15}},
+  {icon:'🧟',name:'Zumbi',    hp:200,atk:20,spd:.5,reward:{g:20}},
+  {icon:'🔴',name:'Demônio',  hp:350,atk:45,spd:.7,reward:{g:35,d:2}},
+  {icon:'🐉',name:'Dragão',   hp:600,atk:80,spd:.5,reward:{g:60,d:5},air:true},
+  {icon:'🌑',name:'Sombra',   hp:150,atk:35,spd:1.1,reward:{g:25},invis:true},
+  {icon:'🗿',name:'Colosso',  hp:1200,atk:100,spd:.3,reward:{g:100,d:10}},
+  {icon:'💣',name:'Bombardeiro',hp:250,atk:200,spd:.6,reward:{g:40,d:3},suicide:true},
+];
+
+// ── ESTADO ────────────────────────────────────────────────────────────
+var G={
+  gold:300,gem:5,souls:0,gps:0,dps:0,sps:0,
+  spec:'eco',
+  tiles:{}, // key→{bld,lv,hp,maxHp}
+  castle:{lv:1,hp:5000,maxHp:5000},
+  troops:{soldier:0,archer:0,giant:0,mage:0,healer:0,dragon:0,golem:0},
+  enemies:[], // {type,hp,maxHp,x,y,tx,ty,alive}
+  loop:null,tick:0,selectedBld:null,
+  waveT:0,waveCool:90,waveN:0,waveActive:false,
+  evtT:0,corruption:0,
+};
+
+function castleGoldBonus(){return G.castle.lv*10000/3600;} // 10k/hour per level → per second
+function castleProdMult(){return 1+(G.castle.lv-1)*0.12;}
+
+// ── START ────────────────────────────────────────────────────────────
+function startGame(){
+  document.getElementById('sS').classList.add('off');
+  document.getElementById('sG').classList.remove('off');
+  document.getElementById('resOv').classList.remove('show');
+  document.getElementById('upgOv').classList.add('off');
+  if(G.loop)clearInterval(G.loop);
+  G={gold:300,gem:5,souls:0,gps:0,dps:0,sps:0,spec:'eco',tiles:{},castle:{lv:1,hp:5000,maxHp:5000},
+     troops:{soldier:0,archer:0,giant:0,mage:0,healer:0,dragon:0,golem:0},
+     enemies:[],loop:null,tick:0,selectedBld:null,
+     waveT:0,waveCool:90,waveN:0,waveActive:false,evtT:0,corruption:0};
+  initArena();
+  buildBldList();
+  setSpec('eco');
+  setLog('🏰 Aldeia fundada! Construa edifícios na arena.');
+  G.loop=setInterval(gameTick,500);
+}
+
+// ── ARENA CANVAS ─────────────────────────────────────────────────────
+var canvas,ctx;
+function initArena(){
+  canvas=document.getElementById('arenaCanvas');
+  canvas.width=TCOLS*TSIZE;
+  canvas.height=TROWS*TSIZE;
+  canvas.onclick=function(e){
+    var rect=canvas.getBoundingClientRect();
+    var mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    var col=~~(mx/TSIZE),row=~~(my/TSIZE);
+    var key=row*TCOLS+col;
+    if(key===CASTLE_TILE){openCastlePopup();return;}
+    if(G.tiles[key])openUpgPopup(key);
+    else if(G.selectedBld)placeBld(key);
+    else setLog('Selecione um edifício no painel esquerdo!');
+  };
+  drawArena();
+}
+
+function drawArena(){
+  if(!ctx)ctx=canvas.getContext('2d');
+  // Fundo
+  ctx.fillStyle='#060d06';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Grade
+  for(var r=0;r<TROWS;r++)for(var c=0;c<TCOLS;c++){
+    var x=c*TSIZE,y=r*TSIZE,key=r*TCOLS+c;
+    // Terreno base
+    ctx.fillStyle=(r+c)%2===0?'#07100a':'#060d06';
+    ctx.fillRect(x,y,TSIZE,TSIZE);
+    // Edifício
+    var td=G.tiles[key];
+    if(td){
+      // Fundo do tile
+      var col=td.bld.cat==='def'?'rgba(239,68,68,.15)':td.bld.cat==='trp'?'rgba(34,197,94,.15)':td.bld.cat==='spc'?'rgba(168,85,247,.15)':'rgba(212,168,67,.12)';
+      ctx.fillStyle=col;ctx.fillRect(x+1,y+1,TSIZE-2,TSIZE-2);
+      // HP bar
+      var hpPct=td.hp/td.maxHp;
+      var hpCol=hpPct>.6?'#22c55e':hpPct>.3?'#fbbf24':'#ef4444';
+      ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(x+2,y+TSIZE-5,TSIZE-4,3);
+      ctx.fillStyle=hpCol;ctx.fillRect(x+2,y+TSIZE-5,(TSIZE-4)*hpPct,3);
+      // Ícone
+      ctx.font=TSIZE*.55+'px serif';ctx.textAlign='center';
+      ctx.fillText(td.bld.i,x+TSIZE/2,y+TSIZE*.62);
+      // Level
+      ctx.font='7px Share Tech Mono,monospace';ctx.fillStyle='rgba(212,168,67,.7)';
+      ctx.textAlign='left';ctx.fillText(''+td.lv,x+2,y+8);
+    } else if(key===CASTLE_TILE){
+      // Castelo principal
+      var cv=G.castle;
+      ctx.fillStyle='rgba(212,168,67,.2)';ctx.fillRect(x-TSIZE,y-TSIZE,TSIZE*3,TSIZE*3);
+      ctx.font=TSIZE*1.2+'px serif';ctx.textAlign='center';
+      ctx.fillText('🏰',x+TSIZE/2,y+TSIZE*.9);
+      ctx.font='8px Share Tech Mono,monospace';ctx.fillStyle='var(--gold)';
+      ctx.fillText('Lv'+cv.lv,x+TSIZE/2,y+TSIZE+12);
+      var hp=cv.hp/cv.maxHp;
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(x-TSIZE,y+TSIZE,TSIZE*3,4);
+      ctx.fillStyle='#d4a843';ctx.fillRect(x-TSIZE,y+TSIZE,(TSIZE*3)*hp,4);
+      // Borda da zona proibida 3×3
+      var pulse=.3+.2*Math.sin(Date.now()*.002);
+      ctx.strokeStyle='rgba(212,168,67,'+pulse+')';ctx.lineWidth=2;
+      ctx.strokeRect(x-TSIZE+1,y-TSIZE+1,TSIZE*3-2,TSIZE*3-2);
+      // Canto decorativos
+      ctx.strokeStyle='rgba(212,168,67,.6)';ctx.lineWidth=2;
+      var zx=x-TSIZE,zy=y-TSIZE,zs=TSIZE*3,cs=8;
+      ctx.beginPath();ctx.moveTo(zx,zy+cs);ctx.lineTo(zx,zy);ctx.lineTo(zx+cs,zy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(zx+zs-cs,zy);ctx.lineTo(zx+zs,zy);ctx.lineTo(zx+zs,zy+cs);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(zx,zy+zs-cs);ctx.lineTo(zx,zy+zs);ctx.lineTo(zx+cs,zy+zs);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(zx+zs-cs,zy+zs);ctx.lineTo(zx+zs,zy+zs);ctx.lineTo(zx+zs,zy+zs-cs);ctx.stroke();
+    } else {
+      // Zona proibida ao redor do castelo (3×3)
+      var cr=~~(CASTLE_TILE/TCOLS),cc2=CASTLE_TILE%TCOLS;
+      var tr2=~~(key/TCOLS),tc2=key%TCOLS;
+      var inZone=Math.abs(tr2-cr)<=1&&Math.abs(tc2-cc2)<=1;
+      if(inZone){
+        // Fundo proibido — dourado escuro com ícone
+        ctx.fillStyle='rgba(212,168,67,.08)';ctx.fillRect(x,y,TSIZE,TSIZE);
+        // Padrão diagonal sutil
+        ctx.strokeStyle='rgba(212,168,67,.15)';ctx.lineWidth=.5;
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+TSIZE,y+TSIZE);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+TSIZE,y);ctx.lineTo(x,y+TSIZE);ctx.stroke();
+        // Borda dourada tênue
+        ctx.strokeStyle='rgba(212,168,67,.25)';ctx.lineWidth=1;
+        ctx.strokeRect(x+.5,y+.5,TSIZE-1,TSIZE-1);
+      } else if(G.selectedBld){
+        ctx.strokeStyle='rgba(212,168,67,.12)';ctx.lineWidth=.5;
+        ctx.strokeRect(x+1,y+1,TSIZE-2,TSIZE-2);
+      }
+    }
+  }
+  // Inimigos
+  G.enemies.forEach(function(en){
+    if(!en.alive)return;
+    ctx.font=TSIZE*.6+'px serif';ctx.textAlign='center';
+    ctx.fillText(en.type.icon,en.x,en.y);
+    // HP bar
+    var pct=en.hp/en.maxHp;
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(en.x-10,en.y+4,20,3);
+    ctx.fillStyle=pct>.5?'#22c55e':'#ef4444';ctx.fillRect(en.x-10,en.y+4,20*pct,3);
+  });
+  // Borda da arena
+  ctx.strokeStyle='rgba(212,168,67,.1)';ctx.lineWidth=1;
+  ctx.strokeRect(0,0,canvas.width,canvas.height);
+}
+
+// ── EDIFÍCIOS ────────────────────────────────────────────────────────
+function buildBldList(){
+  var list=document.getElementById('bldList');
+  list.innerHTML='';
+  var cats={res:'💰 Recursos',def:'🛡️ Defesas',trp:'⚔️ Tropas',spc:'✨ Especiais'};
+  var prev='';
+  BLDS.forEach(function(b){
+    if(b.cat!==prev){
+      prev=b.cat;
+      var hd=document.createElement('div');
+      hd.style.cssText='font-family:Share Tech Mono,monospace;font-size:.38rem;letter-spacing:.12em;color:var(--mu);padding:4px 5px 2px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05);margin-top:4px';
+      hd.textContent=cats[b.cat];
+      list.appendChild(hd);
+    }
+    var d=document.createElement('div');
+    d.className='bld-btn';d.id='bb_'+b.id;
+    d.onclick=function(){selBld(b.id);};
+    var lvReq=BLD_UNLOCK&&BLD_UNLOCK[b.id]>1?'<div class="bld-cat" style="color:rgba(168,85,247,.6)">Lv'+BLD_UNLOCK[b.id]+'</div>':'';
+    d.innerHTML='<div class="bld-icon">'+b.i+'</div><div class="bld-info"><div class="bld-name">'+b.name+'</div><div class="bld-cost">'+fk(b.cost.g)+'🥇'+(b.cost.d?'·'+b.cost.d+'💎':'')+lvReq+'</div></div>';
+    list.appendChild(d);
+  });
+}
+
+function selBld(id){
+  G.selectedBld=id;
+  document.querySelectorAll('.bld-btn').forEach(function(el){el.classList.remove('sel');});
+  var el=document.getElementById('bb_'+id);
+  if(el)el.classList.add('sel');
+  var b=BLDS.find(function(x){return x.id===id;});
+  setLog('📌 '+b.name+' — clique num tile vazio na arena');
+}
+
+function placeBld(key){
+  if(key===CASTLE_TILE||G.tiles[key])return;
+  // Não pode construir nos 5×5 ao redor do castelo
+  var cr=~~(CASTLE_TILE/TCOLS),cc=CASTLE_TILE%TCOLS;
+  var row=~~(key/TCOLS),col=key%TCOLS;
+  if(Math.abs(row-cr)<=1&&Math.abs(col-cc)<=1){setLog('❌ Muito perto do castelo!');return;}
+  if(Object.keys(G.tiles).length>=getBldMaxCount()){setLog('❌ Limite de '+getBldMaxCount()+' edifícios! Evolua o castelo.');return;}
+  if(!isBldUnlocked(G.selectedBld)){setLog('🔒 Edifício bloqueado! Evolua o castelo.');return;}
+  var b=BLDS.find(function(x){return x.id===G.selectedBld;});
+  var mult=castleProdMult();
+  var gc=~~(b.cost.g),dc=b.cost.d||0;
+  if(G.gold<gc){setLog('Ouro insuficiente! Precisa de '+fk(gc)+'🥇');return;}
+  if(G.gem<dc){setLog('Gemas insuficientes!');return;}
+  G.gold-=gc;if(dc)G.gem-=dc;
+  G.tiles[key]={bld:b,lv:1,hp:b.hp,maxHp:b.hp};
+  updBldCount();calcRates();updHud();updStats();drawArena();
+  setLog('✅ '+b.name+' construído!');
+  floaty('+'+b.name,'#d4a843');
+}
+
+function openUpgPopup(key){
+  var td=G.tiles[key];if(!td)return;
+  var ov=document.getElementById('upgOv'),box=document.getElementById('upgBox');
+  var upgCost=~~(td.bld.cost.g*(td.lv+1)*1.7);
+  var canUpg=td.lv<(td.bld.maxLv||5)&&G.gold>=upgCost;
+  box.innerHTML='<div class="upg-ttl">'+td.bld.i+' '+td.bld.name+'</div>'+
+    '<div class="upg-info">Nível: '+td.lv+'/'+(td.bld.maxLv||5)+'<br>HP: '+~~td.hp+'/'+td.maxHp+'<br>'+td.bld.desc+'</div>'+
+    '<button class="upg-b up" '+(canUpg?'':'disabled')+' onclick="doUpg('+key+')">⬆️ Upgrade — '+fk(upgCost)+'🥇</button>'+
+    '<button class="upg-b dm" onclick="doDemo('+key+')">🗑️ Demolir (+'+fk(~~(td.bld.cost.g*.4))+'🥇)</button>'+
+    '<button class="upg-b cl" onclick="document.getElementById(\'upgOv\').classList.add(\'off\')">✕ Fechar</button>';
+  ov.classList.remove('off');
+}
+
+function doUpg(key){
+  var td=G.tiles[key];if(!td)return;
+  var cost=~~(td.bld.cost.g*(td.lv+1)*1.7);
+  if(G.gold<cost){setLog('Ouro insuficiente!');return;}
+  G.gold-=cost;td.lv++;td.maxHp=~~(td.bld.hp*td.lv*1.3);td.hp=td.maxHp;
+  calcRates();updHud();updStats();drawArena();
+  setLog('⬆️ '+td.bld.name+' → Nível '+td.lv+'!');
+  document.getElementById('upgOv').classList.add('off');
+  floaty('LV'+td.lv,'#fbbf24');
+}
+
+function doDemo(key){
+  var td=G.tiles[key];if(!td)return;
+  var ref=~~(td.bld.cost.g*.4);G.gold+=ref;
+  delete G.tiles[key];
+  updBldCount();calcRates();updHud();updStats();drawArena();
+  setLog('🗑️ '+td.bld.name+' demolido. +'+ref+'🥇');
+  document.getElementById('upgOv').classList.add('off');
+}
+
+function openCastlePopup(){
+  var cv=G.castle;
+  var upgCost=cv.lv*50000;
+  var canUpg=cv.lv<10&&G.gold>=upgCost&&G.gem>=(cv.lv*20);
+  var ov=document.getElementById('upgOv'),box=document.getElementById('upgBox');
+  box.innerHTML='<div class="upg-ttl">🏰 Castelo Principal</div>'+
+    '<div class="upg-info">Nível: '+cv.lv+'/10<br>HP: '+fk(cv.hp)+'/'+fk(cv.maxHp)+'<br>Bônus produção: +'+~~((cv.lv-1)*12)+'%<br>Bônus ouro: +'+fk(cv.lv*10000)+'/hora<br><br>'+
+    (cv.lv<10?'Evolução → Lv'+(cv.lv+1)+'<br>Custo: '+fk(upgCost)+'🥇 + '+(cv.lv*20)+'💎':'👑 NÍVEL MÁXIMO!')+'</div>'+
+    (cv.lv<10?'<button class="upg-b up" '+(canUpg?'':'disabled')+' onclick="upgradeCastle();document.getElementById(\'upgOv\').classList.add(\'off\')">⬆️ Evoluir — '+fk(upgCost)+'🥇</button>':'')+
+    '<button class="upg-b cl" onclick="document.getElementById(\'upgOv\').classList.add(\'off\')">✕ Fechar</button>';
+  ov.classList.remove('off');
+}
+
+function upgradeCastle(){
+  var cv=G.castle;
+  if(cv.lv>=10){setLog('Castelo já está no nível máximo!');return;}
+  var cost=cv.lv*50000,gemCost=cv.lv*20;
+  if(G.gold<cost){setLog('Ouro insuficiente! Precisa de '+fk(cost)+'🥇');return;}
+  if(G.gem<gemCost){setLog('Gemas insuficientes! Precisa de '+gemCost+'💎');return;}
+  G.gold-=cost;G.gem-=gemCost;cv.lv++;
+  cv.maxHp=5000+cv.lv*8000;cv.hp=cv.maxHp;
+  calcRates();updHud();updStats();drawArena();
+  setLog('🏰 Castelo → Nível '+cv.lv+'! +'+~~((cv.lv-1)*12)+'% produção! +10 edifícios!');
+  updBldCount();
+  floaty('🏰 LV'+cv.lv,'#d4a843');
+  document.getElementById('castleLvLbl').textContent='Lv'+cv.lv;
+}
+
+// ── ESPECIALIZAÇÃO ───────────────────────────────────────────────────
+function setSpec(s){
+  G.spec=s;
+  ['eco','mil','def','mag'].forEach(function(x){var el=document.getElementById('sp'+x[0].toUpperCase()+x.slice(1));if(el)el.classList.toggle('on',x===s);});
+  calcRates();
+  var msgs={eco:'💰 Econômica: +35% produção de ouro',mil:'⚔️ Militar: +35% tropas e velocidade',def:'🛡️ Defensiva: +35% HP defesas',mag:'🔮 Mágica: +35% gemas e feitiços'};
+  setLog(msgs[s]);
+}
+function specMult(t){if(G.spec==='eco'&&t==='gold')return 1.35;if(G.spec==='mil'&&t==='trp')return 1.35;if(G.spec==='def'&&t==='def')return 1.35;if(G.spec==='mag'&&t==='gem')return 1.35;return 1;}
+
+// ── TAXAS ─────────────────────────────────────────────────────────────
+function calcRates(){
+  var pm=castleProdMult();
+  G.gps=castleGoldBonus()*specMult('gold');
+  G.dps=0;G.sps=0;
+  Object.values(G.tiles).forEach(function(td){
+    if(!td||td.hp<=0)return;
+    var p=td.bld.prod||{};var lm=td.lv||1;
+    G.gps+=(p.g||0)*lm*pm*specMult('gold');
+    G.dps+=(p.d||0)*lm*pm*specMult('gem');
+    G.sps+=(p.s||0)*lm*pm;
+  });
+}
+
+function updBldCount(){
+  var n=Object.keys(G.tiles).length;
+  var maxN=getBldMaxCount();
+  var el=document.getElementById('bldCount');
+  if(el)el.textContent=n+'/'+maxN;
+  // Barra de limite
+  var lbl=document.getElementById('limitLbl');
+  var prog=document.getElementById('limitProg');
+  var unlk=document.getElementById('limitUnlock');
+  if(lbl)lbl.textContent=n+'/'+maxN;
+  if(prog)prog.style.width=Math.min(100,n/maxN*100)+'%';
+  if(prog)prog.style.background=n>=maxN?'var(--red)':'var(--gold)';
+  if(unlk)unlk.textContent='🏰 Lv'+G.castle.lv+(G.castle.lv<10?' → Lv'+(G.castle.lv+1)+': +'+(maxN+10)+'':'');
+  G.corruption=Math.min(100,n*1.2);
+  // Atualiza visual dos botões bloqueados
+  updateBldBtnsLock();
+}
+
+function updateBldBtnsLock(){
+  BLDS.forEach(function(b){
+    var el=document.getElementById('bb_'+b.id);if(!el)return;
+    var locked=!isBldUnlocked(b.id);
+    el.classList.toggle('bld-locked',locked);
+    var canAfford=G.gold>=b.cost.g&&(!b.cost.d||G.gem>=b.cost.d);
+    el.classList.toggle('dis',locked||!canAfford);
+  });
+}
+
+// ── ONDAS DE INIMIGOS ─────────────────────────────────────────────────
+function spawnWave(){
+  G.waveN++;G.waveActive=true;
+  var cor=G.corruption,n=Math.max(3,~~(cor/8)+G.waveN);
+  var pool=ENEMY_TYPES.slice(0,Math.min(ENEMY_TYPES.length,1+~~(G.waveN/3)));
+  for(var i=0;i<n;i++){
+    var t=pool[~~(Math.random()*pool.length)];
+    // Surge nas bordas da arena
+    var side=~~(Math.random()*4);
+    var ex,ey;
+    if(side===0){ex=Math.random()*canvas.width;ey=0;}
+    else if(side===1){ex=Math.random()*canvas.width;ey=canvas.height;}
+    else if(side===2){ex=0;ey=Math.random()*canvas.height;}
+    else{ex=canvas.width;ey=Math.random()*canvas.height;}
+    var scaledHp=~~(t.hp*(1+G.waveN*0.15)*(1+cor*0.005));
+    G.enemies.push({type:t,hp:scaledHp,maxHp:scaledHp,x:ex,y:ey,alive:true,delay:i*8});
+  }
+  setLog('⚔️ ONDA '+G.waveN+'! '+n+' inimigos aproximando!');
+  showEvt('⚔️ ONDA '+G.waveN+' — '+n+' inimigos!','rgba(239,68,68,.15)','#ef4444');
+}
+
+function moveEnemies(){
+  var cx=(CASTLE_TILE%TCOLS)*TSIZE+TSIZE/2;
+  var cy=~~(CASTLE_TILE/TCOLS)*TSIZE+TSIZE/2;
+  G.enemies.forEach(function(en){
+    if(!en.alive)return;
+    if(en.delay>0){en.delay--;return;}
+    var dx=cx-en.x,dy=cy-en.y,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<TSIZE*1.5){
+      // Ataca o castelo
+      G.castle.hp=Math.max(0,G.castle.hp-en.type.atk*0.1);
+      if(G.castle.hp<=0&&G.loop){
+        clearInterval(G.loop);G.loop=null;
+        document.getElementById('resIcon').textContent='💀';
+        document.getElementById('resTtl').textContent='DERROTA';document.getElementById('resTtl').style.color='var(--red)';
+        document.getElementById('resSub').textContent='O castelo foi destruído na onda '+G.waveN+'.\nRecursos acumulados: '+fk(G.gold)+'🥇 '+fk(G.gem)+'💎';
+        document.getElementById('resOv').classList.add('show');
+        return;
+      }
+      en.alive=false;return;
+    }
+    // Move em direção ao castelo — desvia de tiles
+    var spd=en.type.spd*2;
+    en.x+=dx/dist*spd;en.y+=dy/dist*spd;
+    // Dano nas defesas próximas
+    Object.entries(G.tiles).forEach(function(e){
+      var td=e[1];if(!td||td.hp<=0||td.bld.cat!=='def')return;
+      var tx=(e[0]%TCOLS)*TSIZE+TSIZE/2,ty=~~(e[0]/TCOLS)*TSIZE+TSIZE/2;
+      if(Math.hypot(en.x-tx,en.y-ty)<TSIZE*.9){
+        td.hp=Math.max(0,td.hp-en.type.atk*0.05);
+        en.hp-=td.bld.atk?td.bld.atk*0.08:5;
+        if(en.hp<=0){en.alive=false;collectReward(en.type.reward);}
+      }
+    });
+  });
+  G.enemies=G.enemies.filter(function(e){return e.alive;});
+  if(G.waveActive&&G.enemies.length===0){
+    G.waveActive=false;
+    G.waveCool=Math.max(30,90-~~(G.corruption*0.5));
+    setLog('✅ Onda '+G.waveN+' derrotada!');
+    showEvt('✅ Onda '+G.waveN+' derrotada!','rgba(34,197,94,.12)','#22c55e');
+  }
+}
+
+function collectReward(r){
+  G.gold+=r.g||0;if(r.d)G.gem+=r.d;if(r.s)G.souls+=r.s||1;
+  G.souls+=1;
+}
+
+// ── TICK ───────────────────────────────────────────────────────────────
+function gameTick(){
+  G.tick++;
+  // Produção
+  G.gold+=G.gps*.5;G.gem+=G.dps*.5;G.souls+=G.sps*.5;
+  // Treino tropas
+  Object.values(G.tiles).forEach(function(td){
+    if(!td||!td.bld.trains||td.hp<=0)return;
+    var t=td.bld.trains,cap=td.bld.cap*(td.lv||1)*specMult('trp');
+    if((G.troops[t]||0)<cap)G.troops[t]=(G.troops[t]||0)+specMult('trp');
+  });
+  // Timer onda
+  if(!G.waveActive){
+    G.waveT+=.5;
+    var pct=Math.min(100,G.waveT/G.waveCool*100);
+    var wl=document.getElementById('hWave');
+    if(wl)wl.textContent=Math.max(0,~~(G.waveCool-G.waveT))+'s';
+    if(G.waveT>=G.waveCool){G.waveT=0;spawnWave();}
+  }
+  // Eventos
+  G.evtT+=.5;
+  if(G.evtT>=80+Math.random()*50){G.evtT=0;triggerEvt();}
+  // Move inimigos
+  moveEnemies();
+  // Corrupção
+  var el=document.getElementById('corFill'),ll=document.getElementById('corLbl');
+  if(el)el.style.width=G.corruption+'%';
+  if(ll)ll.textContent='☠️ '+~~G.corruption+'%';
+  // HP castelo bar
+  var chb=document.getElementById('castleHpBar');
+  if(chb)chb.style.width=(G.castle.hp/G.castle.maxHp*100)+'%';
+  updHud();updStats();
+  // Redraw arena a cada 2 ticks
+  if(G.tick%2===0)drawArena();
+}
+
+var EVTS=[
+  {name:'⚡ Produção ×2 por 30s!',fn:function(){var o=G.gps;G.gps*=2;setTimeout(function(){G.gps=o;calcRates();},30000);}},
+  {name:'💎 Chuva de Gemas! +20💎',fn:function(){G.gem+=20;}},
+  {name:'🥇 Bônus Ouro! +500🥇',fn:function(){G.gold+=500;}},
+  {name:'💀 +50 Almas!',fn:function(){G.souls+=50;}},
+  {name:'🛡️ Escudo 40s!',fn:function(){G.waveT=Math.max(0,G.waveT-40);}},
+  {name:'🏰 Castelo restaurado 30%!',fn:function(){G.castle.hp=Math.min(G.castle.maxHp,G.castle.hp+G.castle.maxHp*.3);}},
+];
+function triggerEvt(){
+  var ev=EVTS[~~(Math.random()*EVTS.length)];ev.fn();
+  showEvt('🎉 '+ev.name,'rgba(212,168,67,.14)','#d4a843');
+  setLog('🎉 Evento: '+ev.name);
+}
+function showEvt(txt,bg,col){
+  var b=document.getElementById('evtBn');
+  b.textContent=txt;b.style.background=bg;b.style.color=col;b.style.border='1px solid '+col.replace(')',', .3)').replace('rgb','rgba');
+  b.classList.add('show');setTimeout(function(){b.classList.remove('show');},3500);
+}
+
+// ── HUD / STATS ────────────────────────────────────────────────────────
+function updHud(){
+  document.getElementById('hGold').textContent=fk(G.gold);
+  document.getElementById('hGem').textContent=fk(G.gem);
+  document.getElementById('hSoul').textContent=fk(G.souls);
+  document.getElementById('hGps').textContent=fk(G.gps)+'/s';
+  // Castelo info
+  var ci=document.getElementById('castleInfo');
+  if(ci){var cv=G.castle;ci.innerHTML='Nível '+cv.lv+'/10<br>HP: '+fk(cv.hp)+'/'+fk(cv.maxHp)+'<br>Prod bônus: +'+~~((cv.lv-1)*12)+'%<br>Ouro bônus: +'+fk(cv.lv*10000)+'/h';}
+  var cb=document.getElementById('castleUpgBtn');
+  if(cb){var can=G.castle.lv<10&&G.gold>=G.castle.lv*50000&&G.gem>=G.castle.lv*20;cb.style.opacity=can?'1':'.35';cb.textContent=G.castle.lv<10?'⬆️ Evoluir Castelo ('+fk(G.castle.lv*50000)+'🥇 + '+G.castle.lv*20+'💎)':'👑 Nível Máximo!';}
+  // Bld list
+  document.querySelectorAll('.bld-btn').forEach(function(el){
+    var id=el.id.replace('bb_','');var b=BLDS.find(function(x){return x.id===id;});
+    if(!b)return;
+    el.classList.toggle('dis',G.gold<b.cost.g||(b.cost.d&&G.gem<b.cost.d));
+  });
+}
+
+function updStats(){
+  var def=Object.values(G.tiles).filter(function(t){return t&&t.bld.cat==='def'&&t.hp>0;}).length;
+  var sp=document.getElementById('statsPanel');
+  if(sp)sp.innerHTML='🏗 Edifícios: '+Object.keys(G.tiles).length+'/90<br>🛡️ Defesas: '+def+'<br>⚡ Prod/s: '+fk(G.gps)+'🥇 '+fk(G.dps)+'💎<br>⚔️ Onda: #'+G.waveN+'<br>☠️ Corrupção: '+~~G.corruption+'%';
+  var tp=document.getElementById('troopPanel');
+  if(tp){
+    tp.innerHTML='';
+    Object.entries(G.troops).forEach(function(e){
+      var type=TROOP_TYPES[e[0]];if(!type||e[1]<1)return;
+      var d=document.createElement('div');d.className='troop-row';
+      d.innerHTML=type.icon+' '+type.name+'<span style="margin-left:auto;color:var(--gold)">×'+~~e[1]+'</span>';
+      tp.appendChild(d);
+    });
+    if(!Object.values(G.troops).some(function(v){return v>=1;}))tp.innerHTML='<div style="font-size:.42rem;color:var(--mu);padding:6px">Construa quartéis</div>';
+  }
+}
+
+// ── MERCADO ────────────────────────────────────────────────────────────
+function openMkt(){
+  var cat=[
+    {n:'100🥇 → 5💎',fn:function(){if(G.gold>=100){G.gold-=100;G.gem+=5;updHud();setLog('💱 100🥇→5💎');}else setLog('Ouro insuficiente!');}},
+    {n:'50💎 → 2000🥇',fn:function(){if(G.gem>=50){G.gem-=50;G.gold+=2000;updHud();setLog('💱 50💎→2000🥇');}else setLog('Gemas insuficientes!');}},
+    {n:'500💀 → 30💎',fn:function(){if(G.souls>=500){G.souls-=500;G.gem+=30;updHud();setLog('💱 500💀→30💎');}else setLog('Almas insuficientes!');}},
+    {n:'2000🥇 → 1 carta 🃏',fn:function(){if(G.gold>=2000){G.gold-=2000;updHud();setLog('🃏 Carta obtida no jogo principal!');}else setLog('Ouro insuficiente!');}},
+    {n:'⚡ Dobrar prod 1min',fn:function(){if(G.gem>=20){G.gem-=20;var o=G.gps;G.gps*=2;updHud();setLog('⚡ Produção ×2 por 1 min!');setTimeout(function(){G.gps=o;calcRates();},60000);}else setLog('Gemas insuficientes! Precisa 20💎');}},
+  ];
+  window._mktCat=cat;
+  document.getElementById('mktItems').innerHTML=cat.map(function(it,i){return '<div class="mkt-item"><div class="mkt-name">'+it.n+'</div><button class="mkt-buy" onclick="mktBuy('+i+')">Comprar</button></div>';}).join('');
+  document.getElementById('mktOv').classList.remove('off');
+}
+function mktBuy(i){if(window._mktCat&&window._mktCat[i])window._mktCat[i].fn();}
+function closeMkt(){document.getElementById('mktOv').classList.add('off');}
+function floaty(t,c){var d=document.createElement('div');d.className='floaty';d.textContent=t;d.style.cssText='left:50%;top:40%;color:'+(c||'var(--gold)')+';transform:translateX(-50%)';document.body.appendChild(d);setTimeout(function(){d.remove();},900);}
+
+// ── NÍVEL MÍNIMO POR EDIFÍCIO ──────────────────────────────────────────
+var BLD_UNLOCK = {
+  // Nível 1 — básicos
+  gold_mine:1, gem_mine:1, vault:1, cannon:1, archer_t:1, wall:1, barracks:1,
+  // Nível 2
+  market_stall:2, arch_camp:2, mortar:2,
+  // Nível 3
+  crystal_lab:3, tesla:3, ice_tower:3, giant_hall:3,
+  // Nível 4
+  soul_altar:4, air_def:4, bomb_tower:4, mage_tower:4,
+  // Nível 5
+  inferno:5, healer_hut:5, magic_wall:5,
+  // Nível 6
+  sniper:6, trap_mine:6, dark_spell:6,
+  // Nível 7
+  dragon_lair:7, golem_forge:7,
+  // Nível 8
+  hero_altar:8, clock_tower:8,
+};
+
+function getBldMaxCount(){return G.castle.lv * 10;}
+function isBldUnlocked(id){return G.castle.lv >= (BLD_UNLOCK[id]||1);}
+
+// ── CLIQUE DUPLO / INFO ────────────────────────────────────────────────
+var _bldClickTimer={};
+var _biCurrentId=null;
+
+function selBld(id){
+  // Primeiro clique: abre popup de info
+  if(!_bldClickTimer[id]){
+    _bldClickTimer[id]=setTimeout(function(){
+      _bldClickTimer[id]=null;
+      // Só mostra info no primeiro clique
+      openBldInfo(id);
+    },280);
+  } else {
+    // Segundo clique: seleciona direto para construir
+    clearTimeout(_bldClickTimer[id]);
+    _bldClickTimer[id]=null;
+    doSelectBld(id);
+  }
+}
+
+function openBldInfo(id){
+  var b=BLDS.find(function(x){return x.id===id;});
+  if(!b)return;
+  var unlocked=isBldUnlocked(id);
+  var canAfford=G.gold>=b.cost.g&&(!b.cost.d||G.gem>=b.cost.d);
+  var atLimit=Object.keys(G.tiles).length>=getBldMaxCount();
+  document.getElementById('biIcon').textContent=b.i;
+  document.getElementById('biName').textContent=b.name;
+  var catNames={res:'Recurso',def:'Defesa',trp:'Tropa',spc:'Especial'};
+  document.getElementById('biCat').textContent=(catNames[b.cat]||b.cat).toUpperCase();
+  document.getElementById('biDesc').textContent=b.desc;
+  // Stats
+  var stats=[];
+  if(b.prod&&b.prod.g)stats.push({v:'+'+b.prod.g+'/s',l:'Ouro'});
+  if(b.prod&&b.prod.d)stats.push({v:'+'+b.prod.d+'/s',l:'Gemas'});
+  if(b.prod&&b.prod.s)stats.push({v:'+'+b.prod.s+'/s',l:'Almas'});
+  if(b.atk)stats.push({v:b.atk,l:'Ataque'});
+  if(b.hp)stats.push({v:b.hp,l:'HP'});
+  if(b.cap)stats.push({v:b.cap,l:'Cap.Tropas'});
+  if(b.maxLv)stats.push({v:'Lv '+b.maxLv,l:'Máx.Nível'});
+  if(BLD_UNLOCK[id]>1)stats.push({v:'Lv '+BLD_UNLOCK[id],l:'Requer Castelo'});
+  document.getElementById('biStats').innerHTML=stats.map(function(s){
+    return '<div class="bld-info-stat"><div class="bld-info-stat-v">'+s.v+'</div><div class="bld-info-stat-l">'+s.l+'</div></div>';
+  }).join('');
+  document.getElementById('biCost').textContent='Custo: '+fk(b.cost.g)+'🥇'+(b.cost.d?' + '+b.cost.d+'💎':'');
+  var btn=document.getElementById('biBtn');
+  _biCurrentId=id;
+  if(!unlocked){btn.disabled=true;btn.textContent='🔒 Requer Castelo Lv'+(BLD_UNLOCK[id]||1);}
+  else if(atLimit){btn.disabled=true;btn.textContent='❌ Limite atingido ('+getBldMaxCount()+')';}
+  else if(!canAfford){btn.disabled=true;btn.textContent='❌ Recursos insuficientes';}
+  else{btn.disabled=false;btn.textContent='📌 SELECIONAR PARA CONSTRUIR';}
+  document.getElementById('bldInfoPop').classList.remove('off');
+}
+
+function biBuild(){
+  if(_biCurrentId)doSelectBld(_biCurrentId);
+  biClose();
+}
+
+function biSave(){
+  if(!_biCurrentId)return;
+  var b=BLDS.find(function(x){return x.id===_biCurrentId;});
+  if(!b)return;
+  // Salva nos favoritos (localStorage)
+  var favs=JSON.parse(localStorage.getItem('aldeia_favs')||'[]');
+  if(!favs.includes(_biCurrentId)){
+    favs.push(_biCurrentId);
+    localStorage.setItem('aldeia_favs',JSON.stringify(favs));
+    setLog('💾 '+b.name+' salvo nos favoritos!');
+  } else {
+    setLog('ℹ️ '+b.name+' já está nos favoritos!');
+  }
+  biClose();
+}
+
+function biClose(){document.getElementById('bldInfoPop').classList.add('off');}
+
+function doSelectBld(id){
+  if(!isBldUnlocked(id)){var u=BLD_UNLOCK[id]||1;setLog('🔒 '+BLDS.find(function(b){return b.id===id;}).name+' requer Castelo Lv'+u+'!');return;}
+  if(Object.keys(G.tiles).length>=getBldMaxCount()){setLog('❌ Limite de '+getBldMaxCount()+' edifícios! Evolua o castelo.');return;}
+  G.selectedBld=id;
+  document.querySelectorAll('.bld-btn').forEach(function(el){el.classList.remove('sel');});
+  var el=document.getElementById('bb_'+id);if(el)el.classList.add('sel');
+  var b=BLDS.find(function(x){return x.id===id;});
+  setLog('📌 '+b.name+' — clique num tile vazio | 2° clique = selecionar direto');
+}
+
+</script>
+
+<div class="bld-info-pop off" id="bldInfoPop">
+  <div class="bld-info-box">
+    <div class="bld-info-icon" id="biIcon">⛏️</div>
+    <div class="bld-info-name" id="biName">Edifício</div>
+    <div class="bld-info-cat" id="biCat">Categoria</div>
+    <div class="bld-info-desc" id="biDesc">Descrição</div>
+    <div class="bld-info-stats" id="biStats"></div>
+    <div class="bld-info-cost" id="biCost">Custo: —</div>
+    <button class="bld-info-btn-build" id="biBtn" onclick="biBuild()">📌 SELECIONAR PARA CONSTRUIR</button>
+    <button class="bld-info-btn-save" onclick="biSave()">💾 SEVE (Favoritar)</button>
+    <button class="bld-info-btn-close" onclick="biClose()">✕ Fechar</button>
+  </div>
+</div>
+
+</body>
+</html>
